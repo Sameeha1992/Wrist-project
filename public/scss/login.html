@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login Page</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #e7d49e; /* Muted yellow matching your site */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .login-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            width: 350px;
+            text-align: center;
+        }
+        h2 {
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+        input[type="email"], input[type="password"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .btn {
+            width: 100%;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .btn-login {
+            background-color: #6b6b6b; /* Neutral tone for buttons */
+            color: white;
+            margin-top: 10px;
+        }
+        .btn-login:hover {
+            background-color: #5a5a5a;
+        }
+        .forgot-password, .signup {
+            display: block;
+            margin-top: 15px;
+            font-size: 14px;
+            color: #333;
+            text-decoration: none;
+        }
+        .forgot-password:hover, .signup:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <h2>Login to Wrist Style</h2>
+        <form>
+            <input type="email" placeholder="Email" required>
+            <input type="password" placeholder="Password" required>
+            <button type="submit" class="btn btn-login">Login</button>
+            <a href="#" class="forgot-password">Forgot Password?</a>
+            <a href="#" class="signup">Don't have an account? Sign up</a>
+        </form>
+    </div>
+</body>
+</html>
