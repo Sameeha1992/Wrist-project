@@ -1,0 +1,176 @@
+
+<%-include("../partials/mainheader")%>
+
+
+
+<style>
+
+    /* Reset */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+    
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      background: linear-gradient(135deg, #4a90e2, #7b4397);
+    }
+    
+    .login-container {
+      width: 100%;
+      max-width: 400px;
+      padding: 2rem;
+      background-color: #ffffff;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      border-radius: 10px;
+      text-align: center;
+      animation: fadeIn 0.5s ease-in-out;
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(-20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    h2 {
+      margin-bottom: 1.5rem;
+      font-size: 1.8rem;
+      color: #333;
+      font-weight: 600;
+    }
+    
+    .input-group {
+      margin-bottom: 1.5rem;
+      text-align: left;
+    }
+    
+    label {
+      font-size: 0.95rem;
+      color: #555;
+      margin-bottom: 0.5rem;
+      display: block;
+    }
+    
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 0.8rem;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      font-size: 1rem;
+      transition: border-color 0.3s ease;
+      box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.05);
+    }
+    
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      border-color: #4a90e2;
+      outline: none;
+      box-shadow: 0 0 5px rgba(74, 144, 226, 0.3);
+    }
+    
+    .login-button {
+      width: 100%;
+      padding: 0.9rem;
+      background-color: #4a90e2;
+      color: #ffffff;
+      font-size: 1rem;
+      font-weight: 600;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    
+    .login-button:hover {
+      background-color: #357ab7;
+    }
+    
+    .error-message {
+      margin-top: 1rem;
+      color: #e74c3c;
+      font-size: 0.9rem;
+    }
+</style>
+    
+    
+   
+<body>
+  <div class="login-container">
+    <h2>Admin Login</h2>
+    <form id=Adminlogin action="/admin/login" method="post">
+      <div class="input-group">
+        <label for="email">Email</label>
+        <input type="text" id="email" name="email" required>
+      </div>
+      <div class="input-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required>
+      </div>
+      <button type="submit" class="login-button">Login</button>
+      <p class="error_message" id="error_message" style="color:red"></p>
+    </form>
+  </div>
+
+  
+
+<!--      
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    document.getElementById('Adminlogin').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const useremail = document.getElementById('email').value.trim();
+        const userpassword = document.getElementById('password').value.trim();
+        const errorMessage = document.getElementById('error_message');
+        
+        errorMessage.innerText = '';
+
+        if (!useremail && !userpassword) {
+          errorMessage.innerText = 'Email and password are not required';
+            return;
+        } else if (!useremail) {
+          errorMessage.innerText = 'Email is required';
+            return;
+            
+        } else if (!userpassword) {
+          errorMessage.innerText = 'Password is required';
+            return;
+        }
+
+    
+        $.ajax({
+            url: '/admin/login',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ email:useremail, password:userpassword }),
+            
+            success: function(response) {
+                console.log(response,'responseee');
+                
+                if(response.success) {
+                    alert(response)
+                    window.location.href = '/dashboard';
+                }else {
+                    alert(response.message);
+                    error_message.innerText=response.message;
+                }
+            },
+            error: function() {
+                error_message.innerText='An error occured.Please try again'
+                alert("an error occured please try again later");
+            }
+        });
+    });
+</script>
+
+
+  -->
+
+
+
+<%-include("../partials/mainfooter")%>

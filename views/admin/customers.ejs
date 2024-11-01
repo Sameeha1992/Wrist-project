@@ -1,0 +1,264 @@
+<%- include("../partials/admin/header") %>
+
+<div class="main-content">
+    <h1 class="page-title">Customers</h1>
+    
+    <div class="search-container">
+      <!-- <form action="/admin/search",method="get"></form>
+     <input type="text" name="query"class="search-input" placeholder="Search customers..." value="<%= search %>">
+    
+      <button type="submit" value="search"class="search-button">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </button>
+    </form> -->
+    </div>
+    
+    <div class="table-container">
+      <table class="customer-table">
+        <thead>
+          <tr>
+            <th>Name</th>
+            <th>Email</th>
+            <th>Phone No</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+            <%for(let i=0;i<data.length;i++){%>
+          <tr>
+            <td><%=data[i].name%></td>
+            <td><%=data[i].email%></td>
+            <td><%=data[i].phone%></td>
+            <td>
+                <%if(data[i].isBlocked===false){%>
+              
+              
+                <a href="/admin/blockCustomer?id=<%-data[i]._id%>" class="action-button block">Block</a>
+                
+                <%}else{%>
+                    
+                        <a href="/admin/unblockCustomer?id=<%-data[i]._id%>"class="action-button unblock">Unblock</a>
+                        
+                        <% } %>
+            </td>
+          </tr>
+          <% } %>
+        </tbody>
+      </table>
+    </div>
+    
+  
+<!-- 
+  <div class="container mt-3">
+    <nav aria-label="Page-navigation">
+        <ul class="pagination justify-content mb-20" style="margin-right:200px;">
+            <%for(let i=1;i<=totalPages;i++){%>
+                <li class="page-items <%=(i===currentPage) ? 'active' : '' %>">
+                    <a class="page-link"    href="?page=<%= i %>"><%= i %></a>
+
+                </li>
+                <%}%>
+        </ul>
+    </nav>
+  </div> -->
+  
+    <div class="pagination-container">
+        <div class="pagination">
+            <% if (currentPage > 1) { %>
+                <a href="?page=<%= currentPage - 1 %>">&laquo; Previous</a>
+            <% } %>
+    
+            <% for (let i = 1; i <= totalPages; i++) { %>
+                <% if (i === currentPage) { %>
+                    <span class="current-page"><%= i %></span>
+                <% } else { %>
+                    <a href="?page=<%= i %>"><%= i %></a>
+                <% } %>
+            <% } %>
+    
+            <% if (currentPage < totalPages) { %>
+                <a href="?page=<%= currentPage + 1 %>">Next &raquo;</a>
+            <% } %>
+        </div>
+    </div>
+  
+  <style>
+
+.action-button {
+    padding: 8px 16px;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    text-decoration: none; /* Ensures it looks like a button */
+}
+
+.action-button.block {
+    background-color: #e74c3c;
+}
+
+.action-button.unblock {
+    background-color: #7f8c8d;
+}
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f4f8;
+      color: #333;
+      line-height: 1.6;
+    }
+  
+    .main-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 40px 20px;
+    }
+    
+    .page-title {
+      font-size: 32px;
+      font-weight: 600;
+      color: #2c3e50;
+      margin-bottom: 30px;
+      border-bottom: 2px solid #3498db;
+      padding-bottom: 10px;
+    }
+    
+    .search-container {
+      display: flex;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+    
+    .search-input {
+      width: 400px;
+      padding: 12px 20px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 30px 0 0 30px;
+      outline: none;
+      transition: border-color 0.3s ease;
+    }
+    
+    .search-input:focus {
+      border-color: #3498db;
+    }
+    
+    .search-button {
+      padding: 12px 25px;
+      background-color: #3498db;
+      color: white;
+      border: none;
+      border-radius: 0 30px 30px 0;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    
+    .search-button:hover {
+      background-color: #2980b9;
+    }
+  
+    .table-container {
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      overflow: hidden;
+    }
+    
+    .customer-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+    }
+    
+    .customer-table th,
+    .customer-table td {
+      padding: 16px;
+      text-align: left;
+    }
+    
+    .customer-table th {
+      background-color: #f8f9fa;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 14px;
+      color: #7f8c8d;
+      letter-spacing: 0.5px;
+    }
+    
+    .customer-table tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+  
+    .customer-table tr:hover {
+      background-color: #e8f4fd;
+    }
+    
+    .action-button {
+      padding: 8px 16px;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background-color 0.3s ease, transform 0.1s ease;
+    }
+    
+    .action-button:hover {
+      transform: translateY(-1px);
+    }
+  
+    .action-button:active {
+      transform: translateY(1px);
+    }
+    
+    .action-button.block {
+      background-color: #e74c3c;
+    }
+    
+    .action-button.block:hover {
+      background-color: #c0392b;
+    }
+    
+    .action-button.unblock {
+      background-color: #7f8c8d;
+    }
+    
+    .action-button.unblock:hover {
+      background-color: #6c7a89;
+    }
+    
+    .pagination-container {
+        text-align: center;
+        margin-top: 30px;
+    }
+
+    .pagination {
+        display: inline-block;
+    }
+
+    .pagination a,
+    .pagination .current-page {
+        display: inline-block;
+        padding: 8px 16px;
+        margin: 0 4px;
+        border: 1px solid #ddd;
+        text-decoration: none;
+        color: #3498db;
+        border-radius: 4px;
+        transition: background-color 0.3s ease;
+    }
+
+    .pagination .current-page {
+        background-color: #3498db;
+        color: white;
+        font-weight: bold;
+    }
+
+  </style>
+
+        
+        <%- include("../partials/admin/footer") %>

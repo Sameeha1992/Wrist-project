@@ -1,0 +1,349 @@
+
+<%-include("../partials/admin/header")%>
+
+<style>
+  /* Base styles */
+  .content-main {
+    padding: 20px;
+  }
+  
+  .content-header {
+    margin-bottom: 20px;
+  }
+  
+  .content-title {
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  /* Card styles */
+  .card {
+    background: #fff;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+  }
+  
+  .card-body {
+    padding: 20px;
+  }
+  
+  /* Form styles */
+  .form-label {
+    display: block;
+    margin-bottom: 8px;
+  }
+  
+  .form-control {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
+  .input-upload {
+    margin-bottom: 15px;
+  }
+  
+  /* Button styles */
+  .btn {
+    padding: 8px 16px;
+    border-radius: 4px;
+    border: none;
+    cursor: pointer;
+  }
+  
+  .btn-primary {
+    background-color: #0d6efd;
+    color: white;
+  }
+  
+  .btn-danger {
+    background-color: #dc3545;
+    color: white;
+  }
+  
+  .btn-success {
+    background-color: #198754;
+    color: white;
+  }
+  
+  /* Table styles */
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  .table th,
+  .table td {
+    padding: 12px;
+    border-bottom: 1px solid #ddd;
+  }
+  
+  .table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+  
+  /* Badge styles */
+  .badge {
+    padding: 4px 8px;
+    border-radius: 20px;
+    font-size: 12px;
+  }
+  
+  .alert-danger {
+    background-color: #f8d7da;
+    color: #842029;
+  }
+  
+  .alert-success {
+    background-color: #d1e7dd;
+    color: #0f5132;
+  }
+  
+  /* Utility classes */
+  .text-white {
+    color: white;
+  }
+  
+  .text-start {
+    text-align: left;
+  }
+  
+  .mb-4 {
+    margin-bottom: 1.5rem;
+  }
+  
+  .mt-20 {
+    margin-top: 20px;
+  }
+  
+  .ml-105 {
+    margin-left: 105px;
+  }
+  
+  .d-grid {
+    display: grid;
+  }
+  
+  .d-flex {
+    display: flex;
+  }
+  
+  .align-items-center {
+    align-items: center;
+  }
+  
+  .justify-content-center {
+    justify-content: center;
+  }
+  
+  /* Layout classes */
+  .row {
+    display: flex;
+    margin-right: -15px;
+    margin-left: -15px;
+  }
+  
+  .col-md-3 {
+    flex: 0 0 25%;
+    max-width: 25%;
+    padding: 0 15px;
+  }
+  
+  .col-md-7 {
+    flex: 0 0 58.333333%;
+    max-width: 58.333333%;
+    padding: 0 15px;
+  }
+  
+  /* Responsive table */
+  .table-responsive {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Image styles */
+  .img-fluid {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  .rounded-circle {
+    border-radius: 50%;
+  }
+  
+  /* Pagination styles */
+  .pagination-container {
+    text-align: center;
+  }
+  
+  .pagination {
+    display: inline-block;
+  }
+  
+  .pagination a,
+  .pagination .current-page {
+    display: inline-block;
+    padding: 5px 10px;
+    margin: 0 2px;
+    border: 1px solid #ddd;
+    text-decoration: none;
+    color: #333;
+  }
+  
+  .pagination a:hover {
+    background-color: #f5f5f5;
+  }
+  
+  /* Error message */
+  .error-message {
+    color: red;
+  }
+  
+  /* Link styles */
+  a {
+    text-decoration: none;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .row {
+      flex-direction: column;
+    }
+    
+    .col-md-3,
+    .col-md-7 {
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+    
+    .ml-105 {
+      margin-left: 0;
+      margin-top: 20px;
+    }
+  }
+</style>
+
+<section class="content-main">
+  <div class="content-header">
+    <div>
+      <h2 class="content-title card-title">Brands</h2>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-body">
+      <div class="row">
+        <div class="col-md-3">
+          <form method="post" action="/admin/addBrand" enctype="multipart/form-data">
+            <div class="mb-4">
+              <label for="product_name" class="form-label">Brand Name</label>
+              <input
+                type="text"
+                name="name"
+                placeholder="Type here"
+                class="form-control"
+              />
+            </div>
+            <label for="product_name" class="form-label">Brand Image</label>
+            <div class="input-upload">
+              <img src="" alt=""/>
+              <input class="form-control border" name="image" type="file" />
+            </div>
+            <div class="d-grid">
+              <button class="btn btn-primary mt-20" type="submit">
+                Add Brand
+              </button>
+            </div>
+          </form>
+        </div>
+        <div class="col-md-7 ml-105">
+          <div class="table-responsive">
+            <table class="table table-hover">
+              <thead>
+                <tr>
+                  <th>Brand</th>
+                  <th>Logo</th>
+                  <th>Status</th>
+                  <th>Block/Unblock/Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% data.reverse().forEach((brand,index)=>{ %>
+                <tr>
+                  <td class="text-start"><%=brand.brandName%></td>
+                  <td class="text-start">
+                    <div
+                      class="d-flex align-items-center justify-content-center"
+                      style="
+                        width: 40px;
+                        height: 40px;
+                        border-radius: 50%;
+                        overflow: hidden;
+                      "
+                    >
+                      <img
+                        src="/uploads/re-image/<%=brand.brandImage[0]%>"
+                        alt="<%=brand.brandName%>"
+                        class="img-fluid rounded-circle"
+                        style="width: 100%; height: auto"
+                      />
+                    </div>
+                  </td>
+                  <td class="text-start">
+                    <% if (brand.isBlocked===true) {%>
+                    <span
+                      class="badge rounded-pill alert-danger"
+                      style="width: 60px"
+                      >Blocked</span
+                    >
+                    <% } else {%>
+
+                    <span
+                      class="badge rounded-pill alert-success"
+                      style="width: 60px"
+                      >Active</span
+                    >
+                  </td>
+                  <% } %>
+                  
+                  <td class="text-start">
+                    <%if(brand.isBlocked===false){%>
+                    <button class="btn btn-danger" style="width: 90px">
+                      <a href="/admin/blockBrand?id=<%=brand._id%>" class="text-white">Block</a>
+                    </button>
+                    <%} else {%>
+
+                    <button class="btn btn-success" style="width: 90px">
+                      <a href="/admin/unBlockBrand?id=<%=brand._id%>" class="text-white">Unblock</a>
+                    </button>
+                    <% }%>
+
+                    <button
+                      class="btn btn-danger"
+                      style="width: 90px"
+                      onclick="return confirmDelete()"
+                    >
+                      <a href="/admin/deleteBrand?id=<%=brand._id%>" class="text-white">Delete</a>
+                    </button>
+                  </td>
+                </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="pagination-container">
+  </div>
+</section>
+
+<script>
+   function confirmDelete(){
+    return confirm("Are you sure you want to delete this brand?")
+   }
+
+  </script>
+
+<%-include("../partials/admin/footer")%>

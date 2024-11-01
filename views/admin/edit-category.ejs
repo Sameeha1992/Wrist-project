@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <%- include("../../views/partials/admin/footer") %>
+<style>
+        .edit-container {
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 0 1rem;
+        }
+
+        .edit-card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            padding: 1.5rem;
+        }
+
+        .edit-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 1.5rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 0.375rem;
+            font-size: 0.875rem;
+            transition: border-color 0.15s ease-in-out;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: #2563eb;
+            box-shadow: 0 0 0 1px #2563eb;
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .btn-container {
+            display: flex;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        .btn-primary {
+            background-color: #2563eb;
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            border: none;
+            font-size: 0.875rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.15s ease-in-out;
+        }
+
+        .btn-primary:hover {
+            background-color: #1d4ed8;
+        }
+
+        @media (max-width: 640px) {
+            .edit-container {
+                margin: 1rem auto;
+            }
+
+            .edit-card {
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <%- include("../../views/partials/admin/header") %>
+    
+    <div class="edit-container">
+        <div class="edit-card">
+            <h2 class="edit-title">Edit Category</h2>
+            <form method="post" action="/admin/editCategory/<%=category._id%>">
+                <div class="form-group">
+                    <label for="categoryName" class="form-label">Name</label>
+                    <input 
+                        type="text" 
+                        id="categoryName"
+                        name="categoryName" 
+                        class="form-control"
+                        value="<%=category.name%>"
+                    >
+                </div>
+                
+                <div class="form-group">
+                    <label for="description" class="form-label">Description</label>
+                    <textarea 
+                        id="description"
+                        name="description" 
+                        class="form-control"
+                    ><%=category.description%></textarea>
+                </div>
+
+                <div class="btn-container">
+                    <button type="submit" class="btn-primary">
+                        Update category
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <%- include("../../views/partials/admin/footer") %>
+</body>
+</html>
