@@ -4,7 +4,9 @@ const {Schema} = mongoose;
 const brandSchema = new Schema({
      brandName:{
         type:String,
-        required:true
+        required:true,
+        unique:true,
+        trim:true
      },
      brandImage:{
         type:[String],

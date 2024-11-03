@@ -12,7 +12,7 @@ const storage = require("../helpers/multer");
 const uploads = multer({storage:storage});
 
 
-router.get("/pageerror",adminController.pageerror);
+router.get("/page-error",adminController.pageerror);
 //Login Management
 router.get("/login",adminController.loadLogin);
 
@@ -51,5 +51,6 @@ router.get("/deleteBrand",adminAuth,brandController.deleteBrand);
 //Product Management
 
 router.get("/addProducts",adminAuth,productController.getProductAddPage);
+router.post("/addProducts",adminAuth,uploads.array("images",4),productController.addProducts)
 
 module.exports=router;

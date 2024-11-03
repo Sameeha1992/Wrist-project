@@ -9,7 +9,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Category Management</title>
-    <!-- Include SweetAlert2 -->
+    <!--  SweetAlert -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 </head>
 
@@ -442,6 +442,17 @@
         inputLabel:"Percentage",
         inputPlaceholder: "%",
     });
+
+    if(amount != undefined){
+        if(amount<=0|| amount >=100){
+            Swal.fire({
+                icon:"error",
+                title:"Invalid Offer",
+                
+            })
+            return;
+        }
+    }
 
     if(amount){
         try {

@@ -177,7 +177,7 @@ const verifyOtp = async (req, res) => {
       await saveUserData.save();
       req.session.user = saveUserData._id;
       console.log(req.session.user)
-      console.log("helloooo")
+      
       res.json({ success: true });
     } else {
       res
@@ -236,7 +236,7 @@ const login=async(req,res)=>{
   try {    
     const {email,password}=req.body;
     const findUser=await User.findOne({isAdmin:0,email:email});
-    console.log("hiiii data vannoooo?/",findUser);
+    
     
     if(!findUser){
       return res.json({message:"User not found"})
@@ -263,6 +263,9 @@ const login=async(req,res)=>{
     
   }
 }
+
+
+
 
 module.exports = {
   loadHomepage,

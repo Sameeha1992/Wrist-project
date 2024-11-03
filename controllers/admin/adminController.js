@@ -8,7 +8,7 @@ const { Admin } = require("mongodb");
 
 
 const pageerror= async (req,res)=>{
-  res.render("admin-error")
+  res.render("adminerror")
 }
 
 
@@ -67,7 +67,7 @@ const loadDashboard = async (req,res)=>{
     console.log(req.session.admin)
     try {
       res.render("dashboard")
-      console.log("i am dashboard")
+     
     } catch (error) {
       res.redirect("/pageerror")
       

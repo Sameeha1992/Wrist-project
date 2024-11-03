@@ -15,13 +15,13 @@ const categoryInfo = async(req,res)=>{
         const page = parseInt(req.query.page) || 1;
         const limit = 4;
         const skip = (page-1)*limit;
-        console.log("set aaaiiiiiiiiiii")
+       
 
         const categoryData = await Category.find({})
         .sort({createdAt:-1})
         .skip(skip)
         .limit(limit);
-        console.log("ivdeyum sheriyaiiii")
+        
 
         const totalCategories = await Category.countDocuments();
         const totalPages = Math.ceil(totalCategories / limit);

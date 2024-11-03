@@ -23,11 +23,16 @@ const getBrandPage = async (req,res)=>{
     }
 }
 
+//add brand code orginal:-
+
 
 const addBrand = async (req,res)=>{
     try {
         const brand = req.body.name;
-        const findBrand = await Brand.findOne({brand});
+        const findBrand = await Brand.findOne({brandName:brand});
+        if(findBrand){
+            return res.status(400).json({error:"Brand already exists"})
+        }
         if(!findBrand){
             const image = req.file.filename;
             const newBrand = new Brand({
@@ -39,10 +44,14 @@ const addBrand = async (req,res)=>{
         }
         
     } catch (error) {
+        console.error("Error adding brand",error);
         
         res.redirect("/pageerror")
     }
 }
+
+
+
 
 
 const blockBrand = async(req,res)=>{
@@ -52,6 +61,7 @@ const blockBrand = async(req,res)=>{
         res.redirect("/admin/brands")
         
     } catch (error) {
+        console.error("Error in blocking brand",error)
         res.redirect("/pageerror")
         
     }
@@ -64,6 +74,7 @@ const unBlockBrand = async(req,res)=>{
         res.redirect("/admin/brands")
         
     } catch (error) {
+        console.error("Error in unblocking brand:",error)
         res.redirect("/pageerror")
         
     }
@@ -76,7 +87,7 @@ const deleteBrand = async(req,res)=>{
 
     const {id} = req.query;
     if(!id){
-        return res.status(400).redirect("/pageerror")
+        return res.status(400).send("Brand ID is required")
     }
 
     await Brand.deleteOne({_id:id});
