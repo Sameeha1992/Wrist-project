@@ -54,6 +54,9 @@ router.get("/addProducts",adminAuth,productController.getProductAddPage);
 router.post("/addProducts",adminAuth,uploads.array("images",4),productController.addProducts)
 router.get("/product",adminAuth,productController.getAllProducts);
 router.get("/blockProduct",adminAuth,productController.blockProduct);
-router.get("/unblockProduct",adminAuth,productController.unblockProduct)
+router.get("/unblockProduct",adminAuth,productController.unblockProduct);
+router.get("/editProduct",adminAuth,productController.getEditProduct);
+router.post("/editProduct/:id",adminAuth,uploads.array("images",4),productController.editProduct);
+router.post("/deleteImage",adminAuth,productController.deleteSingleImage)
 
 module.exports=router;

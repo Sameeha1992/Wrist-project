@@ -95,8 +95,8 @@
                                     <div class="col-md-6">
                                         <label for="category" class="form-label">Category</label>
                                         <select class="form-select" id="category" name="category" required>
-                                            <%for(let i=0;i<cat.length;i++){%>
-                                            <option value="<%= cat[i].name%>">
+                                            <%for (let i=0;i<cat.length;i++){%>
+                                            <option value="<%=cat[i].name%>">
                                                 <%= cat[i].name%>
                                             </option>
                                         <%}%>
@@ -139,30 +139,53 @@
                                     <div class="card-body">
                                         <div id="addedImagesContainer" class="thumbnails-container mb-3"></div>
                                         <div class="row">
-                                            <div class="col-md-6 image-upload" id="imageUpload1">
+                                            <!-- Image Upload Field 1 -->
+                                            <div class="col-md-6 image-upload-container">
                                                 <img src="" alt="" class="image-preview" id="imgView1">
-                                                <input class="form-control" type="file" name="images" id="input1" accept="image/*">
+                                                    
+                                                <input class="form-control" type="file" name="images" id="input1"
+                                                      accept="image/png, image/jpeg, image/jpg" 
+                                                      onchange="viewImage1(event), viewImage(event, 1)">
+                                                <div id="images-error" class="error-message">Please select an image.</div>
+                                            </div>  
+                                                
+                                                <div class="image-cropper d-flex align-items-center" id="cropper1">
+                                                    <img src="" id="croppedImg1" alt="">
+                                                    <button type="button" id="saveButton1" class="btn-sm btn-primary">Save</button>
+                                                </div>
                                             </div>
-                                            <div class="col-md-6 image-upload" id="imageUpload2">
+                                            <!-- Image Upload Field 2 -->
+                                            <div class="col-md-6 image-upload-container">
                                                 <img src="" alt="" class="image-preview" id="imgView2">
-                                                <input class="form-control" type="file" name="images" id="input2" accept="image/*">
+                                                <input class="form-control" type="file" name="images" id="input2" accept="image/png, image/jpeg, image/jpg" onchange="viewImage2(event), viewImage(event, 2)">
+                                                <div class="image-cropper d-flex align-items-center" id="cropper2">
+                                                    <img src="" id="croppedImg2" alt="">
+                                                    <button type="button" id="saveButton2" class="btn-sm btn-primary">Save</button>
+                                                </div>
                                             </div>
                                         </div>
                                         <div class="row">
-                                            <div class="col-md-6 image-upload" id="imageUpload3">
+                                            <div class="col-md-6 image-upload-container">
                                                 <img src="" alt="" class="image-preview" id="imgView3">
-                                                <input class="form-control" type="file" name="images" id="input3" accept="image/*">
+
+                                                <input class="form-control" type="file" name="images" id="input3" accept="image/png, image/jpeg, image/jpg" onchange="viewImage3(event), viewImage(event, 3)">
+                                                <div class="image-cropper d-flex align-items-center" id="cropper3">
+                                                    <img src="" id="croppedImg3" alt="">
+                                                    <button type="button" id="saveButton3" class="btn-sm btn-primary">Save</button>
+                                                </div>
                                             </div>
-                                            <div class="col-md-6 image-upload" id="imageUpload4">
+                                            <!-- Image Upload Field 4 -->
+                                            <div class="col-md-6 image-upload-container">
                                                 <img src="" alt="" class="image-preview" id="imgView4">
-                                                <input class="form-control" type="file" name="images" id="input4" accept="image/*">
+
+                                                <input class="form-control" type="file" name="images" id="input4" accept="image/png, image/jpeg, image/jpg" onchange="viewImage4(event), viewImage(event, 4)">
+                                                <div class="image-cropper d-flex align-items-center" id="cropper4">
+                                                    <img src="" id="croppedImg4" alt="">
+                                                    <button type="button" id="saveButton4" class="btn-sm btn-primary">Save</button>
+                                                </div>
                                             </div>
                                         </div>
-                                        <div id="images-error" class="error-message"></div>
-                                    </div>
-                                </div>
-                                <div>
-                                    <button type="submit" class="btn btn-primary">Publish Product</button>
+                                        <button class="btn btn-md rounded font-sm hover-up" type="button" onclick="validateAndSubmit()">Publish</button>
                                 </div>
                             </form>
                         </div>
@@ -181,29 +204,34 @@
 
             }
         }
+            
+
 
         function viewImage1(event){
-            document.getElementById("imgView1").src=URL.createObjectURL(event.target.files[0])
+            document.getElementById("imgView1").src  = URL.createObjectURL(event.target.files[0])
         }
 
         function viewImage2(event){
-            document.getElementById("imgView2").src=URL.createObjectURL(event.target.files[0])
+            document.getElementById("imgView2").src = URL.createObjectURL(event.target.files[0])
         }
              
         function viewImage3(event){
-            document.getElementById("imgView3").src=URL.createObjectURL(event.target.files[0]);
+            document.getElementById("imgView3").src = URL.createObjectURL(event.target.files[0]);
         }
 
         function viewImage4(event){
-            document.getElementById("imgView4").src=URL.createObjectURL(event.target.files[0])
+            document.getElementById("imgView4").src = URL.createObjectURL(event.target.files[0])
         }
+           
 
 
-       function viewImage(event,Index){
+        
+
+       function viewImage(event,index){
         let input = event.target;
         let reader = new FileReader();
         reader.onload = function (){
-            let dataURL = reader.URL.result;
+            let dataURL = reader.result;
             let image = document.getElementById("imgView"+index);
             image.src = dataURL;
             let cropper = new Cropper(image,{
@@ -215,10 +243,10 @@
                 zoomable:true
             });
 
-            let cropperContainer = document.querySelector("#croppedImg",+ index).parentNode;
+            let cropperContainer = document.querySelector("#croppedImg" + index).parentNode;
             cropperContainer.style.display = 'block';
 
-            let saveButton = document.querySelector("#saveButton",+index);
+            let saveButton = document.querySelector("#saveButton" +index);
             saveButton.addEventListener('click',async function(){
 
                 let croppedCanvas = cropper.getCroppedCanvas();
@@ -232,7 +260,7 @@
 
                 await croppedCanvas.toBlob(blob=>{
                     let input = document.getElementById('input'+index);
-                    let imgFile = new file({blob},fileName,blob)
+                    let imgFile = new File([blob],fileName,blob)
                     const fileList = new DataTransfer();
                     fileList.items.add(imgFile);
                     input.files = fileList.files
@@ -251,7 +279,7 @@
 
        function handleFileSelect(event){
            const addedImagesContainer = document.getElementById('addedImagesContainer');
-           addedImagesContainer.innerHTML='';
+           addedImagesContainer.innerHTML="";
            const files = event.target.files;
 
            for(let i=0;i<files.length;i++){
