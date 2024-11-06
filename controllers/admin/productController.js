@@ -166,9 +166,9 @@ const getEditProduct = async (req,res)=>{
 
     try {
         const id = req.query.id;
-        const product = await Product.findOne({_id:id});
-        const category = await Category.findOne({});
-        const brand = await Brand.find({});
+        const product = await Product.findOne({_id:id}).populate('category');
+        const category = await Category.find({isListed:true});
+        const brand = await Brand.find({isBlocked:false});
         res.render("edit-product",{
             product:product,
             cat:category,
@@ -201,7 +201,7 @@ const editProduct = async(req,res)=>{
 
         if(req.files && req.files.length>0){
             for(let i=0;i<req.files.length;i++){
-                images.push(req.files[i.filename])
+                images.push(req.files[i].filename)
 
                 
             }

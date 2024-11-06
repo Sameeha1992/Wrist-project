@@ -3,17 +3,28 @@ const env = require("dotenv").config();
 const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const user_route = require("../../routes/userRouter");
+const Category = require("../../models/categorySchema");
+const Product = require("../../models/productSchema")
 
 
 //Load Homepage
 const loadLandingPage = async (req, res) => {
   try {
     const user = req.session.user;
-    if(user){
-      const userData = await User.findOne({_id:user._id});
-      res.render("home",{user:userData})
+
+  
+    
+      const categories = await Category.find({isListed:true});
+      let productData = await Product.find({isBlocked:false,category:{$in:categories.map(category=>category._id)},
+    quantity:{$gt:0},
+  });
+
+
+  if(user){
+    const userData = await User.findOne({_id:user._id})
+      res.render("home",{user:userData,products:productData})
     } else{
-      return res.render('home')
+      return res.render('home',{products:productData})
     }
     
   } catch (error) {
@@ -266,6 +277,26 @@ const login=async(req,res)=>{
 
 
 
+const loadProductDetail = async (req,res)=>{
+
+  try {
+
+      const product = await Product.findById(req.params.id).lean();
+      if(!product){
+          return res.status(404).send("Product not found");
+
+      }
+      res.render('product-details',{product});
+      
+  } catch (error) {
+      console.error("Error in loading product detail:", error);
+      res.status(500).send("Server error")
+      
+  }
+}
+
+
+
 
 module.exports = {
   loadHomepage,
@@ -277,5 +308,6 @@ module.exports = {
   verifyOtp,
   resendOtp,
   loadLogin,
-  login
+  login,
+  loadProductDetail,
 };

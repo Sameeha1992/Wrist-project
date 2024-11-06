@@ -29,7 +29,7 @@ const loadLogin = (req,res)=>{
 const login= async(req,res)=>{
   try {
     const {email,password}=req.body;
-    console.log(email,'eail')
+    console.log(email,'email')
     console.log(password,'password')
 
     const admin = await User.findOne({email,isAdmin:true});

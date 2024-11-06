@@ -1,4 +1,10 @@
 
+
+<!DOCTYPE html>
+
+<link rel="stylesheet" href="styles.css">
+
+
 <%-include("../partials/mainheader")%>
 
 
@@ -118,8 +124,8 @@
   </div>
 
   
-
-<!--      
+<!--  
+   
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     document.getElementById('Adminlogin').addEventListener('submit', function(event) {
@@ -142,34 +148,40 @@
             return;
         }
 
+
     
-        $.ajax({
-            url: '/admin/login',
-            type: 'POST',
-            contentType: 'application/json',
-            data: JSON.stringify({ email:useremail, password:userpassword }),
+
+
+
+
+    
+    //     $.ajax({
+    //         url: '/admin/login',
+    //         type: 'POST', -->
+    <!-- //         contentType: 'application/json',
+    //         data: JSON.stringify({ email:useremail, password:userpassword }),
             
-            success: function(response) {
-                console.log(response,'responseee');
+    //         success: function(response) {
+    //             console.log(response,'responseee');
                 
-                if(response.success) {
-                    alert(response)
-                    window.location.href = '/dashboard';
-                }else {
-                    alert(response.message);
-                    error_message.innerText=response.message;
-                }
-            },
-            error: function() {
-                error_message.innerText='An error occured.Please try again'
-                alert("an error occured please try again later");
-            }
-        });
+    //             if(response.success) {
+    //                 alert(response)
+    //                 window.location.href = '/dashboard';
+    //             }else {
+    //                 alert(response.message);
+    //                 error_message.innerText=response.message;
+    //             }
+    //         },
+    //         error: function() {
+    //             error_message.innerText='An error occured.Please try again'
+    //             alert("an error occured please try again later");
+    //         }
+    //     });
     });
-</script>
+</script> -->
 
 
-  -->
+   
 
 
 

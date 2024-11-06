@@ -97,11 +97,12 @@
                                 </div>
                                
                                 <div class="card-body">
+                                    <input type="file" id="imageInput" name="images">
                                     <div class="thumbnails-container mb-3" id="addedImagesContainer">
                                         <% for (let i = 0; i < product.productImage.length; i++) { %>
                                             <div class="thumbnail position-relative">
-                                                <img src="/uploads/re-image/<%= product.productImage[i] %>" alt="Image <%= i + 1 %>" 
-                                                     id="imgView<%= i %>" class="img-fluid mb-2 rounded" style="max-width: 100%; height: auto;">
+                                                <img src="/uploads/re-image/<%= product.productImage[i] %>" alt="Image" 
+                                                     id="imgView" class="img-fluid mb-2 rounded" style="max-width: 100%; height: auto;">
                                                 <button type="button" class="btn-close position-absolute top-0 end-0 m-1" 
                                                         onclick=" deleteSingleImage('<%= product.productImage[i] %>', '<%= product._id %>')" 
                                                         aria-label="Delete"></button>
