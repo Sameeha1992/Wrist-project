@@ -3,6 +3,7 @@
   <%-include("../partials/user/header")%>
  
     <!-- END nav -->
+	 
 
     <section id="home-section" class="hero">
 		  <div class="home-slider owl-carousel">
@@ -104,7 +105,7 @@
 
 				
 				<div class="row">
-					<% for (let i = 0; i < 7; i++) { %>
+					<% for (let i = 0; i < products.length; i++) { %>
 					  <div class="col-sm-12 col-md-6 col-lg-3 ftco-animate d-flex">
 						<div class="product d-flex flex-column">
 						  <a href="/productDetails?id=<%= products[i]._id %>" class="img-prod">
@@ -144,6 +145,23 @@
 					  </div>
 					<% } %>
 				  </div>
+
+
+
+				  <div class="pagination-container">
+  <div class="pagination">
+    <% if (typeof currentPage !== 'undefined' && currentPage > 1) { %>
+      <a href="?page=<%= currentPage - 1 %>">&laquo; Previous</a>
+    <% } %>
+
+    Page <%= currentPage%> of <%= totalPages %>
+
+    <% if (typeof currentPage !== 'undefined' && currentPage < totalPages) { %>
+      <a href="?page=<%= currentPage + 1 %>">Next &raquo;</a>
+    <% } %>
+  </div>
+</div>
+				  
 				 
 
 

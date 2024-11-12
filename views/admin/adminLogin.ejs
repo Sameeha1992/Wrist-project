@@ -110,75 +110,86 @@
   <div class="login-container">
     <h2>Admin Login</h2>
     <form id=Adminlogin action="/admin/login" method="post">
+      <p class="error_message" id="error_message" style="color:red"></p>
       <div class="input-group">
         <label for="email">Email</label>
-        <input type="text" id="email" name="email" required>
+        <input type="text" id="email" name="email" >
       </div>
       <div class="input-group">
         <label for="password">Password</label>
-        <input type="password" id="password" name="password" required>
+        <input type="password" id="password" name="password" >
       </div>
       <button type="submit" class="login-button">Login</button>
       <p class="error_message" id="error_message" style="color:red"></p>
     </form>
   </div>
 
-  
-<!--  
    
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
 <script>
-    document.getElementById('Adminlogin').addEventListener('submit', function(event) {
-        event.preventDefault();
-        const useremail = document.getElementById('email').value.trim();
-        const userpassword = document.getElementById('password').value.trim();
-        const errorMessage = document.getElementById('error_message');
-        
-        errorMessage.innerText = '';
+  document.getElementById('Adminlogin').addEventListener('submit', function(event) {
+      event.preventDefault();
+      const useremail = document.getElementById('email').value.trim();
+      const userpassword = document.getElementById('password').value.trim();
+      const errorMessage = document.getElementById('error_message');
+      
+      errorMessage.innerText = '';
 
-        if (!useremail && !userpassword) {
-          errorMessage.innerText = 'Email and password are not required';
-            return;
-        } else if (!useremail) {
+      if (!useremail && !userpassword) {
+          errorMessage.innerText = 'Email and password are required';
+          return;
+      } else if (!useremail) {
           errorMessage.innerText = 'Email is required';
-            return;
-            
-        } else if (!userpassword) {
+          return;
+      } else if (!userpassword) {
           errorMessage.innerText = 'Password is required';
-            return;
-        }
+          return;
+      }
 
-
-    
-
-
-
-
-    
-    //     $.ajax({
-    //         url: '/admin/login',
-    //         type: 'POST', -->
-    <!-- //         contentType: 'application/json',
-    //         data: JSON.stringify({ email:useremail, password:userpassword }),
+      $.ajax({
+          url: '/admin/login',
+          type: 'POST',
+          contentType: 'application/json',
+          data: JSON.stringify({ email: useremail, password: userpassword }),
+          
+          success: function(response) {
             
-    //         success: function(response) {
-    //             console.log(response,'responseee');
-                
-    //             if(response.success) {
-    //                 alert(response)
-    //                 window.location.href = '/dashboard';
-    //             }else {
-    //                 alert(response.message);
-    //                 error_message.innerText=response.message;
-    //             }
-    //         },
-    //         error: function() {
-    //             error_message.innerText='An error occured.Please try again'
-    //             alert("an error occured please try again later");
-    //         }
-    //     });
-    });
-</script> -->
+              
+              if (response.success) {
+                  Swal.fire({
+                      icon: 'success',
+                      title: 'Login Successful',
+                      text: 'Admin login successful',
+                      confirmButtonText: 'Continue'
+                  }).then(() => {
+                      window.location.href = '/admin';
+                  });
+              } else {
+                  Swal.fire({
+                      icon: 'error',
+                      title: 'Login Failed',
+                      text: response.message,
+                      confirmButtonText: 'Try Again'
+                  });
+                  errorMessage.innerText = response.message;
+              }
+          },
+
+          error: function() {
+              Swal.fire({
+                  icon: 'error',
+                  title: 'Error',
+                  text: 'An error occurred. Please try again later.',
+                  confirmButtonText: 'OK'
+              });
+              errorMessage.innerText = 'An error occurred. Please try again';
+          }
+      });
+  });
+</script>
+
 
 
    

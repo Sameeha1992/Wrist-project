@@ -26,12 +26,12 @@ connectDB()
 
 
   app.use(session({
-    secret: process.env.SESSION_SECRET, // You should use a strong secret key
-    resave: false,             // Prevents session resave on each request
-    saveUninitialized: false,  // Only saves session when modified
+    secret: process.env.SESSION_SECRET, 
+    resave: false,           
+    saveUninitialized: false, 
     cookie: { secure: false,
       maxAge:1000*60*60
-     }  // Set to true in production if using HTTPS
+     } 
   }));
 
 app.use(passport.initialize());
@@ -57,9 +57,15 @@ app.set("views", [
 
 app.use(express.static(path.join(__dirname, "public")));
 
-
+app.use((req, res, next) => {
+  res.locals.userId = req.session.user || null; 
+  
+    res.setHeader("Cache-Control", "no-store");
+  next();
+});
 
 app.use("/",userRouter);
+
 app.use("/admin",adminRouter);
 
 

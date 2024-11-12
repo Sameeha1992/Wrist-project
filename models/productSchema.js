@@ -19,6 +19,7 @@ const productSchema = new Schema({
         ref:"Category",
         required:true
     },
+    
     regularPrice:{
         type:Number,
         required:true,
@@ -47,13 +48,18 @@ const productSchema = new Schema({
         type:Boolean,
         default:false
     },
+    review:{
+        type:String,
+        default:false
+    },
+   
     status:{
         type:String,
         enum:["Available","out of stock","Discontinued"],
         required:true,
         default:"Available"
     }
-},{timestamp:true});
+},{timestamps:true});
 
 const Product= mongoose.model("Product",productSchema);
 module.exports=Product;

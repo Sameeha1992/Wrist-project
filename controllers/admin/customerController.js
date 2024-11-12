@@ -70,7 +70,7 @@ const customerBlocked= async(req,res)=>{
         
     } catch (error) {
         res.redirect("/pageerror")
-        console.log("error while blokinggggg",error)
+      
     }
 }
 

@@ -59,7 +59,6 @@ const addProducts = async (req,res)=>{
                 category:categoryId._id,
                 regularPrice:products.regularPrice,
                 salePrice:products.salePrice,
-                createdOn:new Date(),
                 quantity:products.quantity,
                 size:products.size,
                 color:products.color,
@@ -101,7 +100,7 @@ try {
 
         ],
 
-    }).limit(limit*1).skip((page-1)*limit).populate('category').exec();
+    }).sort({createdAt:-1}).limit(limit*1).skip((page-1)*limit).populate('category').exec();
 
     const count = await Product.find({
         $or:[
@@ -129,6 +128,7 @@ try {
     
     
 } catch (error) {
+    console.error("Error in fetching products:",error)
 
     res.redirect("/pageerror")
     
@@ -142,10 +142,10 @@ const blockProduct = async (req, res) => {
         let id = req.query.id;
         await Product.updateOne({ _id: id }, { $set: { isBlocked: true } });
         res.redirect("/admin/product")
-        console.log("Product block sheriyai")
+        
     } catch (error) {
         res.redirect("/pageerror")
-        console.log("Product block sheriyai")
+        
     }
 };
 

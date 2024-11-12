@@ -1,7 +1,5 @@
-<!DOCTYPE html>
-
-<link rel="stylesheet" href="styles.css">
-</head>
+<%-include("../partials/mainheader")%>
+<link >
 <style>
     
     * {
@@ -101,15 +99,27 @@
         </div>
         <div class="login-form">
             <h1>Welcome to Wrist Style</h1>
-            <form id="loginForm" method="post" action="/login">
+            <form id="loginForm" method="POST" action="/login">
+              
                 <label for="email">Email</label>
                 <input name="email" type="email" id="email" placeholder="Enter your email">
+                <div id="emailError" style="color:red"></div>
                 
                 <label for="password">Password</label>
                 <input name="password" type="password" id="password" placeholder="Enter your password">
+                <div id="passwordError" style="color:red"></div>
+
+                <ul id="passwordRequirements" style="color: red; font-size: 0.9em; list-style: none;">
+                     
+                    <li id="uppercase" style="display: none;">Uppercase letter required</li>
+                    <li id="number" style="display: none;">Number required</li>
+                    <li id="specialChar" style="display: none;">Special character required</li>
+
+
+                </ul>
                 
                 <button type="submit" class="login-button">Login</button>
-                <div id="errorMessage" style="color:red"></div>
+                
              
 
 
@@ -122,26 +132,34 @@
     </div>
     
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
     document.getElementById('loginForm').addEventListener('submit', function(event) {
         event.preventDefault();
         
         const email = document.getElementById('email').value.trim();
         const password = document.getElementById('password').value.trim();
-        const errorMessage = document.getElementById('errorMessage');
+        const emailError = document.getElementById('emailError');
+        const passwordError = document.getElementById('passwordError');
         
-        errorMessage.innerText = '';
+        
+        emailError.innerText='';
+        passwordError.innerText='';
 
-        if (!email && !password) {
-            errorMessage.innerText = 'Email and password are not required';
-            return;
-        } else if (!email) {
-            errorMessage.innerText = 'Email is required';
-            return;
-        } else if (!password) {
-            errorMessage.innerText = 'Password is required';
-            return;
+        let isValid= true;
+
+        if (!email) {
+            emailError.innerText = 'Email is required';
+            isValid= false;
         }
+
+        if(!password){
+            passwordError.innerText = 'Password is required';
+            isValid=false;
+        }
+
+        if(!isValid) return;
+        
 
         // jQuery AJAX for form submission
         $.ajax({
@@ -150,20 +168,61 @@
             contentType: 'application/json',
             data: JSON.stringify({ email, password }),
             success: function(response) {
-                console.log(response);
+                
                 
                 if(response.success) {
-                    alert(response.message)
-                    window.location.href = '/';
+                   Swal.fire({
+                    icon:'success',
+                    title:'Success',
+                    text:response.message
+                   }).then(()=>{
+                    window.location.href='/';
+                   })
                 }else {
-                    alert(response.message);
+                   Swal.fire({
+                    icon:'error',
+                    title:'Error',
+                    text:response.message
+                   });
                 }
             },
             error: function() {
-                alert("an error occured please try again later");
+              Swal.fire({
+                icon:'error',
+                title:'Oops...',
+                text:'An error occured.Please try again later.'
+              })
             }
         });
     });
+
+
+    document.getElementById('email').addEventListener('input', function() {
+    const emailError = document.getElementById('emailError');
+    emailError.innerText = this.value.trim() === '' ? 'Email is required' : '';
+});
+
+    document.getElementById('password').addEventListener('input',function(){
+        const password = this.value;
+        const passwordError = document.getElementById('passwordError');
+
+
+        // const uppercase = /[A-Z]/;
+        // const number = /[0-9]/;
+        // const specialChar=/[!@#$%^&*(),.?":{}|<>]/;
+
+
+        // document.getElementById('uppercase').style.display = uppercase.test(password) ? 'none':'block';
+        // document.getElementById('number').style.display = number.test(password) ? 'none':'block';
+        // document.getElementById('specialChar').style.display = specialChar.test(password) ? 'none':'block';
+
+        if(password.trim()===''){
+            passwordError.innerText='Password is required';
+        } else {
+            passwordError.innerText ='';
+        }
+    })
 </script>
+</body>
 
 

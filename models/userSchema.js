@@ -23,7 +23,7 @@ const userSchema=new Schema({
 
     googleId:{
         type:String,
-        unique:true,
+        unique:false,
         
     },
     password:{
@@ -88,7 +88,6 @@ const userSchema=new Schema({
    
 
 })
-userSchema.index({googleId:1},{unique:true,partialFilterExpression:{googleId:{$exists:true}}});
 
 const User = mongoose.model("User",userSchema);
 module.exports=User;

@@ -291,7 +291,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <%for(let i=data.length-1;i>=0;i--){%>
+                    <%for(let i=0;i<data.length;i++){%>
                     <tr>
                         <td><%=data[i].productName%></td>
                         <td><%=data[i].brand%></td>
@@ -316,9 +316,7 @@
                                     <a href="/admin/unblockProduct?id=<%=data[i]._id%>" style="text-decoration: none;">Unblock</a>
                                 </button>
                                 <% } %>
-                                <button class="btn btn-delete" style="width: 80px;">
-                                    <a href="/admin/deleteProduct?id=<%=data[i]._id%>" style="text-decoration: none;">Delete</a>
-                                </button>
+                               
                             </div>
                         </td>
                     </tr>

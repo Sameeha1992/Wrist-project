@@ -25,6 +25,38 @@
     <link rel="stylesheet" href="css/flaticon.css">
     <link rel="stylesheet" href="css/icomoon.css">
     <link rel="stylesheet" href="css/style.css">
+	<style>
+		.pagination-container {
+  display: flex;
+  justify-content: center; /* Center the pagination */
+  margin: 20px 0; /* Add some margin above and below */
+}
+
+.pagination {
+  display: flex;
+  align-items: center; /* Align items vertically */
+}
+
+.pagination-link {
+  text-decoration: none; /* Remove underline */
+  color: #007bff; /* Bootstrap primary color */
+  padding: 10px 15px; /* Add padding for better click area */
+  border: 1px solid #007bff; /* Border color */
+  border-radius: 5px; /* Rounded corners */
+  margin: 0 5px; /* Space between links */
+  transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+}
+
+.pagination-link:hover {
+  background-color: #007bff; /* Change background on hover */
+  color: white; /* Change text color on hover */
+}
+
+.pagination-info {
+  margin: 0 10px; /* Add some margin around the info text */
+  font-weight: bold; /* Make the text bold */
+}
+	</style>
 
 	<!-- Include jQuery and Bootstrap JS -->
 
@@ -78,9 +110,9 @@
 
 			
 		  <li class="nav-item dropdown">
-			<% if(locals.user){%>
+			<% if (userId) { %>
 			<a class="nav-link dropdown-toggle" href="#" id="profileDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				<%= locals.user.name%></a>
+				account</a>
 			<div class="dropdown-menu" aria-labelledby="profileDropdown">
 				<a class="dropdown-item" href="/userProfile">Profile</a>
 				<a class="dropdown-item" href="/logout">Logout</a>
@@ -89,6 +121,7 @@
 				<a class="nav-link dropdown-toggle" href="#" id="guestDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 						Account
 			    </a>
+				
 				<div class="dropdown-menu" aria-labelledby="guestDropdown">
 				<a class="dropdown-item" href="/login">Login</a>
 
@@ -107,5 +140,16 @@
 	  </div>
 	</div>
   </nav>
+  <script>
+	// Check if the user is logged in
+	const userId = "<%= userId %>";
+	if (userId) {
+	  console.log("User is logged in with ID:", userId);
+	  // Additional frontend code can go here
+	} else {
+	  console.log("User is not logged in");
+	}
+  </script>
+  
 <!-- END nav -->
 

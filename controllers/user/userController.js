@@ -9,26 +9,46 @@ const Product = require("../../models/productSchema")
 
 //Load Homepage
 const loadLandingPage = async (req, res) => {
+  console.log("logiiiiii");
+  
   try {
     const user = req.session.user;
 
-  
+    const currentPage = parseInt(req.query.page) || 1;
+    const itemsPerPage = 10; // Set how many items you want per page
     
-      const categories = await Category.find({isListed:true});
-      let productData = await Product.find({isBlocked:false,category:{$in:categories.map(category=>category._id)},
-    quantity:{$gt:0},
-  });
+    const categories = await Category.find({isListed:true});
 
+    const totalProducts = await Product.countDocuments({
+      isBlocked: false,
+      category: { $in: categories.map(category => category._id) },
+      quantity: { $gt: 0 }
+    });
+
+    // Calculate total pages
+    const totalPages = Math.ceil(totalProducts / itemsPerPage);
+
+    // Calculate the number of products to skip
+    const skip = (currentPage - 1) * itemsPerPage;
+
+  
+      
+      let productData = await Product.find({isBlocked:false,category:{$in:categories.map(category=>category._id)},
+    quantity:{$gt:0} }) 
+.sort({createdAt: -1})
+.skip(skip) // Skip the products for previous pages
+.limit(itemsPerPage); // Limit the number of products returne
+console.log("product data",productData);
 
   if(user){
     const userData = await User.findOne({_id:user._id})
-      res.render("home",{user:userData,products:productData})
+      res.render("home",{user:userData,products:productData,currentPage,totalPages})
     } else{
-      return res.render('home',{products:productData})
+      return res.render('home',{products:productData,currentPage,totalPages})
     }
     
   } catch (error) {
-    console.log("Homepage not rendered:", error); 
+   
     res.status(500).send("Server error"); 
   }
 };
@@ -76,7 +96,7 @@ const loadLogin = async(req,res)=> {
   try {
     res.render("login");
   } catch (error) {
-    console.log(error.message);
+    
   }
 }
 //Generate otp function
@@ -118,17 +138,20 @@ async function sendVerificationEmail(email, otp) {
 
 const signup = async (req, res) => {
   try {
-    const { name, phone, email, password, cpassword } = req.body;
-    if (password !== cpassword) {
-      return res.render("signup", { message: "Password do not match" });
-    }
+    const { name, phone, email, password } = req.body;
+    // if (password !== cpassword) {
+    //   return res.render("signup", { message: "Password do not match" });
+    // }
 
     const findUser = await User.findOne({ email });
     if (findUser) {
-      return res.render("signup", {
-        message: "User with this email already exists",
-      });
+      return res.json({success : false , message : 'user already exiss'});
     }
+         
+
+
+
+
 
     const otp = generateOtp();
 
@@ -138,9 +161,10 @@ const signup = async (req, res) => {
     }
     req.session.userOtp = otp;
     req.session.userData = { name, phone, email, password };
-
+    console.log(  req.session.userData,'  req.session.userData')
     console.log("OTP Sent", otp);
-    res.redirect("/verify-otp");
+   
+    res.json({ success: true, redirectUrl: "/verify-otp" });
   } catch (error) {
     console.error("signup error", error);
     res.redirect("/pageNotFound");
@@ -243,29 +267,30 @@ const resendOtp = async (req, res) => {
 //Login functionalities
 
 const login=async(req,res)=>{
-  console.log("login is coming")
   try {    
     const {email,password}=req.body;
-    const findUser=await User.findOne({isAdmin:0,email:email});
+    const user=await User.findOne({email:email});
     
     
-    if(!findUser){
-      return res.json({message:"User not found"})
+    if(!user){
+      return res.json({success:false,message:"User not found"})
     }
-    if(findUser.isBlocked){
-      return res.json({message:"User is blocked by the admin"})
+    if(user.isBlocked){
+      
+      return res.json({success:false,message:"User is blocked by the admin"})
+
     }
-    const passwordMatch=await bcrypt.compare(password,findUser.password)
-    console.log(passwordMatch);
+    const passwordMatch=await bcrypt.compare(password,user.password)
+    
     
     if(!passwordMatch){
-      return res.json({success : false , message : "incoorect email or password"})
+      return res.json({success : false , message : "incorrect email or password"})
     }
     
 
-    req.session.user= findUser._id;
+    req.session.user= user._id;
      return res.json({success : true , message:"Login Successful"})
-    console.log(req.session.user)
+   
 
     
   } catch (error) {
@@ -280,12 +305,14 @@ const login=async(req,res)=>{
 const loadProductDetail = async (req,res)=>{
 
   try {
+    const productId = req.query.id
+    const product = await Product.findById({_id:productId})
+    
+    if(!product){
+      return res.status(404).send("Product not found");
+      
+    }
 
-      const product = await Product.findById(req.params.id).lean();
-      if(!product){
-          return res.status(404).send("Product not found");
-
-      }
       res.render('product-details',{product});
       
   } catch (error) {
@@ -296,11 +323,26 @@ const loadProductDetail = async (req,res)=>{
 }
 
 
+const logout=async(req,res)=>{
+  try {
+    req.session.destroy(err=>{
+      if(err){
+        return res.redirect("/pageerror")
+      }
+      res.redirect("/login")
+    })
+  
+  } catch (error) {
+    console.log("unexpected error during logout");
+    res.redirect("/pageerror")
+    
+  }
+}
 
 
 module.exports = {
   loadHomepage,
-
+  logout,
   loadLandingPage,
   loadSignup,
   signup,

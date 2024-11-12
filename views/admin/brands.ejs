@@ -235,7 +235,7 @@
     <div class="card-body">
       <div class="row">
         <div class="col-md-3">
-          <form method="post" method="post" action="/admin/addBrand" enctype="multipart/form-data">
+          <form method="post"enctype="multipart/form-data" id="brandForm" onsubmit="handleBrandFormSubmit(event)" >
             <div class="mb-4">
               <label for="product_name" class="form-label">Brand Name</label>
               <input
@@ -312,23 +312,17 @@
                   
                   <td class="text-start">
                     <%if(brand.isBlocked===false){%>
-                    <button class="btn btn-danger" style="width: 90px">
+                    <button class="btn btn-danger" style="width: 90px" onclick="confirmBlock('<%= brand._id%>')">
                       <a href="/admin/blockBrand?id=<%=brand._id%>" class="text-white">Block</a>
                     </button>
                     <%} else {%>
 
-                    <button class="btn btn-success" style="width: 90px">
+                    <button class="btn btn-success" style="width: 90px" onclick="confirmUnblock('<%= brand._id%>')">
                       <a href="/admin/unBlockBrand?id=<%=brand._id%>" class="text-white">Unblock</a>
                     </button>
                     <% }%>
 
-                    <!-- <button
-                      class="btn btn-danger"
-                      style="width: 90px"
-                      onclick="return confirmDelete('<%=brand._id%>')"
-                    >
-                      <a href="/admin/deleteBrand?id=<%=brand._id%>" class="text-white">Delete</a>
-                    </button> -->
+                    
                   </td>
                 </tr>
                 <% }) %>
@@ -366,108 +360,84 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
  
-<script>
+
+
   
-   function confirmDelete(){
-    return confirm("Are you sure you want to delete this brand?")
-   }
+  
+   
+<script>
+   //Block Brand Function with SweetAlert and AJAX
 
-function confirmBlock(){
-  return confirm("Are you sure you want to block this brand?")
-}
 
-function validateBrandForm(){
-  const brandName = document.getElementById("brandName").value.trim();
-  const brandImage=document.getElementById("brandImage").files.length;
+  function confirmBlock(brandId, event) {
+    event.preventDefault();
 
-  if(!brandName){
     Swal.fire({
-      icon:"error",
-      title:"Error",
-      text:"Please enter a brand name"
-    })
-    return false
-  }
-  if(!brandImage){
-    Swal.fire({
-      icon:"error",
-      title:"Error",
-      text:"Please upload the Image"
-    })
-    return false
-  }
-  return true
-}
-
-
-
-async function handleBrandFormSubmit(event){
-  event.preventDefault();
-  if(!validateBrandForm()) return;
-
-  const form = document.getElementById("brandForm");
-  const formData = new FormData(form);
-
-
-  try{
-    const response = await fetch("/admin/addBrand",{
-        method:"POST",
-        body:formData
+      title: 'Are you sure?',
+      text: "You are about to block this brand. This action can't be undone.",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, block it!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // AJAX request to block the brand
+        $.ajax({
+          url: '/admin/blockBrand', // Ensure this is the correct route for blocking
+          method: 'GET',
+          data: { id: brandId },
+          success: function(response) {
+            if (response.success) {
+              Swal.fire('Blocked!', response.message, 'success');
+              // Optionally, update the UI to reflect the change (e.g., update button state)
+              // Reload the page or dynamically update the list of brands
+            } else {
+              Swal.fire('Error!', response.message, 'error');
+            }
+          },
+          error: function() {
+            Swal.fire('Error!', 'Something went wrong, please try again.', 'error');
+          }
+        });
+      }
     });
-    const result = await response.json();
-
-    if(result.error){
-      Swal.fire({
-        icon:"error",
-        title:"Error",
-        text: result.error ==="Brand already exists" ? "Brand already exists":"An error occured."
-      })
-    } else{
-      Swal.fire({
-        icon:"success",
-        title:"Success",
-        text:"Brand added successfully"
-      }).then(()=>{
-        location.reload();
-      })
-    }
-  } catch (error){
-    Swal.fire({
-      icon:"error",
-      title:"Oops....",
-      text:"An error occured while adding the brand."
-    })
   }
-}
 
+  // Unblock Brand Function with SweetAlert and AJAX
+  function confirmUnblock(brandId, event) {
+    event.preventDefault();
 
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "You are about to unblock this brand.",
+      icon: 'info',
+      showCancelButton: true,
+      confirmButtonText: 'Yes, unblock it!',
+      cancelButtonText: 'Cancel'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        // AJAX request to unblock the brand
+        $.ajax({
+          url: '/admin/unBlockBrand', // Ensure this is the correct route for unblocking
+          method: 'GET',
+          data: { id: brandId },
+          success: function(response) {
+            if (response.success) {
+              Swal.fire('Unblocked!', response.message, 'success');
+              // Optionally, update the UI to reflect the change (e.g., update button state)
+              // Reload the page or dynamically update the list of brands
+            } else {
+              Swal.fire('Error!', response.message, 'error');
+            }
+          },
+          error: function() {
+            Swal.fire('Error!', 'Something went wrong, please try again.', 'error');
+          }
+        });
+      }
+    });
+  }
 
-
-
-
-
-
-
-
-  </script> 
-
-<!-- 
-  <script>
-    // SweetAlert for delete confirmation
-    function confirmDelete(brandId) {
-      Swal.fire({
-        title: "Are you sure?",
-        text: "This action cannot be undone!",
-        icon: "warning",
-        showCancelButton: true,
-        confirmButtonText: "#dc3545",
-        cancelButtonText: "Yes, delete it!"
-      }).then((result) => {
-        if (result.isConfirmed) {
-          window.location.href = `/admin/deleteBrand?id=${brandId}`;
-        }
-      });
-    }
   
     // Form validation for brand addition
     function validateBrandForm() {
@@ -485,6 +455,8 @@ async function handleBrandFormSubmit(event){
       return true;
     }
   
+
+    
     // Handle form submission
     async function handleBrandFormSubmit(event) {
       event.preventDefault();
@@ -501,7 +473,7 @@ async function handleBrandFormSubmit(event){
           Swal.fire({
             icon: "error",
             title: "Error",
-            text: result.error === "Brand already exists" ? "Brand already exists" : "An error occurred.",
+            text: "Brand already exists",
           });
         } else {
           Swal.fire({
@@ -516,10 +488,12 @@ async function handleBrandFormSubmit(event){
         Swal.fire({ icon: "error", title: "Oops...", text: "An error occurred while adding the brand." });
       }
     }
-  </script>
+</script>
+  
+  
   
 
- -->
+
 
 
 

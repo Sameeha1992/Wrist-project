@@ -6,15 +6,17 @@ const categoryController = require("../controllers/admin/categoryController");
 const brandController = require("../controllers/admin/brandController")
 const productController = require("../controllers/admin/productController");
 
-const {userAuth,adminAuth} = require("../middlewares/auth");
+const {userAuth,adminAuth, isAdminLogout} = require("../middlewares/auth");
 const multer = require("multer");
 const storage = require("../helpers/multer");
 const uploads = multer({storage:storage});
 
 
 router.get("/page-error",adminController.pageerror);
+
+
 //Login Management
-router.get("/login",adminController.loadLogin);
+router.get("/login",isAdminLogout,adminController.loadLogin);
 
 router.post("/login",adminController.login);
 
@@ -45,7 +47,7 @@ router.get("/brands",adminAuth,brandController.getBrandPage);
 router.post("/addBrand",adminAuth,uploads.single("image"),brandController.addBrand);
 router.get("/blockBrand",adminAuth,brandController.blockBrand);
 router.get("/unBlockBrand",adminAuth,brandController.unBlockBrand)
-router.get("/deleteBrand",adminAuth,brandController.deleteBrand);
+// router.get("/deleteBrand",adminAuth,brandController.deleteBrand);
 
 
 //Product Management
