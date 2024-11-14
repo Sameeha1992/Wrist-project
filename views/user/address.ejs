@@ -1,0 +1,131 @@
+<%-include("../partials/mainheader")%>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        h1, h2 {
+            color: #2c3e50;
+        }
+        form {
+            background-color: #f9f9f9;
+            padding: 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+        }
+        input[type="text"], 
+        input[type="tel"],
+        select {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        .address-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .address-item {
+            background-color: #ecf0f1;
+            margin-bottom: 10px;
+            padding: 15px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>User Address Management</h1>
+
+    <section>
+        <h2>Current Address</h2>
+        <form action="/update-current-address" method="POST">
+            <label for="current-street">Street:</label>
+            <input type="text" id="current-street" name="street" value="<%= currentAddress.street %>" required>
+
+            <label for="current-city">City:</label>
+            <input type="text" id="current-city" name="city" value="<%= currentAddress.city %>" required>
+
+            <label for="current-state">State:</label>
+            <input type="text" id="current-state" name="state" value="<%= currentAddress.state %>" required>
+
+            <label for="current-zip">ZIP Code:</label>
+            <input type="text" id="current-zip" name="zip" value="<%= currentAddress.zip %>" required>
+
+            <label for="current-country">Country:</label>
+            <select id="current-country" name="country" required>
+                <option value="">Select a country</option>
+                <% countries.forEach(function(country) { %>
+                    <option value="<%= country.code %>" <%= currentAddress.country === country.code ? 'selected' : '' %>><%= country.name %></option>
+                <% }); %>
+            </select>
+
+            <button type="submit">Update Current Address</button>
+        </form>
+    </section>
+
+    <section>
+        <h2>Additional Addresses</h2>
+        <ul class="address-list">
+            <% additionalAddresses.forEach(function(address, index) { %>
+                <li class="address-item">
+                    <p><strong>Address <%= index + 1 %>:</strong></p>
+                    <p><%= address.street %>, <%= address.city %>, <%= address.state %> <%= address.zip %>, <%= address.country %></p>
+                    <form action="/delete-address/<%= address.id %>" method="POST">
+                        <button type="submit">Delete</button>
+                    </form>
+                </li>
+            <% }); %>
+        </ul>
+    </section>
+
+    <section>
+        <h2>Add New Address</h2>
+        <form action="/add-address" method="POST">
+            <label for="new-street">Street:</label>
+            <input type="text" id="new-street" name="street" required>
+
+            <label for="new-city">City:</label>
+            <input type="text" id="new-city" name="city" required>
+
+            <label for="new-state">State:</label>
+            <input type="text" id="new-state" name="state" required>
+
+            <label for="new-zip">ZIP Code:</label>
+            <input type="text" id="new-zip" name="zip" required>
+
+            <label for="new-country">Country:</label>
+            <select id="new-country" name="country" required>
+                <option value="">Select a country</option>
+                <% countries.forEach(function(country) { %>
+                    <option value="<%= country.code %>"><%= country.name %></option>
+                <% }); %>
+            </select>
+
+            <button type="submit">Add New Address</button>
+        </form>
+    </section>
+
+    <script>
+        // You can add client-side validation or dynamic functionality here if needed
+    </script>
+<%-include("../partials/mainfooter")%>

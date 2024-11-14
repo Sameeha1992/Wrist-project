@@ -7,6 +7,7 @@ const {userAuth,adminAuth} = require("../middlewares/auth");
 const express = require("express");
 const user_router = express.Router();
 const userController = require("../controllers/user/userController");
+const profileController = require("../controllers/user/profileController")
 const passport = require("passport");
 
 user_router.get("/",userController.loadLandingPage);
@@ -24,9 +25,10 @@ user_router.post("/verify-otp", userController.verifyOtp);
 user_router.post("/resend-otp", userController.resendOtp);
 
 user_router.get("/productDetails",userController.loadProductDetail);
-
-
-
+user_router.get("/userProfile",userAuth,profileController.userProfile)
+user_router.post("/update-profile",userAuth,profileController.updateProfile)
+user_router.get("/changePassword",userAuth,profileController.changePassword);
+user_router.post("/changePassword",userAuth,profileController.changePasswordValid)
 
 user_router.get("/auth/google",
   passport.authenticate('google', { scope: ['profile', 'email'], prompt : 'select_account' })

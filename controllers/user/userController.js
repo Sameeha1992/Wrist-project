@@ -4,7 +4,8 @@ const nodemailer = require("nodemailer");
 const bcrypt = require("bcrypt");
 const user_route = require("../../routes/userRouter");
 const Category = require("../../models/categorySchema");
-const Product = require("../../models/productSchema")
+const Product = require("../../models/productSchema");
+
 
 
 //Load Homepage
@@ -352,4 +353,5 @@ module.exports = {
   loadLogin,
   login,
   loadProductDetail,
+  
 };
