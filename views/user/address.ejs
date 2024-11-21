@@ -1,131 +1,449 @@
-<%-include("../partials/mainheader")%>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
-            max-width: 800px;
-            margin: 0 auto;
-            padding: 20px;
-        }
-        h1, h2 {
-            color: #2c3e50;
-        }
-        form {
-            background-color: #f9f9f9;
-            padding: 20px;
-            border-radius: 8px;
-            margin-bottom: 20px;
-        }
-        label {
-            display: block;
-            margin-bottom: 5px;
-        }
-        input[type="text"], 
-        input[type="tel"],
-        select {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 10px;
-            border: 1px solid #ddd;
-            border-radius: 4px;
-        }
-        button {
-            background-color: #3498db;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-        button:hover {
-            background-color: #2980b9;
-        }
-        .address-list {
-            list-style-type: none;
-            padding: 0;
-        }
-        .address-item {
-            background-color: #ecf0f1;
-            margin-bottom: 10px;
-            padding: 15px;
-            border-radius: 4px;
-        }
-    </style>
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wrist Style</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.2/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="css/fonts.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 </head>
+
 <body>
-    <h1>User Address Management</h1>
 
-    <section>
-        <h2>Current Address</h2>
-        <form action="/update-current-address" method="POST">
-            <label for="current-street">Street:</label>
-            <input type="text" id="current-street" name="street" value="<%= currentAddress.street %>" required>
+   
 
-            <label for="current-city">City:</label>
-            <input type="text" id="current-city" name="city" value="<%= currentAddress.city %>" required>
+    <div class="container-fluid">
+        <div class="row">
+            <!-- Sidebar -->
+            <nav id="sidebar" class="col-md-3 col-lg-2 d-md-block bg-light sidebar">
+                <div class="position-sticky">
+                    <ul class="nav flex-column">
+                        <li class="nav-item">
+                            <a class="nav-link" href="/profile">
+                                <i class="bi bi-person-fill"></i> User Profile
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/password">
+                                <i class="bi bi-key-fill"></i> Change Password
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link active" href="/address">
+                                <i class="bi bi-person-vcard-fill"></i> Address
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/orders">
+                                <i class="bi bi-box-seam-fill"></i> Orders
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="/wallet">
+                                <i class="bi bi-wallet2"></i> Skrym-Wallet
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
 
-            <label for="current-state">State:</label>
-            <input type="text" id="current-state" name="state" value="<%= currentAddress.state %>" required>
+            <!-- Main content -->
+            <main class="col-md-9 ms-sm-auto col-lg-10 px-md-4">
+                <div class="d-flex justify-content-between flex-wrap flex-md-nowrap align-items-center pt-3 pb-2 mb-3 border-bottom">
+                    <h1 class="h2">Address Management</h1>
+                </div>
 
-            <label for="current-zip">ZIP Code:</label>
-            <input type="text" id="current-zip" name="zip" value="<%= currentAddress.zip %>" required>
+                <div class="row">
+                    <!-- Address List -->
+                    <div class="col-md-6">
+                        <div class="card mb-4">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Your Addresses</h5>
+                            </div>
+                            <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                                <div id="addressWrapper">
+                                    <% if (addresses && addresses.length > 0) { %>
+                                        <% addresses.forEach((address, index) => { %>
+                                            <div class="card mb-2" id="address<%= index %>">
+                                                <div class="card-body">
+                                                    <div class="d-flex justify-content-between">
+                                                        <h5 class="card-title"><%= address.address_name %></h5>
+                                                        <button class="btn btn-sm btn-danger" onclick="deleteAddress('<%= address._id %>')">Delete</button>
+                                                    </div>
+                                                    <p class="card-text m-0"><%= address.house_name + ", " + address.street_address %></p>
+                                                    <p class="card-text m-0"><%= address.city + ", " + address.state + " , " + address.pincode %></p>
+                                                    <p class="card-text m-0">Phone: <%= address.phone %></p>
+                                                    <p class="card-text m-0">Alt Phone: <%= address.alt_phone %></p>
+                                                </div>
+                                            </div>
+                                        <% }) %>
+                                    <% } else { %>
+                                        <p>No addresses found. Please add an address.</p>
+                                    <% } %>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+             
+                    <script>
+                        
+                        function deleteAddress(id, index) {
+    const address = document.getElementById(`address${index}`);
 
-            <label for="current-country">Country:</label>
-            <select id="current-country" name="country" required>
-                <option value="">Select a country</option>
-                <% countries.forEach(function(country) { %>
-                    <option value="<%= country.code %>" <%= currentAddress.country === country.code ? 'selected' : '' %>><%= country.name %></option>
-                <% }); %>
-            </select>
+    $.ajax({
+        url: "/deleteaddress",
+        type: "DELETE",
+        contentType: "application/json",
+        data: JSON.stringify({ elemId: id }),
+        success: function (response) {
+            if (response.success) {
+                Toastify({
+                    text: response.message,
+                    duration: 2000,
+                    gravity: "bottom",
+                    position: "left",
+                    backgroundColor: "#03c03c",
+                    stopOnFocus: true
+                }).showToast();
 
-            <button type="submit">Update Current Address</button>
-        </form>
-    </section>
+                address.remove();
+            } else {
+                Toastify({
+                    text: response.message,
+                    duration: 2000,
+                    gravity: "bottom",
+                    position: "left",
+                    backgroundColor: "#fff",
+                    stopOnFocus: true
+                }).showToast();
+            }
+        },
+        error: function (xhr) {
+            if (xhr.status === 409) {
+                const data = xhr.responseJSON;
+                console.log("hellooooo delete aayeeee")
+                Toastify({
+                    text: data.message,
+                    duration: 2000,
+                    gravity: "bottom",
+                    position: "left",
+                    backgroundColor: "#fff",
+                    stopOnFocus: true
+                }).showToast();
+            } else {
+                console.error("Error occurred:", xhr.responseText);
+                Toastify({
+                    text: "An error occurred while deleting the address.",
+                    duration: 2000,
+                    gravity: "bottom",
+                    position: "left",
+                    backgroundColor: "#ff0000",
+                    stopOnFocus: true
+                }).showToast();
+            }
+        }
+    });
+}
 
-    <section>
-        <h2>Additional Addresses</h2>
-        <ul class="address-list">
-            <% additionalAddresses.forEach(function(address, index) { %>
-                <li class="address-item">
-                    <p><strong>Address <%= index + 1 %>:</strong></p>
-                    <p><%= address.street %>, <%= address.city %>, <%= address.state %> <%= address.zip %>, <%= address.country %></p>
-                    <form action="/delete-address/<%= address.id %>" method="POST">
-                        <button type="submit">Delete</button>
-                    </form>
-                </li>
-            <% }); %>
-        </ul>
-    </section>
 
-    <section>
-        <h2>Add New Address</h2>
-        <form action="/add-address" method="POST">
-            <label for="new-street">Street:</label>
-            <input type="text" id="new-street" name="street" required>
 
-            <label for="new-city">City:</label>
-            <input type="text" id="new-city" name="city" required>
 
-            <label for="new-state">State:</label>
-            <input type="text" id="new-state" name="state" required>
+                    </script>
 
-            <label for="new-zip">ZIP Code:</label>
-            <input type="text" id="new-zip" name="zip" required>
 
-            <label for="new-country">Country:</label>
-            <select id="new-country" name="country" required>
-                <option value="">Select a country</option>
-                <% countries.forEach(function(country) { %>
-                    <option value="<%= country.code %>"><%= country.name %></option>
-                <% }); %>
-            </select>
 
-            <button type="submit">Add New Address</button>
-        </form>
-    </section>
+                    <!-- Add Address Form -->
+                    <div class="col-md-6">
+                        <div class="card">
+                            <div class="card-header">
+                                <h5 class="card-title mb-0">Add New Address</h5>
+                            </div>
+                            <div class="card-body">
+                                <form id="addAddressForm">
+                                    <div class="mb-3">
+                                        <label for="addressName" class="form-label">Address Name<small class="badge ms-2 bg-danger" id="AN"></small></label>
+                                        <input type="text" class="form-control" id="addressName" name="name">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="houseName" class="form-label">House Name<small class="badge ms-2 bg-danger" id="HN"></small></label>
+                                        <input type="text" class="form-control" id="houseName" name="house">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="streetName" class="form-label">Street Name<small class="badge ms-2 bg-danger" id="SN"></small></label>
+                                        <input type="text" class="form-control" id="streetName" name="street">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="city" class="form-label">City<small class="badge ms-2 bg-danger" id="C"></small></label>
+                                        <input type="text" class="form-control" id="city" name="city">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="state" class="form-label">State<small class="badge ms-2 bg-danger" id="S"></small></label>
+                                        <select class="form-select" id="state" name="state">
+                                            <option value="" disabled selected>- Select State -</option>
+                                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                                <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                                <option value="Assam">Assam</option>
+                                <option value="Bihar">Bihar</option>
+                                <option value="Chhattisgarh">Chhattisgarh</option>
+                                <option value="Goa">Goa</option>
+                                <option value="Gujarat">Gujarat</option>
+                                <option value="Haryana">Haryana</option>
+                                <option value="Himachal Pradesh">Himachal Pradesh</option>
+                                <option value="Jharkhand">Jharkhand</option>
+                                <option value="Karnataka">Karnataka</option>
+                                <option value="Kerala">Kerala</option>
+                                <option value="Madhya Pradesh">Madhya Pradesh</option>
+                                <option value="Maharashtra">Maharashtra</option>
+                                <option value="Manipur">Manipur</option>
+                                <option value="Meghalaya">Meghalaya</option>
+                                <option value="Mizoram">Mizoram</option>
+                                <option value="Nagaland">Nagaland</option>
+                                <option value="Odisha">Odisha</option>
+                                <option value="Punjab">Punjab</option>
+                                <option value="Rajasthan">Rajasthan</option>
+                                <option value="Sikkim">Sikkim</option>
+                                <option value="Tamil Nadu">Tamil Nadu</option>
+                                <option value="Telangana">Telangana</option>
+                                <option value="Tripura">Tripura</option>
+                                <option value="Uttar Pradesh">Uttar Pradesh</option>
+                                <option value="Uttarakhand">Uttarakhand</option>
+                                <option value="West Bengal">West Bengal</option>
+                                <option value="Andaman and Nicobar Islands">Andaman and Nicobar Islands</option>
+                                <option value="Chandigarh">Chandigarh</option>
+                                <option value="Dadra and Nagar Haveli">Dadra and Nagar Haveli</option>
+                                <option value="Daman and Diu">Daman and Diu</option>
+                                <option value="Lakshadweep">Lakshadweep</option>
+                                <option value="Delhi">Delhi</option>
+                                <option value="Puducherry">Puducherry</option>
+                                        </select>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="pinCode" class="form-label">Pin-Code<small class="badge ms-2 bg-danger" id="PC"></small></label>
+                                        <input type="number" class="form-control" id="pinCode" name="pincode">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="phoneNumber" class="form-label">Phone Number<small class="badge ms-2 bg-danger" id="PN"></small></label>
+                                        <input type="number" class="form-control" id="phoneNumber" name="phone">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label for="altPhoneNumber" class="form-label">Alt Phone Number<small class="badge ms-2 bg-danger" id="APN"></small></label>
+                                        <input type="number" class="form-control" id="altPhoneNumber" name="altphone">
+                                    </div>
+                                    <button type="button" id="formSubmit" class="btn btn-primary">Submit</button>
+                                    <button type="reset" class="btn btn-secondary">Reset</button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
 
-    <script>
-        // You can add client-side validation or dynamic functionality here if needed
+  
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
+       
+
     </script>
-<%-include("../partials/mainfooter")%>
+
+</body>
+
+</html>
+  <script>
+      
+      const submit = document.getElementById("formSubmit");
+      const addressWrapper = document.getElementById("addressWrapper");
+
+      function validate(){
+        const addressName = document.getElementById("addressName").value;
+        const houseName = document.getElementById("houseName").value;
+        const streetName = document.getElementById("streetName").value;
+        const city = document.getElementById("city").value;
+            const state = document.getElementById("state").value;
+            const pinCode = document.getElementById("pinCode").value;
+            const phoneNumber = document.getElementById("phoneNumber").value;
+            const altPhoneNumber = document.getElementById("altPhoneNumber").value;
+
+
+            let formOK = true;
+            let AddressRegex = /^[0-9A-Za-z\s\.,#-]+$/;
+            let numberRegex = /^\d$/;
+  if(addressName.length <3){
+    document.getElementById("AN").textContent = "at least 3 characters";
+    formOK = false;
+  }  else if(!addressName.match(AddressRegex)){
+    document.getElementById("AN").textContent = "Only the specified special characters";
+    formOK = false;
+  } else{
+    document.getElementById("AN").textContent ="";
+  }
+
+
+
+  if(houseName.length <3){
+    document.getElementById("HN").textContent ="at least 3 characters";
+    formOK = false
+  } else if(!houseName.match(AddressRegex)){
+    document.getElementById("HN").textContent = "'Only the specified special characters";
+    formOK = false;
+  } else {
+    document.getElementById("HN").textContent ="";
+  }
+
+  
+  if (streetName.length < 3) {
+                document.getElementById("SN").textContent = "at least 3 characters";
+                formOK = false
+            } else if (!streetName.match(AddressRegex)) {
+                document.getElementById("SN").textContent = "Only the specified special characters [ . , # - ] allowed."
+                formOK = false
+            } else {
+                document.getElementById("SN").textContent = "";
+            }
+
+            if (city.length < 3) {
+                document.getElementById("C").textContent = "at least 3 characters";
+                formOK = false
+            } else if (!city.match(AddressRegex)) {
+                document.getElementById("C").textContent = "Only the specified special characters [ . , # - ] allowed."
+                formOK = false
+            } else {
+                document.getElementById("C").textContent = "";
+            }
+
+            if (state === '') {
+                document.getElementById("S").textContent = "please select one option";
+                formOK = false
+            } else {
+                document.getElementById("S").textContent = "";
+            }
+
+            if (pinCode.length !== 6 && !pinCode.match(numberRegex)) {
+                document.getElementById("PC").textContent = "Enter a valid 6-digit";
+                formOK = false
+            } else {
+                document.getElementById("PC").textContent = "";
+            }
+
+            if (phoneNumber.length !== 10 && !phoneNumber.match(numberRegex)) {
+                document.getElementById("PN").textContent = "Enter a valid 10-digit";
+                formOK = false
+            } else {
+                document.getElementById("PN").textContent = "";
+            }
+
+            if (altPhoneNumber.length === 0 || altPhoneNumber.length === 10) {
+                document.getElementById("APN").textContent = "";
+            } else if ((altPhoneNumber.length >= 1 && altPhoneNumber.length < 10) && !altPhoneNumber.match(numberRegex)) {
+                document.getElementById("APN").textContent = "Enter a valid 10-digit";
+                formOK = false;
+            }
+
+              return formOK;
+
+      }
+
+
+
+
+      submit.addEventListener("click",(e)=>{
+
+        console.log("address starting page")
+        e.preventDefault();
+          if(!validate()) return;
+
+          const formData ={
+                name: document.getElementById("addressName").value,
+                house: document.getElementById("houseName").value,
+                street: document.getElementById("streetName").value,
+                state: document.getElementById("state").value,
+                city: document.getElementById("city").value,
+                pincode: document.getElementById("pinCode").value,
+                phone: document.getElementById("phoneNumber").value,
+                altphone: document.getElementById("altPhoneNumber").value,
+          }
+       
+          fetch('/addaddress', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(formData),
+                
+            })
+                .then(response => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error("Internal server error!!")
+                    }
+                })
+                .then(data => {
+                    if (data.success) {
+                        Toastify({
+                            text: data.message,
+                            duration: 2000,
+                            gravity: "bottom",
+                            position: "left",
+                            backgroundColor: "#03c03c",
+                            stopOnFocus: true
+                        }).showToast();
+                        updateAddressWrapper(data.user.addresses);
+                       
+                    } else {
+                        Toastify({
+                            text: data.message,
+                            duration: 2000,
+                            gravity: "bottom",
+                            position: "left",
+                            backgroundColor: "#ff0000",
+                            stopOnFocus: true
+                        }).showToast();
+                    }
+                    console.log("working addresss")
+
+                })
+                .catch(error => {
+                    console.error(error.message);
+                });
+
+            // Function to update the address wrapper content
+            function updateAddressWrapper(address) {
+                const html = address.map((address, index) =>
+                        `<div class="card mb-2" id="address${index}">
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title">
+                                        ${address.address_name}
+                                    </h5>
+                                    <button class="btn btn-dark" onclick="deleteAddress('${address._id}', ${index})">Delete</button>
+                                </div>
+                                <p class="card-text m-0">
+                                    ${address.house_name}, ${address.street_address}
+                                </p>
+                                <p class="card-text m-0">
+                                    ${address.city}, ${address.state}, ${address.pincode}
+                                </p>
+                                <p class="card-text m-0">Phone: ${address.phone}</p>
+                                <p class="card-text m-0">Alt Phone: ${address.alt_phone}</p>
+                            </div>
+                        </div>`).join('');
+
+                console.log(html)
+                addressWrapper.innerHTML = html;
+            }
+
+      })
+
+
+
+</script>
+
+<%- include("../partials/mainfooter") %>

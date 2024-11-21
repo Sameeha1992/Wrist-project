@@ -109,6 +109,8 @@
         const mainImage = document.getElementById('mainImage');
         const zoomContainer = document.querySelector('.image-zoom-container');
 
+        console.log("coming profiledetail")
+
         zoomContainer.addEventListener('mousemove', (e) => {
             const { left, top, width, height } = zoomContainer.getBoundingClientRect();
             const x = (e.clientX - left) / width;
@@ -152,7 +154,9 @@
         
         const addToCartBtn = document.getElementById('addToCartBtn');
         const addToWishlistBtn = document.getElementById('addToWishlistBtn');
+        
 
+        console.log(addToCartBtn)
         addToCartBtn.addEventListener('click', () => {
             alert(`Added ${quantityInput.value} item(s) to cart!`);
         });

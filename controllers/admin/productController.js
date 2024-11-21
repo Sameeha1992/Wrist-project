@@ -59,9 +59,10 @@ const addProducts = async (req,res)=>{
                 category:categoryId._id,
                 regularPrice:products.regularPrice,
                 salePrice:products.salePrice,
-                quantity:products.quantity,
-                size:products.size,
-                color:products.color,
+                productOffer:products.productOffer,
+                blackquantity:products.quantity,
+                silverquantity:products.quantity,
+                goldenquantity:products.quantity,
                 productImage:images,
                 status:"Available",
 
@@ -120,6 +121,13 @@ try {
             totalPages:Math.ceil(count/limit),
             cat:category,
             brand:brand,
+            productOffer:productData.map(product=>product.productOffer),
+            blackQuantity:productData.map(product=>product.blackQuantity),
+            silverQuantity:productData.map(product=>product.silverQuantity),
+            goldenquantity:productData.map(product=>product.goldenQuantity),
+            
+
+            
 
         })
     } else{
@@ -172,7 +180,13 @@ const getEditProduct = async (req,res)=>{
         res.render("edit-product",{
             product:product,
             cat:category,
-            brand:brand
+            brand:brand,
+            productOffer:product.productOffer,
+            blackQuantity:product.blackQuantity,
+            silverQuantity:product.silverQuantity,
+            goldenQuantity:product.goldenQuantity,
+
+
         })
 
     } catch (error) {
@@ -213,9 +227,10 @@ const editProduct = async(req,res)=>{
             category:product.category,
             regularPrice:data.regularPrice,
             salePrice:data.salePrice,
-            quantity:data.quantity,
-            size:data.size,
-            color:data.color
+            blackQuantity:data.blackQuantity,
+            silverQuantity:data.silverQuantity,
+            goldenQuantity:data.goldenQuantity,
+            
 
 
         }

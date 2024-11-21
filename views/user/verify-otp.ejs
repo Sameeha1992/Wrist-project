@@ -155,6 +155,7 @@
 
         clearInterval(timerInterval);
         document.getElementById("timerValue").textContent = timer;
+        document.getElementById("otp").disabled = false;
          
 
         timerInterval = setInterval(() => {
@@ -190,7 +191,7 @@
                } else{
                 Swal.fire({
                     icon:"error",
-                    title:Error,
+                    title:'Error',
                     text:response.message,
 
                 })
@@ -209,14 +210,25 @@
 
 
     function resendOTP(){
-        clearInterval(timerInterval);
-        timer=60;
-        document.getElementById("otp").disabled=false;
+        if(timer>0){
+            Swal.fire({
+                icon:"info",
+                title:"Wait",
+                text:"You can only resend  the OTP after it expires"
+            });
+            return;
+        }
+
+        timer =60;
+        document.getElementById("otp").disabled = false;
         document.getElementById("timerValue").classList.remove("expired");
         startTimer();
+        console.log('nnnnn')
+
+        
         $.ajax({
 
-            type:"POST",
+            type:"post",
             url:"/resend-otp",
             success:function(response){
                 if(response.success){

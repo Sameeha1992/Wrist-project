@@ -40,7 +40,7 @@ const login= async(req,res)=>{
       console.log(passwordMatch,'passwordMatch')
       if(passwordMatch){
         req.session.admin_id = admin._id;
-        console.log(req.session.admin,'req.session.admin')
+        console.log(req.session.admin_id,'req.session.admin._id')
         return res.json({success : true});
         
       }else {

@@ -91,6 +91,29 @@ const customerUnblocked = async(req,res)=>{
 }
 
 
+
+const userBlockunBlock= async(req,res)=>{
+    try {
+        let id = req.query.id;
+        let user = await User.findById()
+        if(user.isBlocked){
+            await User.updateOne({_id:id},{$set:{isBlocked:false}});
+            res.redirect("/admin/user")
+
+        } else{
+            await User.updateOne({_id:id},{$set:{isBlocked:true}});
+            res.redirect("/admin/user")
+        }
+       
+        
+        
+    } catch (error) {
+        console.error("Error occured",error);
+        res.redirect("/pageerror")
+        
+    }
+}
+
 module.exports={
     customerInfo,
     customerBlocked,

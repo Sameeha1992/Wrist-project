@@ -1,4 +1,5 @@
-const mongoose=require("mongoose")
+const mongoose= require("mongoose")
+const address = require("../models/addressSchema")
 const {Schema} = mongoose;
 const bcrypt = require("bcrypt")
 
@@ -57,18 +58,11 @@ const userSchema=new Schema({
        orderHistory:[{
         type:Schema.Types.ObjectId,
         ref:"Order"
-    }],
-    createdOn:{
-        type:Date,
-        default:Date.now,
-    },
+    }], 
     referalCode:{
         type:String,
     },
-    redeemedUsers:[{
-        type:Schema.Types.ObjectId,
-        ref:"User",
-    }],
+   
     searchHistory:[{
         category:{
             type:Schema.Types.ObjectId,
@@ -83,16 +77,14 @@ const userSchema=new Schema({
             default:Date.now
         }
 
-    }]
+    }],
+
+    address:[address.schema]
 
 
    
 
-});
-
-userSchema.methods.verifyPassword = async function(password){
-    return await bcrypt.compare(password,this.password)
-};
+} , {timestamps : true});
 
 const User = mongoose.model("User",userSchema);
 module.exports=User;
