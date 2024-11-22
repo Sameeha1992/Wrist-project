@@ -27,6 +27,36 @@
     color: white; 
     border: 1px solid #030609; 
 }
+<style>
+    .status {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        background: #dc3545;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 3px;
+    }
+    
+    .price-dc {
+        text-decoration: line-through;
+        color: #b3b3b3;
+    }
+    
+    .badge-warning {
+        background-color: #ffc107;
+        color: #000;
+        font-size: 0.8em;
+        padding: 3px 8px;
+        margin-left: 5px;
+        border-radius: 3px;
+    }
+
+    .panel-title a.active {
+        color: #88c8bc;
+        font-weight: bold;
+    }
+</style>
 </style>
 
 <div class="hero-wrap hero-bread" style="background-image: url('images/bg_6.jpg');">
@@ -41,43 +71,50 @@
             </div>
         </div>
     </div>
-</div>
-
-<section class="ftco-section bg-light">
+</div><section class="ftco-section bg-light">
     <div class="container">
         <div class="row">
-
+            <!-- Products Display -->
             <div class="col-md-8 col-lg-10 order-md-last">
                 <div class="row">
-                    <% for (let i = 0; i < products.length; i++) { %>
+                    <% for (let product of products) { %>
                         <div class="col-sm-12 col-md-12 col-lg-4 ftco-animate d-flex">
                             <div class="product d-flex flex-column">
-                                <a href="/productDetails?id=<%= products[i]._id %>" class="img-prod">
-                                    <img class="img-fluid" src="/uploads/re-image/<%= products[i].productImage[0] %>" alt="<%= products[i].productName %>">
+                                <a href="/productDetails?id=<%= product._id %>" class="img-prod">
+                                    <img class="img-fluid" src="/uploads/re-image/<%= product.productImage[0] %>" alt="<%= product.productName %>">
+                                    <% if (product.productOffer > 0) { %>
+                                        <span class="status"><%=product.productOffer%>% OFF</span>
+                                    <% } %>
                                     <div class="overlay"></div>
                                 </a>
                                 <div class="text py-3 pb-4 px-3">
                                     <div class="d-flex">
-                                        <div class="cat"></div>
-                                        <div class="rating">
-                                            <p class="text-right mb-0">
-                                                <a href="#"><span class="ion-ios-star-outline"></span></a>
-                                                <a href="#"><span class="ion-ios-star-outline"></span></a>
-                                                <a href="#"><span class="ion-ios-star-outline"></span></a>
-                                                <a href="#"><span class="ion-ios-star-outline"></span></a>
-                                                <a href="#"><span class="ion-ios-star-outline"></span></a>
-                                            </p>
+                                        <div class="cat">
+                                            <span><%= product.brand %></span>
                                         </div>
                                     </div>
-                                    <h3><%= products[i].productName %></h3>
+                                    <h3><%= product.productName %></h3>
                                     <div class="pricing">
-                                        <p class="price"><span><%= products[i].salePrice %></span></p>
+                                        <% if (product.productOffer > 0) { %>
+                                            <p class="price">
+                                                <span class="mr-2 price-dc">₹<%= product.regularPrice %></span>
+                                                <span class="price-sale">₹<%= product.salePrice %></span>
+                                            </p>
+                                        <% } else { %>
+                                            <p class="price"><span>₹<%= product.regularPrice %></span></p>
+                                        <% } %>
                                     </div>
-                                    <p class="bottom-area d-flex px-3">
-                                        <a href="/productDetails?id=<%= products[i]._id %>" class="add-to-cart text-center py-2 mr-1">
-                                            <span>View Product<i class="ion-ios-add ml-1"></i></span>
-                                        </a>
-                                    </p>
+                                    <% if (product.status === "Available") { %>
+                                        <p class="bottom-area d-flex px-3">
+                                            <a href="/productDetails?id=<%= product._id %>" class="add-to-cart text-center py-2 mr-1">
+                                                <span>View Product<i class="ion-ios-add ml-1"></i></span>
+                                            </a>
+                                        </p>
+                                    <% } else { %>
+                                        <p class="bottom-area d-flex px-3">
+                                            <span class="text-danger"><%= product.status %></span>
+                                        </p>
+                                    <% } %>
                                 </div>
                             </div>
                         </div>
@@ -85,15 +122,24 @@
                 </div>
             </div>
 
+            <!-- Sidebar -->
             <div class="col-md-4 col-lg-2">
                 <div class="sidebar">
+                    <!-- Search Box -->
                     <div class="sidebar-box-2">
                         <h2 class="heading">Search</h2>
-                        <form action="/search" method="GET" class="colorlib-form-2">
+                        <form action="/shop" method="GET" class="colorlib-form-2">
+                            <!-- Preserve existing filters -->
+                            <% if (category !== 'All Categories') { %>
+                                <input type="hidden" name="category" value="<%= category %>">
+                            <% } %>
+                            <% if (sort) { %>
+                                <input type="hidden" name="sort" value="<%= sort %>">
+                            <% } %>
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <input type="text" name="query" class="form-control" placeholder="Search products...">
+                                        <input type="text" name="search" value="<%= search %>" class="form-control" placeholder="Search products...">
                                     </div>
                                 </div>
                                 <div class="col-md-12">
@@ -103,46 +149,73 @@
                         </form>
                     </div>
 
+                    <!-- Categories -->
                     <div class="sidebar-box-2">
-                        <h2 class="heading">Categories</h2>
-                        <div class="fancy-collapse-panel">
+                        <h2 class="heading"id="categories-toggle" style="cursor: pointer;">Categories</h2>
+                        <div class="fancy-collapse-panel" id="categories-list" style="display: none;">
                             <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-                                <% categories.forEach((category, index) => { %>
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading" role="tab" id="heading<%= index %>">
-                                            <h4 class="panel-title">
-                                                <a class="<%= index !== 0 ? 'collapsed' : '' %>" data-toggle="collapse" data-parent="#accordion" href="#collapse<%= index %>" aria-expanded="<%= index === 0 ? 'true' : 'false' %>" aria-controls="collapse<%= index %>">
-                                                    <%= category.name %>
-                                                </a>
-                                            </h4>
-                                        </div>
-                                        <div id="collapse<%= index %>" class="panel-collapse collapse <%= index === 0 ? 'show' : '' %>" role="tabpanel" aria-labelledby="heading<%= index %>">
-                                            <div class="panel-body">
-                                                <ul>
-                                                    <!-- You can add category items here if needed -->
-                                                </ul>
+                                <!-- All Categories option -->
+                                <div class="panel panel-default">
+                                    <div class="panel-heading">
+                                        <h4 class="panel-title">
+                                            <a href="/shop<%= sort ? '?sort=' + sort : '' %><%= search ? (sort ? '&' : '?') + 'search=' + search : '' %>" 
+                                               class="<%= category === 'All Categories' ? 'active' : '' %>">
+                                                All Categories
+                                            </a>
+                                        </h4>
+                                    </div>
+                                </div>
+                                
+                                <% categories.forEach(cat => { %>
+                                    <% if (cat.isListed) { %>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h4 class="panel-title">
+                                                    <a href="/shop?category=<%= cat._id %><%= sort ? '&sort=' + sort : '' %><%= search ? '&search=' + search : '' %>"
+                                                       class="<%= category === cat._id.toString() ? 'active' : '' %>">
+                                                        <%= cat.name %>
+                                                        <% if (cat.categoryOffer > 0) { %>
+                                                            <span class="badge badge-warning"><%= cat.categoryOffer %>% OFF</span>
+                                                        <% } %>
+                                                    </a>
+                                                </h4>
                                             </div>
                                         </div>
-                                    </div>
+                                    <% } %>
                                 <% }); %>
                             </div>
                         </div>
                     </div>
 
+                    <!-- Sort Options -->
                     <div class="sidebar-box-2">
                         <h2 class="heading">Sort By</h2>
-                        <form action="/products" method="GET" class="colorlib-form-2">
+                        <form action="/shop" method="GET" class="colorlib-form-2">
+                            <!-- Preserve existing filters -->
+                            <% if (category !== 'All Categories') { %>
+                                <input type="hidden" name="category" value="<%= category %>">
+                            <% } %>
+                            <% if (search) { %>
+                                <input type="hidden" name="search" value="<%= search %>">
+                            <% } %>
                             <div class="row">
                                 <div class="col-md-12">
                                     <div class="form-group">
-                                        <label for="sort">Sort Options:</label>
                                         <div class="form-field">
-                                            <i class="icon icon-arrow-down3"></i>
                                             <select name="sort" id="sort" class="form-control">
-                                                <option value="regularPrice_asc">Price: Low to High</option>
-                                                <option value="regularPrice_desc">Price: High to Low</option>
-                                                <option value="productName_asc">Name: A to Z</option>
-                                                <option value="productName_desc">Name: Z to A</option>
+                                                <option value="">Default Sorting</option>
+                                                <option value="price-low-high" <%= sort === 'price-low-high' ? 'selected' : '' %>>
+                                                    Price: Low to High
+                                                </option>
+                                                <option value="price-high-low" <%= sort === 'price-high-low' ? 'selected' : '' %>>
+                                                    Price: High to Low
+                                                </option>
+                                                <option value="name-az" <%= sort === 'name-az' ? 'selected' : '' %>>
+                                                    Name: A to Z
+                                                </option>
+                                                <option value="name-za" <%= sort === 'name-za' ? 'selected' : '' %>>
+                                                    Name: Z to A
+                                                </option>
                                             </select>
                                         </div>
                                     </div>
@@ -153,13 +226,51 @@
                             </div>
                         </form>
                     </div>
-
-                    
                 </div>
             </div>
         </div>
     </div>
+
+    <!-- Pagination -->
+    <div class="row">
+        <div class="col-md-12 text-center">
+            <nav aria-label="Page navigation">
+                <ul class="pagination justify-content-center">
+                    <% if (currentPage > 1) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="/shop?page=<%= currentPage - 1 %><%= category !== 'All Categories' ? '&category=' + category : '' %><%= sort ? '&sort=' + sort : '' %><%= search ? '&search=' + search : '' %>" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+                    <% } %>
+                    
+                    <% for (let page = 1; page <= totalPages; page++) { %>
+                        <% if (page === currentPage) { %>
+                            <li class="page-item active">
+                                <span class="page-link"><%= page %></span>
+                            </li>
+                        <% } else { %>
+                            <li class="page-item">
+                                <a class="page-link" href="/shop?page=<%= page %><%= category !== 'All Categories' ? '&category=' + category : '' %><%= sort ? '&sort=' + sort : '' %><%= search ? '&search=' + search : '' %>">
+                                    <%= page %>
+                                </a>
+                            </li>
+                        <% } %>
+                    <% } %>
+                    
+                    <% if (currentPage < totalPages) { %>
+                        <li class="page-item">
+                            <a class="page-link" href="/shop?page=<%= currentPage + 1 %><%= category !== 'All Categories' ? '&category=' + category : '' %><%= sort ? '&sort=' + sort : '' %><%= search ? '&search=' + search : '' %>" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    <% } %>
+                </ul>
+            </nav>
+        </div>
+    </div>
 </section>
+
 
 <section class="ftco-gallery">
     <div class="container">
@@ -172,37 +283,19 @@
     </div>
 
 
-	<div class="row">
-		<div class="col-md-12 text-center">
-			<nav aria-label="Page navigation">
-				<ul class="pagination justify-content-center">
-					<% if (currentPage > 1) { %>
-						<li class="page-item">
-							<a class="page-link" href="/shop?page=<%= currentPage - 1 %>" aria-label="Previous">
-								<span aria-hidden="true">&laquo;</span>
-							</a>
-						</li>
-					<% } %>
-					<% for (let page = 1; page <= totalPages; page++) { %>
-						<% if (page === currentPage) { %>
-							<li class="page-item active"><span class="page-link"><%= page %></span></li>
-						<% } else { %>
-							<li class="page-item"><a class="page-link" href="/shop?page=<%= page %>"><%= page %></a></li>
-						<% } %>
-					<% } %>
-					<% if (currentPage < totalPages) { %>
-						<li class="page-item">
-							<a class="page-link" href="/shop?page=<%= currentPage + 1 %>" aria-label="Next">
-								<span aria-hidden="true">&raquo;</span>
-							</a>
-						</li>
-					<% } %>
-				</ul>
-			</nav>
-		</div>
-	</div>
     
     </div>
 </section>
 
 <%- include("../partials/user/footer") %>
+
+<script>
+    document.getElementById('categories-toggle').addEventListener('click', function() {
+        var categoriesList = document.getElementById('categories-list');
+        if (categoriesList.style.display === 'none') {
+            categoriesList.style.display = 'block'; // Show categories
+        } else {
+            categoriesList.style.display = 'none'; // Hide categories
+        }
+    });
+</script>

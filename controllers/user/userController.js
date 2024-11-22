@@ -322,45 +322,119 @@ const logout = async (req, res) => {
 };
 
 
-const loadShoppingPage = async (req, res) => {
-  try {
-      const userId = req.session.user;
-      if (!userId) {
-          return res.redirect("/login");
-      }
+// const loadShoppingPage = async (req, res) => {
+//   try {
+//       const userId = req.session.user;
+//       if (!userId) {
+//           return res.redirect("/login");
+//       }
 
-      const itemsPerPage = 10;
-      const currentPage = parseInt(req.query.page) || 1; // Ensure this is set correctly
-      const skip = (currentPage - 1) * itemsPerPage;
+//       const itemsPerPage = 10;
+//       const currentPage = parseInt(req.query.page) || 1;
+//       const skip = (currentPage - 1) * itemsPerPage;
 
-      const products = await Product.find({ isBlocked: false })
-          .populate("category")
-          .skip(skip)
-          .limit(itemsPerPage);
+//       const products = await Product.find({ isBlocked: false })
+//           .populate("category")
+//           .skip(skip)
+//           .limit(itemsPerPage);
 
-      const totalProducts = await Product.countDocuments({ isBlocked: false });
-      const totalPages = Math.ceil(totalProducts / itemsPerPage);
+//       const totalProducts = await Product.countDocuments({ isBlocked: false });
+//       const totalPages = Math.ceil(totalProducts / itemsPerPage);
 
-      const cart = await Cart.findOne({ userId: new ObjectId(userId) });
-      const categories = await Category.find();
-      const cartItemsCount = cart ? cart.items.length : 0;
+//       const cart = await Cart.findOne({ userId: new ObjectId(userId) });
+//       const categories = await Category.find();
+//       const cartItemsCount = cart ? cart.items.length : 0;
 
-      // Make sure these variables are being passed to the EJS view
-      res.render("shop", {
-          products,
-          cartitems: cartItemsCount,
+      
+//       res.render("shop", {
+//           products,
+//           cartitems: cartItemsCount,
+//           categories,
+//           currentPage, 
+//           totalPages   
+//       });
+//   } catch (error) {
+//       console.error("Error loading shopping page:", error.message);
+//       res.status(500).render("error", { message: "An error occurred while loading the shopping page." });
+//   }
+// };
+
+  const loadShoppingPage = async (req,res)=>{
+    try {
+      if(!req.session.user){
+        return res.redirect("/login");
+      } else {
+        const userId = req.session.user;
+        const userData = await User.findOne({_id:userId});
+       
+
+
+        const {category, sort, search, page =1} = req.query;
+
+        const limit = 8;
+        const skip =(page-1) * limit;
+
+        let query ={isBlocked:false};
+       
+         
+        if(category && category !== "All Categories") {
+          query.category = category;
+        }
+        if(search) {
+          query.productName = {$regex:search,$options:"i"}
+        }
+        const totalProducts = await Product.countDocuments(query);
+        let productData = await Product
+        .find(query)
+        .populate("category")
+        .skip(skip)
+        .limit(limit);
+
+        if(sort) {
+          switch (sort){
+            case "price-low-high":
+              productData.sort((a,b)=>a.salePrice-b.salePrice);
+              break;
+
+              case "price-high-low":
+                productData.sort((a,b)=>b.salePrice -a.salePrice);
+                break;
+
+                case "name-az":
+                  productData.sort((a,b)=>a.productName.localeCompare(b.productName));
+                  break;
+
+                  case "name-za":
+                    productData.sort((a,b)=>b.productName.localeCompare(a.productName));
+                    break;
+          }
+        }
+        
+        const categories = await Category.find({isListed:true});
+        const totalPages = Math.ceil(totalProducts/limit);
+        const currentPage = parseInt(page);
+        
+          
+        res.render("shop",{
+          user:userData,
+          products:productData,
           categories,
-          currentPage, // This should be defined
-          totalPages   // This should be defined
-      });
-  } catch (error) {
-      console.error("Error loading shopping page:", error.message);
-      res.status(500).render("error", { message: "An error occurred while loading the shopping page." });
+          currentPage,
+          totalPages,
+          category:category || "All Categories",
+          sort: sort || '',
+          search: search || "",
+
+        });
+
+      }
+      
+    } catch (error) {
+      console.log(error.message);
+      res.status(500).render('500')
+      
+    }
   }
-};
-
-
-
 
 
 
