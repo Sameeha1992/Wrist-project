@@ -47,6 +47,11 @@ const productSchema = new Schema({
         enum:["Available","out of stock","Discontinued"],
         required:true,
         default:"Available"
+    },
+    quantity:{
+        type:Number,
+        required:true,
+        default:0,
     }
 },{timestamp:true});
 

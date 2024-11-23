@@ -1,188 +1,168 @@
-<%-include("../partials/user/header")%>
+<%- include("../partials/user/header") %>
 
 <style>
-/* Cart Page Styles */
-
-body {
-  font-family: 'Arial', sans-serif;
-  line-height: 1.6;
-  color: #333;
-  background-color: #f4f4f4;
-}
-
-.untree_co-section {
-  padding: 5rem 0;
-}
-
-.container {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 15px;
-}
-
-.site-blocks-table {
-  overflow-x: auto;
-}
-
-.table {
-  width: 100%;
-  margin-bottom: 1rem;
-  background-color: #fff;
-  border-collapse: collapse;
-}
-
-.table th,
-.table td {
-  padding: 1rem;
-  vertical-align: middle;
-  border-top: 1px solid #dee2e6;
-}
-
-.table thead th {
-  vertical-align: bottom;
-  border-bottom: 2px solid #dee2e6;
-  background-color: #f8f9fa;
-  font-weight: bold;
-}
-
-.product-thumbnail img {
-  max-width: 80px;
-  height: auto;
-}
-
-.product-name h2 {
-  font-size: 1rem;
-  margin-bottom: 0;
-}
-
-.quantity-container {
-  display: flex;
-  align-items: center;
-}
-
-.quantity-container .btn {
-  padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  border-radius: 0.25rem;
-}
-
-.quantity-amount {
-  width: 50px;
-  text-align: center;
-  margin: 0 0.5rem;
-}
-
-.btn-outline-black {
-  color: #000;
-  background-color: transparent;
-  border: 1px solid #000;
-}
-
-.btn-outline-black:hover {
-  color: #fff;
-  background-color: #000;
-}
-
-.btn-black {
-  color: #fff;
-  background-color: #000;
-  border: 1px solid #000;
-}
-
-.btn-black:hover {
-  background-color: #333;
-}
-
-.remove-btn {
-  padding: 0.25rem 0.5rem;
-  font-size: 0.875rem;
-}
-
-.coupon-section {
-  margin-top: 2rem;
-}
-
-.coupon-section label {
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-.coupon-section input {
-  width: 100%;
-  padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  border: 1px solid #ced4da;
-  border-radius: 0.25rem;
-}
-
-.cart-totals {
-  background-color: #fff;
-  padding: 2rem;
-  border-radius: 0.25rem;
-  box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
-}
-
-.cart-totals h3 {
-  margin-bottom: 1rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #dee2e6;
-}
-
-.cart-totals .row {
-  margin-bottom: 0.5rem;
-}
-
-.cart-totals .text-right {
-  text-align: right;
-}
-
-.btn-block {
-  display: block;
-  width: 100%;
-}
-
-@media (max-width: 767.98px) {
-  .table thead {
-    display: none;
+  /* Cart Page Styles */
+  body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    color: #333;
+    background-color: #f4f4f4;
   }
 
-  .table, .table tbody, .table tr, .table td {
-    display: block;
+  .untree_co-section {
+    padding: 5rem 0;
+  }
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 15px;
+  }
+
+  .site-blocks-table {
+    overflow-x: auto;
+  }
+
+  .table {
     width: 100%;
-  }
-
-  .table tr {
     margin-bottom: 1rem;
+    background-color: #fff;
+    border-collapse: collapse;
   }
 
+  .table th,
   .table td {
-    text-align: right;
-    padding-left: 50%;
-    position: relative;
+    padding: 1rem;
+    vertical-align: middle;
+    border-top: 1px solid #dee2e6;
   }
 
-  .table td::before {
-    content: attr(data-label);
-    position: absolute;
-    left: 6px;
-    width: 45%;
-    padding-right: 10px;
-    white-space: nowrap;
-    text-align: left;
+  .table thead th {
+    vertical-align: bottom;
+    border-bottom: 2px solid #dee2e6;
+    background-color: #f8f9fa;
     font-weight: bold;
   }
 
   .product-thumbnail img {
-    max-width: 100%;
+    max-width: 80px;
+    height: auto;
+  }
+
+  .product-name h2 {
+    font-size: 1rem;
+    margin-bottom: 0;
   }
 
   .quantity-container {
-    justify-content: flex-end;
+    display: flex;
+    align-items: center;
   }
-}
 
+  .quantity-container .btn {
+    padding: 0.375rem 0.75rem;
+    font-size: 1rem;
+    line-height: 1.5;
+    border-radius: 0.25rem;
+  }
+
+  .quantity-amount {
+    width: 50px;
+    text-align: center;
+    margin: 0 0.5rem;
+  }
+
+  .btn-outline-black {
+    color: #000;
+    background-color: transparent;
+    border: 1px solid #000;
+  }
+
+  .btn-outline-black:hover {
+    color: #fff;
+    background-color: #000;
+  }
+
+  .btn-black {
+    color: #fff;
+    background-color: #000;
+    border: 1px solid #000;
+  }
+
+  .btn-black:hover {
+    background-color: #333;
+  }
+
+  .remove-btn {
+    padding: 0.25rem 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .cart-totals {
+    background-color: #fff;
+    padding: 2rem;
+    border-radius: 0.25rem;
+    box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+  }
+
+  .cart-totals h3 {
+    margin-bottom: 1rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #dee2e6;
+  }
+
+  .cart-totals .row {
+    margin-bottom: 0.5rem;
+  }
+
+  .cart-totals .text-right {
+    text-align: right;
+  }
+
+  .btn-block {
+    display: block;
+    width: 100%;
+  }
+
+  @media (max-width: 767.98px) {
+    .table thead {
+      display: none;
+    }
+
+    .table, .table tbody, .table tr, .table td {
+      display: block;
+      width: 100%;
+    }
+
+    .table tr {
+      margin-bottom: 1rem;
+    }
+
+    .table td {
+      text-align: right;
+      padding-left: 50%;
+      position: relative;
+    }
+
+    .table td::before {
+      content: attr(data-label);
+      position: absolute;
+      left: 6px;
+      width: 45%;
+      padding-right: 10px;
+      white-space: nowrap;
+      text-align: left;
+      font-weight: bold;
+    }
+
+    .product-thumbnail img {
+      max-width: 100%;
+    }
+
+    .quantity-container {
+      justify-content: flex-end;
+    }
+  }
 </style>
 
 <div class="untree_co-section before-footer-section">
@@ -201,41 +181,72 @@ body {
                 <th class="product-remove">Remove</th>
               </tr>
             </thead>
+
             <tbody>
-              <% if(cart && cart.items.length > 0) { %>
-                <% cart.items.forEach((items) => { %>
-                  <tr class="product-container" data-cart-item-id="<%= items.productId._id %>">
-                    <td class="product-thumbnail">
-                      <a href="/product?id=<%= items.productId._id %>">
-                        <img src="/images/productImages/<%= items.productId.images[0] %>" alt="Image" class="img-fluid">
-                      </a>  
-                    </td>
-                    <td class="product-name">
-                      <h2 class="h5 text-black"><%= items.productId.name %></h2>
-                    </td>
-                    <td><%= items.price %></td>
-                    <td>
-                      <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px;">
-                        <div class="input-group-prepend">
-                          <button class="btn btn-outline-black decrease" type="button">&minus;</button>
+              <% if (cart && cart.length > 0) { %>
+                <% cart.forEach((item) => { %>
+                  <% if (item.error) { %>
+                    <!-- Display message if product is unavailable -->
+                    <tr>
+                      <td colspan="6" class="text-danger text-center"><%= item.error %></td>
+                    </tr>
+                  <% } else { %>
+                    <tr class="product-container" data-cart-item-id="<%= item.productId._id %>">
+                      <!-- Product Image -->
+                      <td class="product-thumbnail">
+                        <a href="/product?id=<%= item.productId._id %>">
+                          <img src="\uploads\re-image\<%= item.productId.productImage[0] %>" alt="<%= item.productId.productName %>" class="img-fluid" />
+                        </a>
+                      </td>
+            
+                      <!-- Product Details -->
+                      <td class="product-name">
+                        <h2 class="h5 text-black"><%= item.productId.productName %></h2>
+                        <p class="text-muted"> <%= item.productId.brand %></p>
+                        <p class="text-muted">Status: <%= item.productId.status %></p>
+                      </td>
+            
+                    
+                      
+            
+                      <!-- Quantity -->
+                      <td>
+                        <div class="input-group mb-3 d-flex align-items-center quantity-container" style="max-width: 120px;">
+                          <div class="input-group-prepend">
+                            <button class="btn btn-outline-black decrease" type="button">&minus;</button>
+                          </div>
+                          <input type="text" class="form-control text-center quantity-amount" value="<%= item.quantity %>" readonly />
+                          <input type="hidden" name="productId" class="productId" value="<%= item.productId._id %>" />
+                          <div class="input-group-append">
+                            <button class="btn btn-outline-black increase" type="button">&plus;</button>
+                          </div>
                         </div>
-                        <input type="text" class="form-control text-center quantity-amount" value="<%= items.quantity %>" readonly placeholder="" aria-label="Example text with button addon" aria-describedby="button-addon1">
-                        <input type="hidden" name="productId" class="productId" value="<%= items.productId._id %>">
-                        <div class="input-group-append">
-                          <button class="btn btn-outline-black increase" type="button">&plus;</button>
-                        </div>
-                      </div>
-                    </td>
-                    <td class="productIdInput"><%= items.subtotal %></td>
-                    <td><a href="#" class="btn btn-black btn-sm remove-btn" id="<%= items.productId._id %>">X</a></td>
-                  </tr>
+                        <% if (item.availableStock < item.quantity) { %>
+                          <p class="text-danger">Only <%= item.availableStock %></p>
+                        <% } %>
+                      </td>
+            
+                      <!-- Total Price -->
+                      <td>
+                        $<%= (item.productId.salePrice * item.quantity).toFixed(2) %>
+                      </td>
+            
+                      <!-- Remove Button -->
+                      <td>
+                        <a href="#" class="btn btn-black btn-sm remove-btn" id="<%= item.productId._id %>">X</a>
+                      </td>
+                    </tr>
+                  <% } %>
                 <% }) %>
               <% } else { %>
                 <tr>
-                  <td colspan="6">Cart is Empty</td>
+                  <td colspan="6" class="text-center">Your cart is empty</td>
                 </tr>
               <% } %>
             </tbody>
+
+
+           
           </table>
         </div>
       </form>
@@ -248,20 +259,6 @@ body {
             <a href="/products"><button class="btn btn-outline-black btn-sm btn-block" style="background-color: black; color: white;">Continue Shopping</button></a> 
           </div>
         </div>
-        <div class="row">
-          <div class="col-md-12">
-            <label class="text-black h4" for="coupon">Coupon</label>
-            <p>Enter your coupon code if you have one.</p>
-          </div>
-          <div class="col-md-8 mb-3 mb-md-0">
-            <input type="text" class="form-control py-3 couponCode" id="coupon" placeholder="Coupon Code">
-          </div>
-          <div class="col-md-4">
-            <button class="btn btn-black couponButton" style="background-color: black; color: white;">Apply Coupon</button>
-          </div>
-          <a href="#" style="width: 20%;"><button class="btn btn-outline-black btn-sm btn-block mt-3 couponBtn" style="background-color: black; color: white;">Coupon Offers</button></a> 
-          <a href="#" style="width: 30%;"><button class="btn btn-outline-black btn-sm btn-block mt-3 removeCouponBtn" style="background-color: black; color: white;">Remove Coupon</button></a> 
-        </div>
       </div>
       <div class="col-md-6 pl-5">
         <div class="row justify-content-end">
@@ -269,22 +266,6 @@ body {
             <div class="row">
               <div class="col-md-12 text-right border-bottom mb-5">
                 <h3 class="text-black h4 text-uppercase">Cart Totals</h3>
-              </div>
-            </div>
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <span class="text-black">Subtotal</span>
-              </div>
-              <div class="col-md-6 text-right">
-                <strong class="text-black cartSubtotal" id="<%= cart.cartSubtotal %>"><%= cart.cartSubtotal %></strong>
-              </div>
-            </div>
-            <div class="row mb-3">
-              <div class="col-md-6">
-                <span class="text-black">Coupon Offer</span>
-              </div>
-              <div class="col-md-6 text-right">
-                <strong class="text-black offerValue" id="offerCoupon"><%= cart.discountValue %></strong>
               </div>
             </div>
             <div class="row mb-5">
@@ -306,126 +287,5 @@ body {
     </div>
   </div>
 </div>
-<%-include("../partials/mainfooter")%>
 
-<script>
-// document.addEventListener('DOMContentLoaded', function() {
-//   // Quantity adjustment
-//   document.querySelectorAll('.increase, .decrease').forEach(button => {
-//     button.addEventListener('click', function() {
-//       const container = this.closest('.quantity-container');
-//       const quantityInput = container.querySelector('.quantity-amount');
-//       const productId = container.querySelector('.productId').value;
-//       let quantity = parseInt(quantityInput.value);
-
-//       if (this.classList.contains('increase')) {
-//         quantity++;
-//       } else if (this.classList.contains('decrease') && quantity > 1) {
-//         quantity--;
-//       }
-
-//       quantityInput.value = quantity;
-//       updateCartItem(productId, quantity);
-//     });
-//   });
-
-//   // Remove item
-//   document.querySelectorAll('.remove-btn').forEach(button => {
-//     button.addEventListener('click', function(e) {
-//       e.preventDefault();
-//       const productId = this.id;
-//       removeCartItem(productId);
-//     });
-//   });
-
-//   // Apply coupon
-//   document.querySelector('.couponButton').addEventListener('click', function(e) {
-//     e.preventDefault();
-//     const couponCode = document.querySelector('.couponCode').value;
-//     applyCoupon(couponCode);
-//   });
-
-//   // Remove coupon
-//   document.querySelector('.removeCouponBtn').addEventListener('click', function(e) {
-//     e.preventDefault();
-//     removeCoupon();
-//   });
-
-//   function updateCartItem(productId, quantity) {
-//     // AJAX call to update cart item
-//     fetch('/update-cart-item', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({ productId, quantity }),
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//       if (data.success) {
-//         updateCartTotals(data);
-//       }
-//     });
-//   }
-
-//   function removeCartItem(productId) {
-//     // AJAX call to remove cart item
-//     fetch('/remove-cart-item', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({ productId }),
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//       if (data.success) {
-//         document.querySelector(`[data-cart-item-id="${productId}"]`).remove();
-//         updateCartTotals(data);
-//       }
-//     });
-//   }
-
-//   function applyCoupon(couponCode) {
-//     // AJAX call to apply coupon
-//     fetch('/apply-coupon', {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//       },
-//       body: JSON.stringify({ couponCode }),
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//       if (data.success) {
-//         updateCartTotals(data);
-//         alert('Coupon applied successfully!');
-//       } else {
-//         alert('Invalid coupon code.');
-//       }
-//     });
-//   }
-
-//   function removeCoupon() {
-//     // AJAX call to remove coupon
-//     fetch('/remove-coupon', {
-//       method: 'POST',
-//     })
-//     .then(response => response.json())
-//     .then(data => {
-//       if (data.success) {
-//         updateCartTotals(data);
-//         document.querySelector('.couponCode').value = '';
-//         alert('Coupon removed successfully!');
-//       }
-//     });
-//   }
-
-//   function updateCartTotals(data) {
-//     document.querySelector('.cartSubtotal').textContent = data.cartSubtotal;
-//     document.querySelector('.offerValue').textContent = data.discountValue;
-//     document.querySelector('.cartTotals').textContent = data.totalAmount;
-//   }
-// });
-</script>
-
+<%- include("../partials/mainfooter") %>

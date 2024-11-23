@@ -54,7 +54,8 @@ user_router.post("/changePassword",userAuth,profileController.changePasswordVali
 //Cart Management:-
 
 user_router.get("/cart",userAuth,cartController.loadCart);
-user_router.post("/addToCart",userAuth,cartController.addtoCart)
+user_router.post("/addcart",cartController.addToCart)
+
 
 //Address management:-
 user_router.get("/userAddress",userAuth,profileController. loadAddressPage);

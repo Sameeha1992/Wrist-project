@@ -30,7 +30,7 @@ const loadLandingPage = async (req, res) => {
     const skip = (currentPage - 1) * itemsPerPage;
 
     let productData = await Product.find({
-      isBlocked: false,
+      isBlocked: {$ne : true},
       category: { $in: categories.map((category) => category._id) },
       quantity: { $gt: 0 },
     })
@@ -100,13 +100,13 @@ const loadLogin = async (req, res) => {
     res.render("login");
   } catch (error) {}
 };
-//Generate otp function
+
 
 function generateOtp() {
   return Math.floor(100000 + Math.random() * 900000).toString();
 }
 
-//Send Verification Email function
+
 
 async function sendVerificationEmail(email, otp) {
   try {
@@ -135,15 +135,12 @@ async function sendVerificationEmail(email, otp) {
   }
 }
 
-//Sign Up functionalities
+
 
 const signup = async (req, res) => {
   try {
     const { name, phone, email, password } = req.body;
-    // if (password !== cpassword) {
-    //   return res.render("signup", { message: "Password do not match" });
-    // }
-
+   
     const findUser = await User.findOne({ email });
     if (findUser) {
       return res.json({ success: false, message: "user already exiss" });
@@ -179,7 +176,8 @@ const getotp = async (req, res) => {
   }
 };
 
-//Secure password Function
+
+
 
 const securePassword = async (password) => {  
   try {
@@ -190,7 +188,7 @@ const securePassword = async (password) => {
   }
 };
 
-//Verify OTP function
+
 
 const verifyOtp = async (req, res) => {
   try {
@@ -290,17 +288,31 @@ const login = async (req, res) => {
   }
 };
 
+//Loading product detail
+
 const loadProductDetail = async (req, res) => {
   try {
+    if(!req.session.user) {
+      return res.redirect('/login')
+    }else {
+      
+    
     const productId = req.query.id;
     const product = await Product.findById({ _id: productId });
-    console.log(product)
 
     if (!product) {
       return res.status(404).send("Product not found");
     }
 
-    res.render("product-details", { product });
+    const relatedProducts = await Product.find({
+      category:product.category._id,
+      _id:{ $ne:productId }
+    }).limit(4);
+
+    const cartItemCount = req.session.cart ? req.session.cart.length :0;
+
+    res.render("product-details", { product,relatedProducts,cartItemCount});
+  }
   } catch (error) {
     console.error("Error in loading product detail:", error);
     res.status(500).send("Server error");
@@ -359,6 +371,8 @@ const logout = async (req, res) => {
 //   }
 // };
 
+
+//Loading of shopping page
   const loadShoppingPage = async (req,res)=>{
     try {
       if(!req.session.user){

@@ -6,26 +6,118 @@
     <title><%= product.productName %> - Wrist Style</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.bundle.min.js"></script>
+</head>
     <style>
-        body { background-color: #e9e5d0; color: #333; font-family: Arial, sans-serif; }
-        .navbar { background-color: #c5b358; }
-        .navbar-brand, .nav-link { color: #333 !important; }
-        .product-title { color: #8B4513; font-weight: bold; }
-        .product-price { color: #c5b358; font-size: 1.5rem; font-weight: bold; }
-        .btn-primary { background-color: #8B4513; border-color: #8B4513; }
-        .btn-primary:hover { background-color: #704214; border-color: #704214; }
-        .btn-outline-primary { color: #8B4513; border-color: #8B4513; }
-        .btn-outline-primary:hover { background-color: #8B4513; color: #fff; }
-        .image-zoom-container { overflow: hidden; position: relative; }
-        .image-zoom { transition: transform 0.3s ease; }
-        .thumbnail { cursor: pointer; transition: opacity 0.3s ease; }
-        .thumbnail:hover { opacity: 0.7; }
-        .thumbnail.active { border: 2px solid #8B4513; }
-        #quantityInput { width: 50px; text-align: center; }
+        :root {
+            --primary-color: #3498db;
+            --secondary-color: #2c3e50;
+            --accent-color: #e74c3c;
+            --background-color: #ecf0f1;
+            --text-color: #34495e;
+        }
+        body { 
+            background-color: var(--background-color);
+            color: var(--text-color);
+            font-family: 'Roboto', sans-serif;
+        }
+        .navbar { 
+            background-color: var(--primary-color);
+            box-shadow: 0 2px 4px rgba(0,0,0,.1);
+        }
+        .navbar-brand, .nav-link { 
+            color: #fff !important; 
+            font-weight: 500;
+        }
+        .product-title { 
+            color: var(--secondary-color);
+            font-weight: bold; 
+            font-size: 2.5rem;
+        }
+        .product-price { 
+            color: var(--accent-color);
+            font-size: 2rem; 
+            font-weight: bold;
+        }
+        .btn-primary { 
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 10px 20px;
+        }
+        .btn-primary:hover { 
+            background-color: #2980b9;
+            border-color: #2980b9;
+        }
+        .btn-outline-primary { 
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+            padding: 10px 20px;
+        }
+        .btn-outline-primary:hover { 
+            background-color: var(--primary-color);
+            color: #fff;
+        }
+        .image-zoom-container { 
+            overflow: hidden; 
+            position: relative; 
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,.1);
+        }
+        .image-zoom { 
+            transition: transform 0.3s ease; 
+            width: 100%;
+            height: auto;
+        }
+        .thumbnail { 
+            cursor: pointer; 
+            transition: opacity 0.3s ease; 
+            border-radius: 4px;
+        }
+        .thumbnail:hover { 
+            opacity: 0.7; 
+        }
+        .thumbnail.active { 
+            border: 2px solid var(--primary-color);
+        }
+        #quantityInput { 
+            width: 60px; 
+            text-align: center; 
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        .related-products {
+            background-color: #fff;
+            padding: 40px 0;
+            margin-top: 40px;
+        }
+        .related-products h2 {
+            color: var(--secondary-color);
+            margin-bottom: 30px;
+        }
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            border: none;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 4px 15px rgba(0,0,0,.1);
+        }
+        .card-title {
+            color: var(--secondary-color);
+            font-weight: 500;
+        }
+        .card-text {
+            color: var(--accent-color);
+            font-weight: bold;
+        }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-light">
+    <nav class="navbar navbar-expand-lg navbar-dark">
         <div class="container">
             <a class="navbar-brand" href="/">Wrist Style</a>
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
@@ -34,25 +126,37 @@
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="/">Home</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/catalog">Catalog</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/about">About</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/contact">Contact</a></li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/cart">
+                            <i class="fas fa-shopping-cart"></i>
+                            <span class="sr-only">Cart</span>
+                            <% if (typeof cartItemCount !== 'undefined' && cartItemCount > 0) { %>
+                                <span class="badge bg-danger rounded-pill"><%= cartItemCount %></span>
+                            <% } %>
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="/wishlist">
+                            <i class="fas fa-heart"></i>
+                            <span class="sr-only">Wishlist</span>
+                            <% if (typeof wishlistItemCount !== 'undefined' && wishlistItemCount > 0) { %>
+                                <span class="badge bg-warning rounded-pill"><%= wishlistItemCount %></span>
+                            <% } %>
+                        </a>
+                    </li>
                 </ul>
             </div>
         </div>
     </nav>
 
-
-    <nav aria-label="breadcrumb" class="mt-4">
-        <ol class="breadcrumb">
-            <li class="breadcrumb-item"><a href="/">Home</a></li>
-            <li class="breadcrumb-item"><a href="/category">Catalog</a></li>
-            <li class="breadcrumb-item active" aria-current="page"><%= product.productName %></li>
-        </ol>
-    </nav>
-
-
-
+    <div class="container mt-4">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/">Home</a></li>
+                <li class="breadcrumb-item active" aria-current="page"><%= product.productName %></li>
+            </ol>
+        </nav>
+    </div>
 
     <div class="container mt-5">
         <div class="row">
@@ -62,8 +166,7 @@
                 </div>
                 <div class="row">
                     <% product.productImage.forEach((image, index) => { %>
-                        <div class="col-4">
-                           
+                        <div class="col-3 mb-3">
                             <img src="/uploads/re-image/<%= image %>" alt="Watch Thumbnail <%= index + 1 %>" 
                                  class="img-fluid thumbnail <%= index === 0 ? 'active' : '' %>" 
                                  onclick="changeImage('/uploads/re-image/<%= image %>', this)">
@@ -74,42 +177,89 @@
             <div class="col-md-6">
                 <h1 class="product-title mb-3"><%= product.productName %></h1>
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <span class="product-price">$<%= product.salePrice %></span>
+                    <span class="product-price">$<%= product.salePrice.toFixed(2) %></span>
                     <div class="product-rating">
                         <!-- Render the star ratings dynamically -->
-                      <!-- rating -->
-                        
                     </div>
                 </div>
                 <p class="mb-4"><%= product.description %></p>
-               <!-- features -->
-                
+
                 <div class="mb-3">
-                    <label for="quantityInput" class="form-label">Quantity:</label>
-                    <div class="input-group" style="width: 150px;">
-                        <button class="btn btn-outline-secondary" type="button" id="decrementBtn">-</button>
-                        <input type="number" class="form-control" id="quantityInput" value="1" min="1">
-                        <button class="btn btn-outline-secondary" type="button" id="incrementBtn">+</button>
+                    <% if (product.stock == 0) { %>
+                        <p>out of stock</p>
+                    <% } %>
+                </div>
+
+              
+                    <div class="mb-4" hidden>
+                        <label for="quantityInput" class="form-label">Quantity:</label>
+                        <div class="input-group" style="width: 150px;">
+                            <button class="btn btn-outline-secondary" type="button" id="decrementBtn">-</button>
+                            <input type="number" class="form-control" id="quantityInput" value="1" min="1">
+                            <button class="btn btn-outline-secondary" type="button" id="incrementBtn">+</button>
+                        </div>
                     </div>
-                </div>
-                <div class="d-grid gap-2">
-                    <button class="btn btn-primary btn-lg" id="addToCartBtn">Add to Cart</button>
-                    <button class="btn btn-outline-primary btn-lg" id="addToWishlistBtn">
-                        <i class="far fa-heart me-2"></i>Add to Wishlist
-                    </button>
-                </div>
+                    <div class="d-grid gap-3">
+                        <button class="btn btn-primary btn-lg" id="addToCartBtn">Add to Cart</button>
+                        <button class="btn btn-outline-primary btn-lg" id="addToWishlistBtn">
+                            <i class="far fa-heart me-2"></i>Add to Wishlist
+                        </button>
+                    </div>
+               
+                    <div class="mt-4">
+                        <p class="text-danger"></p>
+                    </div>
+                
+            </div>
+        </div>
+
+    <div class="related-products">
+        <div class="container">
+            <h2 class="text-center mb-4">Related Products</h2>
+            <div class="row">
+                <% relatedProducts.forEach(product => { %>
+                    <div class="col-md-3 mb-4">
+                        <div class="card h-100">
+                            <img src="/uploads/re-image/<%= product.productImage[0] %>" class="card-img-top" alt="<%= product.productName %>">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title"><%= product.productName %></h5>
+                                <p class="card-text mt-auto">$<%= product.salePrice.toFixed(2) %></p>
+                                <a href="/productDetails?id=<%= product._id %>" class="btn btn-primary mt-2">View Product</a>
+                            </div>
+                        </div>
+                    </div>
+                <% }) %>
             </div>
         </div>
     </div>
 
+    <body>
+        
+    
+        <div id="toastContainer" aria-live="polite" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 1050;">
+            <div id="toast" class="toast" style="display: none;">
+                <div class="toast-header">
+                    <strong class="mr-auto">Notification</strong>
+                    <small>just now</small>
+                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="toast-body" id="toastBody">
+                    Added items to cart!
+                </div>
+            </div>
+        </div>
+    </body>
+</body>
+</html>
+     
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
     <script>
-        
-        
         const mainImage = document.getElementById('mainImage');
         const zoomContainer = document.querySelector('.image-zoom-container');
-
-        console.log("coming profiledetail")
 
         zoomContainer.addEventListener('mousemove', (e) => {
             const { left, top, width, height } = zoomContainer.getBoundingClientRect();
@@ -125,41 +275,29 @@
             mainImage.style.transform = 'scale(1)';
         });
 
-        
         function changeImage(imagePath, thumbnail) {
-        
-        document.getElementById('mainImage').src = imagePath;
+            document.getElementById('mainImage').src = imagePath;
+            document.querySelectorAll('.thumbnail').forEach(thumb => thumb.classList.remove('active'));
+            thumbnail.classList.add('active');
+        }
 
-        
-        document.querySelectorAll('.thumbnail').forEach(thumb => thumb.classList.remove('active'));
-
-        
-        thumbnail.classList.add('active');
-    }
-        
         const quantityInput = document.getElementById('quantityInput');
         const decrementBtn = document.getElementById('decrementBtn');
         const incrementBtn = document.getElementById('incrementBtn');
 
         decrementBtn.addEventListener('click', () => {
-            if (quantityInput.value > 1) {
-                quantityInput.value = parseInt(quantityInput.value) - 1;
-            }
-        });
+    let currentValue = parseInt(quantityInput.value, 10) || 1;
+    if (currentValue > 1) {
+        quantityInput.value = currentValue - 1;
+    }
+});
+incrementBtn.addEventListener('click', () => {
+    let currentValue = parseInt(quantityInput.value, 10) || 1;
+    quantityInput.value = currentValue + 1;
+});;
 
-        incrementBtn.addEventListener('click', () => {
-            quantityInput.value = parseInt(quantityInput.value) + 1;
-        });
-
-        
         const addToCartBtn = document.getElementById('addToCartBtn');
         const addToWishlistBtn = document.getElementById('addToWishlistBtn');
-        
-
-        console.log(addToCartBtn)
-        addToCartBtn.addEventListener('click', () => {
-            alert(`Added ${quantityInput.value} item(s) to cart!`);
-        });
 
         addToWishlistBtn.addEventListener('click', () => {
             alert('Added to wishlist!');
@@ -167,5 +305,31 @@
             addToWishlistBtn.disabled = true;
         });
     </script>
-</body>
-</html>
+
+
+<script>
+    addToCartBtn.addEventListener('click', () => {
+        const productId ="<%= product._id %>";
+        const categoryId ="<%=product.category%>";
+        const quantity = parseInt(quantityInput.value);
+        console.log(`product id : ${productId} , categoryid : ${categoryId} , quntity : ${quantity}`);
+
+        $.ajax({
+            url : '/addcart',
+            method : 'POST',
+            data : JSON.stringify({
+                categoryId,
+                productId,
+                quantity,
+            }),
+            contentType : 'application/json',
+            success : function(res) {
+                if(res.success) {
+                    console.log('hi');
+                }else {
+                    alert(res.message)
+                }
+            }
+        })
+    });
+</script>
