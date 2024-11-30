@@ -158,36 +158,48 @@
             
               
               if (response.success) {
-                  Swal.fire({
-                      icon: 'success',
-                      title: 'Login Successful',
-                      text: 'Admin login successful',
-                      confirmButtonText: 'Continue'
-                  }).then(() => {
-                      window.location.href = '/admin';
-                  });
+
+                const successMessage = document.createElement('p');
+                successMessage.innerText = 'Logged in successfully!';
+                successMessage.style.color = 'green';
+                successMessage.style.fontSize = '1rem';
+                successMessage.style.marginTop = '10px';
+
+                
+                document.querySelector('.login-container').appendChild(successMessage);
+
+                
+                setTimeout(() => {
+                    window.location.href = '/admin';
+                }, 2000); 
+                  
+                     
+                  
               } else {
-                  Swal.fire({
-                      icon: 'error',
-                      title: 'Login Failed',
-                      text: response.message,
-                      confirmButtonText: 'Try Again'
-                  });
+                  const errorMessage = document.getElementById("error_message");
                   errorMessage.innerText = response.message;
+                  errorMessage.style.color ='red';
               }
           },
 
           error: function() {
-              Swal.fire({
-                  icon: 'error',
-                  title: 'Error',
-                  text: 'An error occurred. Please try again later.',
-                  confirmButtonText: 'OK'
-              });
+             const errorMessage = document.getElementById('error_message')
               errorMessage.innerText = 'An error occurred. Please try again';
+              errorMessage.style.color='red'
           }
       });
   });
+
+
+  document.getElementById('email').addEventListener('input', clearErrorMessage);
+document.getElementById('password').addEventListener('input', clearErrorMessage);
+
+function clearErrorMessage() {
+    const errorMessage = document.getElementById('error_message');
+    errorMessage.innerText = ''; 
+}
+
+  document
 </script>
 
 

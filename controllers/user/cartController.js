@@ -25,7 +25,7 @@ const loadCart = async (req, res) => {
       .populate({
         path: "productId",
         
-        select: "productName salesPrice productImage  stock ",
+        select: "productName salesPrice productImage  colorStock ",
       })
       .populate({
         path: "categoryId",
@@ -171,55 +171,66 @@ const addToCart = async (req, res) => {
       message: "Internal server error" 
     });
   }
-};
+}
 
 
 
-
-
-
-const updateCartQuantity = async (req, res) => {
+const deleteCart = async(req,res)=>{
   try {
-    const userId = req.session.user;
-    const { productId, quantity } = req.body;
-
-    if (quantity > 5) {
-      return res.json({ 
-        success: false, 
-        message: 'Maximum limit is 5 items' 
-      });
-    }
-
-    const product = await Product.findById(productId);
-    if (quantity > product.stock) {
-      return res.json({ 
-        success: false, 
-        message: `Only ${product.stock} items available in stock` 
-      });
-    }
-
-    await Cart.updateOne(
-      { userId, productId },
-      { $set: { quantity: quantity } }
-    );
-
-    return res.json({ 
-      success: true, 
-      message: 'Quantity updated successfully' 
-    });
+    
   } catch (error) {
-    console.error('Error updating quantity:', error);
-    return res.json({ 
-      success: false, 
-      message: 'Error updating quantity' 
-    });
+    
   }
-};
+}
+
+
+
+
+
+
+// const updateCartQuantity = async (req, res) => {
+//   try {
+//     const userId = req.session.user;
+//     const { productId, quantity } = req.body;
+
+//     if (quantity > 5) {
+//       return res.json({ 
+//         success: false, 
+//         message: 'Maximum limit is 5 items' 
+//       });
+//     }
+
+//     const product = await Product.findById(productId);
+//     if (quantity > product.stock) {
+//       return res.json({ 
+//         success: false, 
+//         message: `Only ${product.stock} items available in stock` 
+//       });
+//     }
+
+//     await Cart.updateOne(
+//       { userId, productId },
+//       { $set: { quantity: quantity } }
+//     );
+
+//     return res.json({ 
+//       success: true, 
+//       message: 'Quantity updated successfully' 
+//     });
+//   } catch (error) {
+//     console.error('Error updating quantity:', error);
+//     return res.json({ 
+//       success: false, 
+//       message: 'Error updating quantity' 
+//     });
+//   }
+// };
 
 module.exports = {
   loadCart,
   addToCart,
-  updateCartQuantity  
+  deleteCart,
+  // updateCartQuantity  
 };
 
 

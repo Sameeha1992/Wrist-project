@@ -16,11 +16,8 @@ const brandSchema = new Schema({
         type: Boolean,
         default:false
      },
-     createdAt:{
-        type:Date,
-        default:Date.now
-     }
-})
+    
+},{ timestamps: true })
 
 const Brand= mongoose.model("Brand",brandSchema);
 

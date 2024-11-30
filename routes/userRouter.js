@@ -13,7 +13,7 @@ const passport = require("passport");
 
 
 //Homepage
-user_router.get("/",userController.loadLandingPage);
+user_router.get("/",userAuth,userController.loadLandingPage);
 user_router.get("/home",userController.loadHomepage);
 user_router.get("/shop",userController.loadShoppingPage)
 

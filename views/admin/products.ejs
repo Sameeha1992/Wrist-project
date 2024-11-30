@@ -283,7 +283,9 @@
                         <th>Product Name</th>
                         <th>Brand</th>
                         <th>Category</th>
-                        <th>quantity</th>
+                        <th>Available Colors</th>
+                        <th>Quantity</th>
+                        <th>Offer</th>
                         <th>Status</th>
                         <th>Actions</th>
                     </tr>
@@ -292,10 +294,41 @@
                     <%for(let i=0;i<data.length;i++){%>
                     <tr>
                         <td><%=data[i].productName%></td>
-                        <td><%=data[i].brand%></td>
-                        <td><%=data[i].category.name%></td>
+                        <td>
+                            <% if (data[i].brand && data[i].brand.brandName) { %>
+                                <%= data[i].brand?.brandName %>
+                            <% } else { %>
+                                Not Assigned
+                            <% } %>
+                        </td>
+                        <td>
+                            <% if (data[i].category && data[i].category.name) { %>
+                                <%= data[i].category?.name %>
+                            <% } else { %>
+                                Not Assigned
+                            <% } %>
+                        </td>
+                        
+
+                        <td>
+                            <% if (data[i].colorStock && data[i].colorStock.length > 0) { %>
+                                <% const totalQuantity = data[i].colorStock.reduce((sum, stock) => sum + stock.quantity, 0) %>
+                                <%= totalQuantity %> - 
+                                <% const availableColors = data[i].colorStock.filter(stock => stock.status === 'Available' && stock.quantity > 0); %>
+                                <% if (availableColors.length > 0) { %>
+                                    <%= availableColors.map(stock => stock.color).join(', ') %>
+                                <% } else { %>
+                                    No colors available
+                                <% } %>
+                            <% } else { %>
+                                No colors
+                            <% } %>
+                        </td>
+
+
     
                         <td><%=data[i].quantity%></td>
+                        
                         <td><span class="status-badge <%=data[i].isBlocked ? 'status-blocked' : 'status-active'%>">
                             <%=data[i].isBlocked ? 'Blocked' : 'Active'%>
                         </span></td>

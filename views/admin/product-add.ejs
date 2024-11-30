@@ -8,60 +8,215 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.css">
     <style>
+        :root {
+            --primary-color: #3b82f6;
+            --primary-hover: #2563eb;
+            --secondary-color: #10b981;
+            --secondary-hover: #059669;
+            --danger-color: #ef4444;
+            --danger-hover: #dc2626;
+            --background-color: #f3f4f6;
+            --card-background: #ffffff;
+            --text-color: #1f2937;
+            --border-color: #d1d5db;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: var(--background-color);
+            color: var(--text-color);
+        }
+
         .content-main {
             padding: 2rem;
-            background-color: #f8f9fa;
+            background-color: var(--card-background);
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         }
+
         .content-title {
-            font-size: 2rem;
-            font-weight: 600;
-            color: #333;
+            font-size: 1.875rem;
+            font-weight: 700;
+            color: var(--text-color);
             margin-bottom: 1.5rem;
+            border-bottom: 2px solid var(--primary-color);
+            padding-bottom: 0.5rem;
         }
+
         .card {
             border: none;
-            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
             margin-bottom: 2rem;
+            border-radius: 0.5rem;
+            overflow: hidden;
         }
+
         .card-header {
-            background-color: #007bff;
+            background-color: var(--primary-color);
             color: white;
             font-weight: 600;
+            padding: 1rem;
         }
+
         .form-label {
             font-weight: 500;
+            color: var(--text-color);
+            margin-bottom: 0.5rem;
         }
+
+        .form-control, .form-select {
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 0.2rem rgba(59, 130, 246, 0.25);
+        }
+
         .btn-primary {
-            background-color: #007bff;
-            border-color: #007bff;
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+            transition: all 0.3s ease;
         }
+
         .btn-primary:hover {
-            background-color: #0056b3;
-            border-color: #0056b3;
+            background-color: var(--primary-hover);
+            border-color: var(--primary-hover);
         }
+
+        .btn-secondary {
+            background-color: var(--secondary-color);
+            border-color: var(--secondary-color);
+            transition: all 0.3s ease;
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--secondary-hover);
+            border-color: var(--secondary-hover);
+        }
+
         .thumbnails-container {
             display: flex;
             overflow-x: auto;
             padding: 1rem;
             gap: 1rem;
+            background-color: var(--background-color);
+            border-radius: 0.375rem;
         }
+
         .thumbnail {
             width: 100px;
             height: 100px;
             object-fit: cover;
-            border-radius: 0.25rem;
+            border-radius: 0.375rem;
+            border: 2px solid var(--border-color);
+            transition: all 0.3s ease;
         }
-        .image-upload {
-            margin-bottom: 1rem;
+
+        .thumbnail:hover {
+            border-color: var(--primary-color);
+            transform: scale(1.05);
         }
+
         .image-preview {
             max-width: 100%;
             height: auto;
             margin-bottom: 1rem;
+            border-radius: 0.375rem;
+            border: 2px solid var(--border-color);
         }
+
         .error-message {
-            color: #dc3545;
+            color: var(--danger-color);
             font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+
+        .color-stock-container {
+            background-color: var(--background-color);
+            border: 1px solid var(--border-color);
+            border-radius: 0.5rem;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .color-stock-item {
+            background-color: var(--card-background);
+            border: 1px solid var(--border-color);
+            border-radius: 0.375rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            transition: all 0.3s ease;
+        }
+
+        .color-stock-item:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+
+        .color-stock-item .form-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .color-stock-item .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .remove-color-stock-button {
+            background-color: var(--danger-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        .remove-color-stock-button:hover {
+            background-color: var(--danger-hover);
+        }
+
+        #add-color-stock {
+            background-color: var(--secondary-color);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+
+        #add-color-stock:hover {
+            background-color: var(--secondary-hover);
+        }
+
+        .image-cropper {
+            display: none;
+            margin-top: 1rem;
+        }
+
+        .image-cropper img {
+            max-width: 100%;
+            height: auto;
+        }
+
+        @media (max-width: 768px) {
+            .content-main {
+                padding: 1rem;
+            }
+
+            .color-stock-item .form-row {
+                flex-direction: column;
+            }
+
+            .color-stock-item .form-group {
+                min-width: 100%;
+            }
         }
     </style>
 </head>
@@ -73,11 +228,9 @@
                 <div class="col-lg-8">
                     <div class="card">
                         <div class="card-body">
-                            <form method="post" action="/admin/addProducts" id="addProductForm" enctype="multipart/form-data"
-                            onsubmit="return validateForm()">
+                            <form method="post" action="/admin/addProducts" id="addProductForm" enctype="multipart/form-data" onsubmit="return validateForm()">
                                 <div class="mb-4">
                                     <label for="product_name" class="form-label">Product Name</label>
-                                    
                                     <input type="text" class="form-control" id="product_name" name="productName" required>
                                     <div id="productName-error" class="error-message"></div>
                                 </div>
@@ -85,23 +238,18 @@
                                     <div class="col-md-6">
                                         <label for="brand" class="form-label">Brand</label>
                                         <select class="form-select" id="brand" name="brand" required>
-                                            <%for (let i=0;i<brand.length;i++){%>
-                                            <option value="<%=brand[i].brandName%>">
-                                                <%=brand[i].brandName%>
-                                            </option>
-                                            <%}%>
+                                            <% for (let i = 0; i < brand.length; i++) { %>
+                                                <option value="<%= brand[i].brandName %>"><%= brand[i].brandName %></option>
+                                            <% } %>
                                         </select>
                                         <div id="brand-error" class="error-message"></div>
                                     </div>
                                     <div class="col-md-6">
                                         <label for="category" class="form-label">Category</label>
                                         <select class="form-select" id="category" name="category" required>
-                                            <%for (let i=0;i<cat.length;i++){%>
-                                            <option value="<%=cat[i].name%>">
-                                                <%= cat[i].name%>
-                                            </option>
-                                        <%}%>
-                                            <!-- Add category options here -->
+                                            <% for (let i = 0; i < cat.length; i++) { %>
+                                                <option value="<%= cat[i].name %>"><%= cat[i].name %></option>
+                                            <% } %>
                                         </select>
                                         <div id="category-error" class="error-message"></div>
                                     </div>
@@ -122,23 +270,44 @@
                                         <input type="number" class="form-control" id="salePrice" name="salePrice">
                                         <div id="salePrice-error" class="error-message"></div>
                                     </div>
-                                    <div class="col-md-4">
-                                        <label for="quantity" class="form-label">Black Quantity</label>
-                                        <input type="number" class="form-control" id="blackquantity" name="blackquantity" required>
-                                        <div id="blackquantity" class="error-message"></div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="quantity" class="form-label">Silver Quantity</label>
-                                        <input type="number" class="form-control" id="silverquantity" name="silverquantity" required>
-                                        <div id="silverquantity" class="error-message"></div>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label for="quantity" class="form-label">Golden Quantity</label>
-                                        <input type="number" class="form-control" id="goldenquantity" name="goldenquantity" required>
-                                        <div id="goldenquantity" class="error-message"></div>
-                                    </div>
                                 </div>
-                               
+                                <div class="mb-4">
+                                    <label class="form-label">Color Stock</label>
+                                    <div id="color-stock-container" class="color-stock-container">
+                                        <div class="color-stock-item">
+                                            <div class="form-row">
+                                                <div class="form-group">
+                                                    <label for="color-0">Color*</label>
+                                                    <select id="color-0" name="colorStock[0][color]" class="form-select" required>
+                                                        <option value="">Select Color</option>
+                                                        <option value="white">Red</option>
+                                                        <option value="black">Black</option>
+                                                        <option value="blue">Blue</option>
+                                                        <option value="blue">Silver</option>
+                                                        <option value="blue">Golden</option>
+                                                        <option value="blue">Pink</option>
+                                                        <option value="white">White</option>
+                                                    </select>
+                                                </div>
+                                                <div class="form-group">
+                                                    <label for="quantity-0">Quantity*</label>
+                                                    <input type="number" id="quantity-0" name="colorStock[0][quantity]" class="form-control" required min="0">
+                                                    <div id="productQuantity-error-0" class="error-message"></div>
+                                                </div>
+                                            </div>
+                                            <div class="form-group mt-3">
+                                                <label for="status-0">Status*</label>
+                                                <select id="status-0" name="colorStock[0][status]" class="form-select" required>
+                                                    <option value="Available">Available</option>
+                                                    <option value="Out of stock">Out of stock</option>
+                                                    <option value="Discontinued">Discontinued</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <button type="button" id="add-color-stock" class="btn btn-secondary mt-2">Add Another Color Stock</button>
+                                    <div id="quantity-error" class="error-message"></div>
+                                </div>
                                 <div class="card mb-4">
                                     <div class="card-header">
                                         Product Images
@@ -146,46 +315,37 @@
                                     <div class="card-body">
                                         <div id="addedImagesContainer" class="thumbnails-container mb-3"></div>
                                         <div class="row">
-                                            <!-- Image Upload Field 1 -->
                                             <div class="col-md-6 image-upload-container">
                                                 <img src="" alt="" class="image-preview" id="imgView1">
-                                                    
-                                                <input class="form-control" type="file" name="images" id="input1"
-                                                      accept="image/png, image/jpeg, image/jpg" 
-                                                      onchange="viewImage1(event), viewImage(event, 1)">
+                                                <input class="form-control" type="file" name="images" id="input1" accept="image/png, image/jpeg, image/jpg" onchange="viewImage1(event), viewImage(event, 1)">
                                                 <span id="images-error" class="error-message"></span>
-                                            </div>  
-                                                
                                                 <div class="image-cropper d-flex align-items-center" id="cropper1">
                                                     <img src="" id="croppedImg1" alt="">
-                                                    <button type="button" id="saveButton1" class="btn-sm btn-primary">Save</button>
+                                                    <button type="button" id="saveButton1" class="btn btn-primary btn-sm ms-2">Save</button>
                                                 </div>
                                             </div>
-                                            <!-- Image Upload Field 2 -->
                                             <div class="col-md-6 image-upload-container">
                                                 <img src="" alt="" class="image-preview" id="imgView2">
                                                 <input class="form-control" type="file" name="images" id="input2" accept="image/png, image/jpeg, image/jpg" onchange="viewImage2(event), viewImage(event, 2)">
                                                 <div class="image-cropper d-flex align-items-center" id="cropper2">
                                                     <img src="" id="croppedImg2" alt="">
-                                                    <button type="button" id="saveButton2" class="btn-sm btn-primary">Save</button>
+                                                    <button type="button" id="saveButton2" class="btn btn-primary btn-sm ms-2">Save</button>
                                                 </div>
                                             </div>
                                         </div>
-                                        <div class="row">
+                                        <div class="row mt-3">
                                             <div class="col-md-6 image-upload-container">
                                                 <img src="" alt="" class="image-preview" id="imgView3">
-
                                                 <input class="form-control" type="file" name="images" id="input3" accept="image/png, image/jpeg, image/jpg" onchange="viewImage3(event), viewImage(event, 3)">
                                                 <div class="image-cropper d-flex align-items-center" id="cropper3">
                                                     <img src="" id="croppedImg3" alt="">
-                                                    <button type="button" id="saveButton3" class="btn-sm btn-primary">Save</button>
+                                                    <button type="button" id="saveButton3" class="btn btn-primary btn-sm ms-2">Save</button>
                                                 </div>
                                             </div>
-                                            <!-- Image Upload Field 4 -->
-                                            
                                         </div>
-                                        <button class="btn btn-md rounded font-sm hover-up" type="button" onclick="validateAndSubmit()">Publish</button>
+                                    </div>
                                 </div>
+                                <button class="btn btn-primary btn-lg rounded-pill px-4 py-2 font-weight-bold" type="submit" onclick="validateAndSubmit()">Publish</button>
                             </form>
                         </div>
                     </div>
@@ -193,247 +353,811 @@
             </div>
         </section>
     </div>
+    
+
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/cropperjs/dist/cropper.min.js"></script>
+
+
     <script>
-        function validateAndSubmit(){
-            if(validateForm()){
-                document.forms[0].submit();
+    
+    let colorStockCount = 1;
 
-            }
+    document.getElementById('add-color-stock').addEventListener('click', function() {
+        const colorStockContainer = document.getElementById('color-stock-container');
+        const newColorStock = document.createElement('div');
+        newColorStock.className = 'color-stock-item';
+        newColorStock.innerHTML = `
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="color-${colorStockCount}">Color*</label>
+                    <select id="color-${colorStockCount}" name="colorStock[${colorStockCount}][color]" class="form-select" required>
+                        <option value="">Select Color</option>
+                        <option value="white">White</option>
+                        <option value="black">Black</option>
+                        <option value="blue">Blue</option>
+                        <option value="silver">Silver</option>
+                        <option value="golden">Golden</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label for="quantity-${colorStockCount}">Quantity*</label>
+                    <input type="number" id="quantity-${colorStockCount}" name="colorStock[${colorStockCount}][quantity]" class="form-control" required min="0">
+                    <div id="productQuantity-error-${colorStockCount}" class="error-message"></div>
+                </div>
+            </div>
+            <div class="form-group mt-3">
+                <label for="status-${colorStockCount}">Status*</label>
+                <select id="status-${colorStockCount}" name="colorStock[${colorStockCount}][status]" class="form-select" required>
+                    <option value="Available">Available</option>
+                    <option value="Out of stock">Out of stock</option>
+                    <option value="Discontinued">Discontinued</option>
+                </select>
+            </div>
+            <button type="button" class="remove-color-stock-button btn btn-danger btn-sm mt-2">Remove Color Stock</button>
+        `;
+        
+        colorStockContainer.appendChild(newColorStock);
+        colorStockCount++;
+    
+        const quantityInput = newColorStock.querySelector(`#quantity-${colorStockCount - 1}`);
+        quantityInput.addEventListener('input', function() {
+            validateQuantity(quantityInput, `productQuantity-error-${colorStockCount - 1}`);
+        });
+    
+        newColorStock.querySelector('.remove-color-stock-button').addEventListener('click', function() {
+            colorStockContainer.removeChild(newColorStock);
+        });
+    });
+
+
+
+        function viewImage1(event) {
+            document.getElementById("imgView1").src = URL.createObjectURL(event.target.files[0]);
         }
-            
 
-
-        function viewImage1(event){
-            document.getElementById("imgView1").src  = URL.createObjectURL(event.target.files[0])
-        }
-
-        function viewImage2(event){
-            document.getElementById("imgView2").src = URL.createObjectURL(event.target.files[0])
+        function viewImage2(event) {
+            document.getElementById("imgView2").src = URL.createObjectURL(event.target.files[0]);
         }
              
-        function viewImage3(event){
+        function viewImage3(event) {
             document.getElementById("imgView3").src = URL.createObjectURL(event.target.files[0]);
         }
 
-        function viewImage4(event){
-            document.getElementById("imgView4").src = URL.createObjectURL(event.target.files[0])
-        }
-           
+        let cropper;
 
+        function viewImage(event, index) {
+            let input = event.target;
+            let reader = new FileReader();
+            reader.onload = function() {
+                let dataURL = reader.result;
+                let image = document.getElementById("imgView" + index);
+                image.src = dataURL;
 
-        
-
-       function viewImage(event,index){
-        let input = event.target;
-        let reader = new FileReader();
-        reader.onload = function (){
-            let dataURL = reader.result;
-            let image = document.getElementById("imgView"+index);
-            image.src = dataURL;
-            let cropper = new Cropper(image,{
-                aspectRatio:1,
-                viewMode:1,
-                guides:true,
-                background:false,
-                autoCropArea:1,
-                zoomable:true
-            });
-
-            let cropperContainer = document.querySelector("#croppedImg" + index).parentNode;
-            cropperContainer.style.display = 'block';
-
-            let saveButton = document.querySelector("#saveButton" +index);
-            saveButton.addEventListener('click',async function(){
-
-                let croppedCanvas = cropper.getCroppedCanvas();
-                let croppedImage = document.getElementById("croppedImg" +index);
-                croppedImage.src = croppedCanvas.toDataURL('image/jpeg',1.0);
-
-
-                let timestamp = new Date().getTime();
-                let fileName = `cropped-img-${timestamp}-${index}.png`;
-
-
-                await croppedCanvas.toBlob(blob=>{
-                    let input = document.getElementById('input'+index);
-                    let imgFile = new File([blob],fileName,blob)
-                    const fileList = new DataTransfer();
-                    fileList.items.add(imgFile);
-                    input.files = fileList.files
+                if (cropper) cropper.destroy();
+                cropper = new Cropper(image, {
+                    aspectRatio: 1,
+                    viewMode: 1,
+                    guides: true,
+                    background: false,
+                    autoCropArea: 1,
+                    zoomable: true
                 });
-                cropperContainer.style.display = 'none';
-                cropper.destroy();
-            });
-        };
 
-        reader.readAsDataURL(input.files[0]);
+                let cropperContainer = document.querySelector("#croppedImg" + index).parentNode;
+                cropperContainer.style.display = 'flex';
 
-       }
+                let saveButton = document.querySelector("#saveButton" + index);
+                saveButton.addEventListener('click', async function() {
+                    let croppedCanvas = cropper.getCroppedCanvas();
+                    let croppedImage = document.getElementById("croppedImg" + index);
+                    croppedImage.src = croppedCanvas.toDataURL('image/jpeg', 1.0);
 
-       console.log("validating:Name,result:",name.trim()!=="")
+                    let timestamp = new Date().getTime();
+                    let fileName = `cropped-img-${timestamp}-${index}.png`;
 
-       const selectedImages = [];
-       document.getElementById('input1').addEventListener('change',handleFileSelect);
+                    await croppedCanvas.toBlob(blob => {
+                        let input = document.getElementById('input' + index);
+                        let imgFile = new File([blob], fileName, { type: blob.type });
+                        const fileList = new DataTransfer();
+                        fileList.items.add(imgFile);
+                        input.files = fileList.files;
+                    });
+                    cropperContainer.style.display = 'none';
+                    cropper.destroy();
+                });
+            };
 
-       function handleFileSelect(event){
-           const addedImagesContainer = document.getElementById('addedImagesContainer');
-           addedImagesContainer.innerHTML="";
-           const files = event.target.files;
+            reader.readAsDataURL(input.files[0]);
+        }
 
-           for(let i=0;i<files.length;i++){
-            const file = files[i];
-            selectedImages.push(file);
-            const thumbnail = document.createElement("div");
-            thumbnail.classList.add('thumbnail');
+        const selectedImages = [];
+        document.getElementById('input1').addEventListener('change', handleFileSelect);
 
-            const img = document.createElement("img");
-            img.src = URL.createObjectURL(file);
-            img.alt ='thumbnail';
-            img.style.width = "50px";
-            img.style.height="auto";
-            const removeIcon = document.createElement("span");
-            removeIcon.classList.add('remove-icon');
-            removeIcon.innerHTML = "&times;";
-            removeIcon.addEventListener("click",function(){
-                const index = selectedImages.indexOf(file);
-                if(index!==-1){
-                    selectedImages.splice(index,1)
-                }
-                thumbnail.remove();
-            });
-            thumbnail.appendChild(img);
-            thumbnail.appendChild(removeIcon);
-            addedImagesContainer.appendChild(thumbnail);
+        function handleFileSelect(event) {
+            const addedImagesContainer = document.getElementById('addedImagesContainer');
+            addedImagesContainer.innerHTML = "";
+            const files = event.target.files;
 
+            for (let i = 0; i < files.length; i++) {
+                const file = files[i];
+                selectedImages.push(file);
+                const thumbnail = document.createElement("div");
+                thumbnail.classList.add('thumbnail');
 
-           }
-       }
-
-
-
-        function validateForm() {
-              clearErrorMessages();
-              const name = document.getElementsByName('productName')[0].value;
-              const description = document.getElementById('description').value;
-              const brand = document.getElementsByName('brand')[0].value;
-              const price = document.getElementsByName('regularPrice')[0].value;
-              const saleprice = document.getElementsByName('salePrice')[0].value;
-              const category = document.getElementsByName('category')[0].value;
-              const images = document.getElementById('input1')
-              const blackQuantity=parseInt(document.getElementsByName('blackquantity')[0].value);
-              console.log(blackQuantity)
-              const silverQuantity=parseInt(document.getElementsByName('silverquantity')[0].value);
-              console.log(silverQuantity)
-              const goldenQuantity=parseInt(document.getElementsByName('goldenquantity')[0].value);
-              console.log(goldenQuantity)
+                const img = document.createElement("img");
+                img.src = URL.createObjectURL(file);
+                img.alt = 'thumbnail';
+                img.style.width = "100px";
+                img.style.height = "100px";
+                img.style.objectFit = "cover";
+                const removeIcon = document.createElement("span");
+                removeIcon.classList.add('remove-icon');
+                removeIcon.innerHTML = "&times;";
+                removeIcon.style.position = "absolute";
+                removeIcon.style.top = "5px";
+                removeIcon.style.right = "5px";
+                removeIcon.style.cursor = "pointer";
+                removeIcon.style.backgroundColor = "rgba(255, 255, 255, 0.7)";
+                removeIcon.style.borderRadius = "50%";
+                removeIcon.style.padding = "2px 6px";
+                removeIcon.addEventListener("click", function() {
+                    const index = selectedImages.indexOf(file);
+                    if (index !== -1) {
+                        selectedImages.splice(index, 1);
+                    }
+                    thumbnail.remove();
+                });
+                thumbnail.appendChild(img);
+                thumbnail.appendChild(removeIcon);
+                addedImagesContainer.appendChild(thumbnail);
+            }
+        }
 
 
 
-              let isValid = true
-              if (name.trim() === "") {
-      displayErrorMessage('productName-error', 'Please enter a product name.');
-      isValid = false;
+        document.addEventListener('DOMContentLoaded', function() {
+    const productNameInput = document.getElementById('product_name');
+    const descriptionInput = document.getElementById('description');
+    const regularPriceInput = document.getElementById('regularPrice');
+    const salePriceInput = document.getElementById('salePrice');
+    const imagesInput = document.querySelectorAll('input[type="file"]');
 
-   } else if (!/^[a-zA-Z\s]+$/.test(name.trim())) {
-      displayErrorMessage('productName-error', 'Product name should contain only alphabetic characters.');
-      isValid = false;
-   }
+    // Product Name Validation
+    productNameInput.addEventListener('input', function() {
+        const name = this.value.trim();
+        const errorElement = document.getElementById('productName-error');
+        if (name === "") {
+            errorElement.textContent = 'Please enter a product name.';
+            errorElement.style.display = 'block';
+        } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+            errorElement.textContent = 'Product name should contain only alphabetic characters.';
+            errorElement.style.display = 'block';
+        } else {
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+        }
+    });
+
+    // Description Validation
+    descriptionInput.addEventListener('input', function() {
+        const description = this.value.trim();
+        const errorElement = document.getElementById('description-error');
+        if (description === "") {
+            errorElement.textContent = 'Please enter a product description.';
+            errorElement.style.display = 'block';
+        } else if (!/^[a-zA-Z\s.,]+$/.test(description)) {
+            errorElement.textContent = 'Product description should contain only alphabetic characters.';
+            errorElement.style.display = 'block';
+        } else {
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+        }
+    });
+
+    // Regular Price Validation
+    regularPriceInput.addEventListener('input', function() {
+        const price = this.value;
+        const salePriceValue = document.getElementById('salePrice').value;
+        const errorElement = document.getElementById('regularPrice-error');
+        
+        if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
+            errorElement.textContent = 'Please enter a valid non-negative price.';
+            errorElement.style.display = 'block';
+        } else if (salePriceValue && parseFloat(price) <= parseFloat(salePriceValue)) {
+            errorElement.textContent = 'Regular price must be greater than sale price.';
+            errorElement.style.display = 'block';
+        } else {
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+        }
+    });
+
+    // Sale Price Validation
+    salePriceInput.addEventListener('input', function() {
+        const salePrice = this.value;
+        const regularPriceValue = document.getElementById('regularPrice').value;
+        const errorElement = document.getElementById('salePrice-error');
+        
+        if (!/^\d+(\.\d{1,2})?$/.test(salePrice) || parseFloat(salePrice) < 0) {
+            errorElement.textContent = 'Please enter a valid non-negative price.';
+            errorElement.style.display = 'block';
+        } else if (regularPriceValue && parseFloat(regularPriceValue) <= parseFloat(salePrice)) {
+            errorElement.textContent = 'Sale price must be less than regular price.';
+            errorElement.style.display = 'block';
+        } else {
+            errorElement.textContent = '';
+            errorElement.style.display = 'none';
+        }
+    });
+
+    // Image Validation
+    imagesInput.forEach((input, index) => {
+        input.addEventListener('change', function() {
+            validateImages();
+        });
+    });
+});
+
+function validateImages() {
+    const input1 = document.getElementById('input1');
+    const input2 = document.getElementById('input2');
+    const input3 = document.getElementById('input3');
+    const errorElement = document.getElementById('images-error');
+
+    // Count total number of files across all three inputs
+    const totalFiles = input1.files.length + input2.files.length + input3.files.length;
+
+    if (totalFiles !== 3) {
+        errorElement.textContent = 'Please select exactly three images.';
+        errorElement.style.display = 'block';
+        return false;
+    } else {
+        errorElement.textContent = '';
+        errorElement.style.display = 'none';
+        return true;
+    }
+}
+
+function validateAndSubmit() {
+    // Validate all fields
+    const isProductNameValid = validateProductName();
+    const isDescriptionValid = validateDescription();
+    const isPriceValid = validatePrices();
+    const areImagesValid = validateImages();
+
+    // Check color stock quantities
+    let areColorStocksValid = true;
+    for (let i = 0; i < colorStockCount; i++) {
+        const quantityInput = document.getElementById(`quantity-${i}`);
+        if (quantityInput) {
+            const quantity = parseInt(quantityInput.value);
+            const errorElement = document.getElementById(`productQuantity-error-${i}`);
+            if (isNaN(quantity) || quantity < 0) {
+                errorElement.textContent = 'Quantity must be a non-negative number.';
+                errorElement.style.display = 'block';
+                areColorStocksValid = false;
+            } else {
+                errorElement.textContent = '';
+                errorElement.style.display = 'none';
+            }
+        }
+    }
+
+    // Submit form only if all validations pass
+    if (isProductNameValid && isDescriptionValid && isPriceValid && areImagesValid && areColorStocksValid) {
+        document.forms[0].submit();
+    }
+}
+
+function validateProductName() {
+    const productNameInput = document.getElementById('product_name');
+    const name = productNameInput.value.trim();
+    const errorElement = document.getElementById('productName-error');
+
+    if (name === "") {
+        errorElement.textContent = 'Please enter a product name.';
+        errorElement.style.display = 'block';
+        return false;
+    } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+        errorElement.textContent = 'Product name should contain only alphabetic characters.';
+        errorElement.style.display = 'block';
+        return false;
+    } else {
+        errorElement.textContent = '';
+        errorElement.style.display = 'none';
+        return true;
+    }
+}
+
+function validateDescription() {
+    const descriptionInput = document.getElementById('description');
+    const description = descriptionInput.value.trim();
+    const errorElement = document.getElementById('description-error');
+
+    if (description === "") {
+        errorElement.textContent = 'Please enter a product description.';
+        errorElement.style.display = 'block';
+        return false;
+    } else if (!/^[a-zA-Z\s.,]+$/.test(description)) {
+        errorElement.textContent = 'Product description should contain only alphabetic characters.';
+        errorElement.style.display = 'block';
+        return false;
+    } else {
+        errorElement.textContent = '';
+        errorElement.style.display = 'none';
+        return true;
+    }
+}
+
+function validatePrices() {
+    const regularPriceInput = document.getElementById('regularPrice');
+    const salePriceInput = document.getElementById('salePrice');
+    const regularPrice = regularPriceInput.value;
+    const salePrice = salePriceInput.value;
+    const regularPriceError = document.getElementById('regularPrice-error');
+    const salePriceError = document.getElementById('salePrice-error');
+
+    let isValid = true;
+
+    // Validate regular price
+    if (!/^\d+(\.\d{1,2})?$/.test(regularPrice) || parseFloat(regularPrice) < 0) {
+        regularPriceError.textContent = 'Please enter a valid non-negative price.';
+        regularPriceError.style.display = 'block';
+        isValid = false;
+    } else {
+        regularPriceError.textContent = '';
+        regularPriceError.style.display = 'none';
+    }
+
+    // Validate sale price
+    if (!/^\d+(\.\d{1,2})?$/.test(salePrice) || parseFloat(salePrice) < 0) {
+        salePriceError.textContent = 'Please enter a valid non-negative price.';
+        salePriceError.style.display = 'block';
+        isValid = false;
+    } else {
+        salePriceError.textContent = '';
+        salePriceError.style.display = 'none';
+    }
+
+    // Compare prices
+    if (parseFloat(regularPrice) <= parseFloat(salePrice)) {
+        regularPriceError.textContent = 'Regular price must be greater than sale price.';
+        regularPriceError.style.display = 'block';
+        isValid = false;
+    }
+
+    return isValid;
+}
+
+function validateQuantity(input, errorId) {
+    const quantity = parseInt(input.value);
+    const errorElement = document.getElementById(errorId);
+    if (isNaN(quantity) || quantity < 0) {
+        errorElement.textContent = 'Quantity must be a non-negative number.';
+        errorElement.style.display = 'block';
+        Toastify({
+            text:"Quantity must be a non-negative number.",
+            duration:3000,
+            gravity:"top",
+            position:'right',
+            backgroundColor:"red",
+        }).showToast();
+        areColorStocksValid = false;
+    } else {
+        errorElement.textContent = '';
+        errorElement.style.display = 'none';
+    }
+}
+
+
+if(isProductNameValid && isDescriptionValid && isPriceValid && areImagesValid && areColorStocksValid){
+
+    const formSubmissionSuccess = true;
+
+    if(formSubmissionSuccess) {
+        Toastify({
+            text:"Form submitted successfully",
+            duration:3000,
+            gravity:"top",
+            position:'right',
+            backgroundColor:"green",
+        }).showToast();
+        document.forms[0].submit();
+    } else {
+        Toastify ({
+            text: "Form submission failed. Please try again.",
+                duration: 3000,
+                gravity: "top",
+                position: 'right',
+                backgroundColor: "red",
+        }).showToast();
+    }
+} else {
+    Toastify({
+        text: "Please correct the errors before submitting.",
+            duration: 3000,
+            gravity: "top",
+            position: 'right',
+            backgroundColor: "orange",
+    }).showToast();
+}
+
+
+
+
+
+</script>
+
+
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//     <!-- <script>
+//         let colorStockCount = 1;
+
+//         document.getElementById('add-color-stock').addEventListener('click', function() {
+//             const colorStockContainer = document.getElementById('color-stock-container');
+//             const newColorStock = document.createElement('div');
+//             newColorStock.className = 'color-stock-item';
+//             newColorStock.innerHTML = `
+//                 <div class="form-row">
+//                     <div class="form-group">
+//                         <label for="color-${colorStockCount}">Color*</label>
+//                         <select id="color-${colorStockCount}" name="colorStock[${colorStockCount}][color]" class="form-select" required>
+//                             <option value="">Select Color</option>
+//                             <option value="white">White</option>
+//                             <option value="black">Black</option>
+//                             <option value="blue">Blue</option>
+//                         </select>
+//                     </div>
+//                     <div class="form-group">
+//                         <label for="quantity-${colorStockCount}">Quantity*</label>
+//                         <input type="number" id="quantity-${colorStockCount}" name="colorStock[${colorStockCount}][quantity]" class="form-control" required min="0">
+//                         <div id="productQuantity-error-${colorStockCount}" class="error-message"></div>
+//                     </div>
+//                 </div>
+//                 <div class="form-group mt-3">
+//                     <label for="status-${colorStockCount}">Status*</label>
+//                     <select id="status-${colorStockCount}" name="colorStock[${colorStockCount}][status]" class="form-select" required>
+//                         <option value="In stock">In stock</option>
+//                         <option value="Available">Available</option>
+//                         <option value="Out of stock">Out of stock</option>
+//                         <option value="Discontinued">Discontinued</option>
+//                     </select>
+//                 </div>
+//                 <button type="button" class="remove-color-stock-button btn btn-danger btn-sm mt-2">Remove Color Stock</button>
+//             `;
             
-   if (description.trim() === "") {
-      displayErrorMessage('description-error', 'Please enter a product description.');
-      isValid = false;
-      
-   } else if (!/^[a-zA-Z\s.,]+$/.test(description.trim())) {
-      displayErrorMessage('description-error', 'Product description should contain only alphabetic characters.');
-      isValid = false;
-   }
-  
-  
-           
-  
-   if (!blackQuantity || blackQuantity <= 0) {
-        showError('blackquantity-error', 'Black quantity must be greater than 0.');
-        isValid = false;
-    }
+//             colorStockContainer.appendChild(newColorStock);
+//             colorStockCount++;
 
-    if (!silverQuantity || silverQuantity <= 0) {
-        showError('silverquantity-error', 'Silver quantity must be greater than 0.');
-        isValid = false;
-    }
+//             const quantityInput = newColorStock.querySelector(`#quantity-${colorStockCount - 1}`);
+//             quantityInput.addEventListener('input', function() {
+//                 validateQuantity(quantityInput, `productQuantity-error-${colorStockCount - 1}`);
+//             });
 
-    if (!goldenQuantity || goldenQuantity <= 0) {
-        showError('goldenquantity-error', 'Golden quantity must be greater than 0.');
-        isValid = false;
-    }
-  
-  
-  
-  
-              if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
-                  displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
-                  isValid = false;
-              }
-  
-  
-  
-  
-              if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
-                  displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');
-                  isValid = false;
-              }
-              if (parseFloat(price) <= parseFloat(saleprice)) {
-      displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.');
-      isValid = false;
-   }
-  
-  
-  
-              if (images.files.length === 0) {
-                  displayErrorMessage("images-error",'Please select an image.');
-                  isValid = false;
-              }
-              return isValid;
-          }
+//             newColorStock.querySelector('.remove-color-stock-button').addEventListener('click', function() {
+//                 colorStockContainer.removeChild(newColorStock);
+//             });
+//         });
 
+//         function validateAndSubmit() {
+//             if (validateForm()) {
+//                 document.forms[0].submit();
+//             }
+//         }
 
-          function displayErrorMessage(elementId, message) {
-              var errorElement = document.getElementById(elementId);
-              errorElement.innerText = message;
-              errorElement.style.display = "block";
-          }
-  
-  
-          function clearErrorMessages() {
-              const errorElements = document.getElementsByClassName('error-message');
-              Array.from(errorElements).forEach(element => {
-                  element.innerText = '';
-                  element.style.display = "none";
-              });
-              const errorMessage = document.getElementById('errorMessage');
-  
-  
-          }
+//         function viewImage1(event) {
+//             document.getElementById("imgView1").src = URL.createObjectURL(event.target.files[0]);
+//         }
 
+//         function viewImage2(event) {
+//             document.getElementById("imgView2").src = URL.createObjectURL(event.target.files[0]);
+//         }
+             
+//         function viewImage3(event) {
+//             document.getElementById("imgView3").src = URL.createObjectURL(event.target.files[0]);
+//         }
 
+//         let cropper;
 
+//         function viewImage(event, index) {
+//             let input = event.target;
+//             let reader = new FileReader();
+//             reader.onload = function() {
+//                 let dataURL = reader.result;
+//                 let image = document.getElementById("imgView" + index);
+//                 image.src = dataURL;
 
+//                 if (cropper) cropper.destroy();
+//                 cropper = new Cropper(image, {
+//                     aspectRatio: 1,
+//                     viewMode: 1,
+//                     guides: true,
+//                     background: false,
+//                     autoCropArea: 1,
+//                     zoomable: true
+//                 });
 
+//                 let cropperContainer = document.querySelector("#croppedImg" + index).parentNode;
+//                 cropperContainer.style.display = 'flex';
 
+//                 let saveButton = document.querySelector("#saveButton" + index);
+//                 saveButton.addEventListener('click', async function() {
+//                     let croppedCanvas = cropper.getCroppedCanvas();
+//                     let croppedImage = document.getElementById("croppedImg" + index);
+//                     croppedImage.src = croppedCanvas.toDataURL('image/jpeg', 1.0);
 
+//                     let timestamp = new Date().getTime();
+//                     let fileName = `cropped-img-${timestamp}-${index}.png`;
 
+//                     await croppedCanvas.toBlob(blob => {
+//                         let input = document.getElementById('input' + index);
+//                         let imgFile = new File([blob], fileName, { type: blob.type });
+//                         const fileList = new DataTransfer();
+//                         fileList.items.add(imgFile);
+//                         input.files = fileList.files;
+//                     });
+//                     cropperContainer.style.display = 'none';
+//                     cropper.destroy();
+//                 });
+//             };
 
+//             reader.readAsDataURL(input.files[0]);
+//         }
 
+//         const selectedImages = [];
+//         document.getElementById('input1').addEventListener('change', handleFileSelect);
 
+//         function handleFileSelect(event) {
+//             const addedImagesContainer = document.getElementById('addedImagesContainer');
+//             addedImagesContainer.innerHTML = "";
+//             const files = event.target.files;
 
+//             for (let i = 0; i < files.length; i++) {
+//                 const file = files[i];
+//                 selectedImages.push(file);
+//                 const thumbnail = document.createElement("div");
+//                 thumbnail.classList.add('thumbnail');
 
-    </script>
-</body>
-</html>
+//                 const img = document.createElement("img");
+//                 img.src = URL.createObjectURL(file);
+//                 img.alt = 'thumbnail';
+//                 img.style.width = "100px";
+//                 img.style.height = "100px";
+//                 img.style.objectFit = "cover";
+//                 const removeIcon = document.createElement("span");
+//                 removeIcon.classList.add('remove-icon');
+//                 removeIcon.innerHTML = "&times;";
+//                 removeIcon.style.position = "absolute";
+//                 removeIcon.style.top = "5px";
+//                 removeIcon.style.right = "5px";
+//                 removeIcon.style.cursor = "pointer";
+//                 removeIcon.style.backgroundColor = "rgba(255, 255, 255, 0.7)";
+//                 removeIcon.style.borderRadius = "50%";
+//                 removeIcon.style.padding = "2px 6px";
+//                 removeIcon.addEventListener("click", function() {
+//                     const index = selectedImages.indexOf(file);
+//                     if (index !== -1) {
+//                         selectedImages.splice(index, 1);
+//                     }
+//                     thumbnail.remove();
+//                 });
+//                 thumbnail.appendChild(img);
+//                 thumbnail.appendChild(removeIcon);
+//                 addedImagesContainer.appendChild(thumbnail);
+//             }
+//         }
 
+//         function validateForm() {
+//             clearErrorMessages();
+            
+//             const name = document.getElementsByName('productName')[0].value.trim();
+//             const description = document.getElementById('description').value.trim();
+//             const brand = document.getElementsByName('brand')[0].value.trim();
+//             const price = document.getElementsByName('regularPrice')[0].value;
+//             const saleprice = document.getElementsByName('salePrice')[0].value;
+//             const category = document.getElementsByName('category')[0].value;
+//             const images = document.getElementById('input1');
+//             const datas = {
+//                 name,
+//                 description,
+//                 brand,
+//                 price,
+//                 saleprice,
+//                 category,
+//                 images,
+//             };
+//             const quantity = parseInt(document.getElementsByName('quantity')[0].value);
 
+//             let isValid = true;
+//             if (name === "") {
+//                 displayErrorMessage('productName-error', 'Please enter a product name.');
+//                 isValid = false;
+//             } else if (!/^[a-zA-Z\s]+$/.test(name)) {
+//                 displayErrorMessage('productName-error', 'Product name should contain only alphabetic characters.');
+//                 isValid = false;
+//             }
+            
+//             if (description === "") {
+//                 displayErrorMessage('description-error', 'Please enter a product description.');
+//                 isValid = false;
+//             } else if (!/^[a-zA-Z\s.,]+$/.test(description)) {
+//                 displayErrorMessage('description-error', 'Product description should contain only alphabetic characters.');
+//                 isValid = false;
+//             }
+        
+//             if (!quantity || quantity <= 0) {
+//                 displayErrorMessage('quantity-error', 'Quantity must be greater than 0.');
+//                 isValid = false;
+//             }
+        
+//             if (!/^\d+(\.\d{1,2})?$/.test(price) || parseFloat(price) < 0) {
+//                 displayErrorMessage('regularPrice-error', 'Please enter a valid non-negative price.');
+//                 isValid = false;
+//             }
+        
+//             if (!/^\d+(\.\d{1,2})?$/.test(saleprice) || parseFloat(saleprice) < 0) {
+//                 displayErrorMessage('salePrice-error', 'Please enter a valid non-negative price.');
+//                 isValid = false;
+//             }
+//             if (parseFloat(price) <= parseFloat(saleprice)) {
+//                 displayErrorMessage('regularPrice-error', 'Regular price must be greater than sale price.');
+//                 isValid = false;
+//             }
+        
+//             if (images.files.length === 0) {
+//                 displayErrorMessage("images-error", 'Please select an image.');
+//                 isValid = false;
+//             }
+//             return isValid;
+//         }
 
+//         function displayErrorMessage(elementId, message) {
+//             var errorElement = document.getElementById(elementId);
+//             errorElement.innerText = message;
+//             errorElement.style.display = "block";
+//         }
+
+//         function clearErrorMessages() {
+//             const errorElements = document.getElementsByClassName('error-message');
+//             Array.from(errorElements).forEach(element => {
+//                 element.innerText = '';
+//                 element.style.display = "none";
+//             });
+//         }
+
+//         function validateQuantity(input, errorId) {
+//             const quantity = parseInt(input.value);
+//             const errorElement = document.getElementById(errorId);
+//             if (isNaN(quantity) || quantity < 0) {
+//                 errorElement.textContent = 'Quantity must be a non-negative number.';
+//                 errorElement.style.display = 'block';
+//             } else {
+//                 errorElement.textContent = '';
+//                 errorElement.style.display = 'none';
+//             }
+//         }
+//     </script>
 
 <%- include("../../views/partials/admin/footer") %>

@@ -8,6 +8,7 @@ const session=require("express-session")
 const userRouter=require("./routes/userRouter")
 const adminRouter=require("./routes/adminRouter");
 const passport=require("./config/passport")
+const flash = require('connect-flash')
 
 const connectDB = async(req,res)=>{
     try {
@@ -34,6 +35,16 @@ connectDB()
      } 
   }));
 
+
+  app.use(flash());
+
+  app.use((req,res,next)=>{
+    res.locals.success = req.flash('success');
+    res.locals.error = req.flash('error');
+    next();
+  })
+
+  
 app.use(passport.initialize());
 app.use(passport.session())
 
@@ -48,6 +59,7 @@ app.use(express.urlencoded({extended:true}))
 
 
 app.use(nocache());
+
 
 app.set("view engine","ejs");
 app.set("views", [
@@ -68,6 +80,15 @@ app.use("/",userRouter);
 
 app.use("/admin",adminRouter);
 
+
+
+app.use((err, req, res, next) => {
+  console.error("Error occurred:", err.stack);
+  res.status(err.status || 500).json({
+    success: false,
+    message: err.message || "Internal Server Error",
+  });
+});
 
 
 const PORT=process.env.PORT||3000

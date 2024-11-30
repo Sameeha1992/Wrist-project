@@ -6,6 +6,7 @@ const user_route = require("../../routes/userRouter");
 const Category = require("../../models/categorySchema");
 const Product = require("../../models/productSchema");
 const Cart = require("../../models/cartSchema");
+const Brand = require("../../models/brandSchema")
 const {Types} = require("mongoose");
 const ObjectId = Types.ObjectId;
 
@@ -13,39 +14,66 @@ const ObjectId = Types.ObjectId;
 const loadLandingPage = async (req, res) => {
   try {
     const user = req.session.user;
+   
+   
 
     const currentPage = parseInt(req.query.page) || 1;
     const itemsPerPage = 10;
 
     const categories = await Category.find({ isListed: true });
+    const brands = await Brand. find({isBlocked:false});
+   
+
 
     const totalProducts = await Product.countDocuments({
       isBlocked: false,
-      category: { $in: categories.map((category) => category._id) },
-      quantity: { $gt: 0 },
+   category:{ $in:categories.map((cat)=>cat._id)},
+   brand:{ $in: brands.map((brand)=>brand._id)}
+      
     });
 
+    
+
     const totalPages = Math.ceil(totalProducts / itemsPerPage);
+   
 
     const skip = (currentPage - 1) * itemsPerPage;
+    
 
     let productData = await Product.find({
       isBlocked: {$ne : true},
-      category: { $in: categories.map((category) => category._id) },
-      quantity: { $gt: 0 },
+      category: { $in: categories.map((cat) => cat._id) },
+      brand:{ $in:brands.map((brand)=>brand._id)},
+      colorStock:{$elemMatch:{quantity:{$gt:0}}}
     })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(itemsPerPage);
 
+
+     
+
+
+      const productswithColorStock = productData.map((product)=>{
+        const availableColors = product.colorStock.filter((color)=>color.status==="Available" && color.quantity > 0);
+        
+        return {
+          ...product.toObject(),
+          availableColors,
+        }
+      })
+
+
     if (user) {
       const userData = await User.findOne({ _id: user });
       res.render("home", {
         user: userData,
-        products: productData,
+        products: productswithColorStock,
         currentPage,
         totalPages,
+       
       });
+    
     } else {
       return res.render("home", {
         products: productData,
@@ -54,6 +82,7 @@ const loadLandingPage = async (req, res) => {
       });
     }
   } catch (error) {
+    console.error("Error loading landing page:",error)
     res.status(500).send("Server error");
   }
 };
@@ -261,6 +290,7 @@ const login = async (req, res) => {
   try {
     const { email, password } = req.body;
     const user = await User.findOne({ email: email });
+   
 
     if (!user) {
       return res.json({ success: false, message: "User not found" });
@@ -299,6 +329,7 @@ const loadProductDetail = async (req, res) => {
     
     const productId = req.query.id;
     const product = await Product.findById({ _id: productId });
+    console.log(product,"PRODUCT")
 
     if (!product) {
       return res.status(404).send("Product not found");
@@ -309,7 +340,10 @@ const loadProductDetail = async (req, res) => {
       _id:{ $ne:productId }
     }).limit(4);
 
-    const cartItemCount = req.session.cart ? req.session.cart.length :0;
+
+    const cart = await Cart.findOne({user_id:req.session.user})
+    const cartItemCount = cart ? cart.product.length :0;
+    console.log(cartItemCount,"CART ITEM COUNT")
 
     res.render("product-details", { product,relatedProducts,cartItemCount});
   }
@@ -384,6 +418,7 @@ const logout = async (req, res) => {
 
 
         const {category, sort, search, page =1} = req.query;
+        
 
         const limit = 8;
         const skip =(page-1) * limit;

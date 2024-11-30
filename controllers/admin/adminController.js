@@ -36,7 +36,7 @@ const login= async(req,res)=>{
     console.log(admin,'admin')
     if(admin){
 
-      const passwordMatch = await bcrypt.compare(password,admin.password);
+      const passwordMatch = bcrypt.compare(password,admin.password);
       console.log(passwordMatch,'passwordMatch')
       if(passwordMatch){
         req.session.admin_id = admin._id;
