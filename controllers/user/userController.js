@@ -341,11 +341,8 @@ const loadProductDetail = async (req, res) => {
     }).limit(4);
 
 
-    const cart = await Cart.findOne({user_id:req.session.user})
-    const cartItemCount = cart ? cart.product.length :0;
-    console.log(cartItemCount,"CART ITEM COUNT")
 
-    res.render("product-details", { product,relatedProducts,cartItemCount});
+    res.render("product-details", { product,relatedProducts});
   }
   } catch (error) {
     console.error("Error in loading product detail:", error);

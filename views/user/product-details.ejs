@@ -281,6 +281,8 @@
                             <button class="btn btn-outline-secondary" type="button" id="incrementBtn">+</button>
                         </div>
                     </div>
+                   <div <%-product.colorStock.color%><%-product.category%>></div>
+
                     <div class="d-grid gap-3">
                         <button class="btn btn-primary btn-lg" id="addToCartBtn">Add to Cart</button>
                         <button class="btn btn-outline-primary btn-lg" id="addToWishlistBtn">
@@ -365,59 +367,142 @@
             thumbnail.classList.add('active');
         }
 
-        const quantityInput = document.getElementById('quantityInput');
-        const decrementBtn = document.getElementById('decrementBtn');
-        const incrementBtn = document.getElementById('incrementBtn');
+        
 
-        decrementBtn.addEventListener('click', () => {
-    let currentValue = parseInt(quantityInput.value, 10) || 1;
-    if (currentValue > 1) {
-        quantityInput.value = currentValue - 1;
-    }
-});
-incrementBtn.addEventListener('click', () => {
-    let currentValue = parseInt(quantityInput.value, 10) || 1;
-    quantityInput.value = currentValue + 1;
-});;
 
-        const addToCartBtn = document.getElementById('addToCartBtn');
-        const addToWishlistBtn = document.getElementById('addToWishlistBtn');
 
-        addToWishlistBtn.addEventListener('click', () => {
-            alert('Added to wishlist!');
-            addToWishlistBtn.innerHTML = '<i class="fas fa-heart me-2"></i>Added to Wishlist';
-            addToWishlistBtn.disabled = true;
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const colorButtons = document.querySelectorAll('.color-button');
+    const addToCartBtn = document.getElementById('addToCartBtn');
+    const quantityInput = document.getElementById('quantityInput');
+    console.log(colorButtons,"colorbuttonnn");
+    console.log(addToCartBtn,"Addtocartbutton")
+    console.log(quantityInput,"QUANTITYINPUT")
+
+    let selectedColor = null;
+
+    // Color button selection logic
+    colorButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            // Remove active state from all buttons
+            colorButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Add active state to selected button
+            button.classList.add('active');
+            
+            // Enable add to cart button
+            addToCartBtn.disabled = false;
+            
+            // Store selected color
+            selectedColor = {
+                color: button.dataset.color,
+                id: button.dataset.id,
+                stock: parseInt(button.dataset.stock)
+            };
+
+            // Update quantity input max based on selected color stock
+            quantityInput.max = Math.min(selectedColor.stock, 5);
+            quantityInput.value = 1;
         });
-    </script>
-
-
-<script>
-    addToCartBtn.addEventListener('click', () => {
-        const productId ="<%= product._id %>";
-        const categoryId ="<%=product.category%>";
-        const quantity = parseInt(quantityInput.value);
-        console.log(`product id : ${productId} , categoryid : ${categoryId} , quntity : ${quantity}`);
-
-        $.ajax({
-            url : '/addcart',
-            method : 'POST',
-            data : JSON.stringify({
-                categoryId,
-                productId,
-                quantity,
-            }),
-            contentType : 'application/json',
-            success : function(res) {
-                if(res.success) {
-                    console.log('hi');
-                }else {
-                    alert(res.message)
-                }
-            }
-        })
     });
 
+    // Quantity input validation
+    quantityInput.addEventListener('change', () => {
+        const value = parseInt(quantityInput.value);
+        const max = parseInt(quantityInput.max);
+        
+        if (value > max) {
+            quantityInput.value = max;
+        } else if (value < 1) {
+            quantityInput.value = 1;
+        }
+    });
 
-   
+    // Add to Cart Button Handler
+    addToCartBtn.addEventListener('click', () => {
+        if (!selectedColor) {
+            Toastify({
+                text: "Please select a color first!",
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+               style:{ backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)"
+            }
+            }).showToast();
+            return;
+        }
+
+        const productId = "<%= product._id %>";
+        const quantity = parseInt(quantityInput.value || 1);
+        const colorStockId = selectedColor.id;
+
+        // AJAX request to add to cart
+        $.ajax({
+         url: '/addcart',
+         method: 'POST',
+         data: JSON.stringify({
+        productId: productId,
+        quantity: quantity,
+        colorStockId: selectedColor.id
+    }),
+        contentType: 'application/json',
+         success: function(response) {
+        if (response.success) {
+            Toastify({
+                text: response.message,
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                style: { 
+                    backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)"
+                }
+            }).showToast();
+
+            // Update cart badge
+            const cartBadge = document.querySelector('.navbar .badge.bg-danger');
+            if (cartBadge) {
+                cartBadge.textContent = response.cartItemCount;
+            }
+
+            // Update stock and disable if necessary
+            const selectedButton = document.querySelector(`.color-button[data-id="${colorStockId}"]`);
+            if (selectedButton) {
+                const newStock = response.remainingStock;
+                selectedButton.dataset.stock = newStock;
+                
+                if (newStock <= 0) {
+                    selectedButton.disabled = true;
+                    selectedButton.innerHTML = '<span class="out-of-stock">Out</span>';
+                }
+            }
+        } else {
+            Toastify({
+                text: response.message || "Failed to add to cart",
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                style: { 
+                    backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)"
+                }
+            }).showToast();
+        }
+    },
+    error: function(xhr, status, error) {
+        console.error("Full error details:", xhr.responseText);
+        Toastify({
+            text: xhr.responseJSON?.message || "An unexpected error occurred",
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            style: { 
+                backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)"
+            }
+        }).showToast();
+    }
+});
+    });
+});
 
 </script>

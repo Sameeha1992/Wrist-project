@@ -32,6 +32,7 @@ user_router.post("/resend-otp", userController.resendOtp);
 user_router.get("/productDetails",userController.loadProductDetail);
 
 
+
 //Profile Management
 user_router.get("/forget-password",profileController. getForgetPassPage);
 user_router.post("/forgot-email-valid",profileController.forgotEmailValid);
@@ -54,7 +55,8 @@ user_router.post("/changePassword",userAuth,profileController.changePasswordVali
 //Cart Management:-
 
 user_router.get("/cart",userAuth,cartController.loadCart);
-user_router.post("/addcart",cartController.addToCart)
+user_router.post("/addcart",cartController.addToCart);
+user_router.delete("/deleteCart",userAuth,cartController.deleteCart)
 
 
 //Address management:-
