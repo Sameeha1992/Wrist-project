@@ -8,7 +8,8 @@ const express = require("express");
 const user_router = express.Router();
 const userController = require("../controllers/user/userController");
 const profileController = require("../controllers/user/profileController");
-const cartController = require("../controllers/user/cartController")
+const cartController = require("../controllers/user/cartController");
+const checkoutController = require("../controllers/user/checkoutController")
 const passport = require("passport");
 
 
@@ -57,6 +58,12 @@ user_router.post("/changePassword",userAuth,profileController.changePasswordVali
 user_router.get("/cart",userAuth,cartController.loadCart);
 user_router.post("/addcart",cartController.addToCart);
 user_router.delete("/deleteCart",userAuth,cartController.deleteCart)
+
+
+//Checkout Management:-
+
+user_router.get("/checkout",userAuth,checkoutController.LoadCheckout);
+user_router.post("/place-order",userAuth,checkoutController.placeOrder)
 
 
 //Address management:-

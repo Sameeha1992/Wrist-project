@@ -20,7 +20,9 @@ const cartSchema = new mongoose.Schema(
     },
     colorStockId: {
       type: mongoose.Types.ObjectId,
-      required: true, 
+       required: true, 
+       
+     
     },
     quantity: {
       type: Number, 

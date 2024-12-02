@@ -215,10 +215,6 @@ const addToCart = async (req, res) => {
 
 
 
-
-
-
-
 const deleteCart = async (req, res) => {
   try {
    

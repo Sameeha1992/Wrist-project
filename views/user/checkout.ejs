@@ -1,0 +1,282 @@
+<%include("../partials/user/profileHead")%>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f8f8;
+        }
+        .container {
+            display: flex;
+            justify-content: space-between;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .shipping-address, .order-summary {
+            width: 48%;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        .product-image {
+            width: 80px;
+            height: 80px;
+        }
+        .product-details {
+            display: flex;
+            margin-bottom: 20px;
+        }
+        .product-info {
+            margin-left: 20px;
+        }
+        .total {
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        .coupon-form {
+            display: flex;
+            margin-top: 20px;
+        }
+        .coupon-input {
+            flex-grow: 1;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px 0 0 4px;
+        }
+        .apply-button {
+            background-color: #000;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            cursor: pointer;
+            border-radius: 0 4px 4px 0;
+        }
+        .remove-coupon {
+            background-color: #ccc;
+            color: #000;
+            border: none;
+            padding: 10px;
+            margin-left: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .available-coupons {
+            border: 1px solid #ccc;
+            padding: 15px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+        .coupon-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .copy-button {
+            background-color: #000;
+            color: #fff;
+            border: none;
+            padding: 5px 15px;
+            cursor: pointer;
+            border-radius: 4px;
+        }
+        .payment-methods {
+            margin-top: 20px;
+        }
+        .payment-option {
+            margin-bottom: 10px;
+        }
+        .warning {
+            color: #ff0000;
+            font-size: 0.9em;
+        }
+        .place-order-button {
+            background-color: #000;
+            color: #fff;
+            border: none;
+            padding: 15px;
+            width: 100%;
+            font-size: 1.1em;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="shipping-address">
+            <h2>Select Shipping Address</h2>
+            <% if(address.length>0){%>
+                <% address.forEach(addr => { %>
+            <label>
+                <input type="radio" name="selectedAddress" value="<%= addr._id %>"<%if(addr.isDefault) {%>checked <%} %> >
+                <%=addr.address_name%>,<%=addr.house_name %>,<%= addr.street_address %>,<%= addr.city%>,<%=addr.state%>,<%=addr.pincode%>
+                
+            </label>
+            <br>
+            <% })%>
+            <% } else { %>
+                <p>No Shipping addresses available.</p>
+                <% } %>
+        </div>
+        <div class="order-summary">
+            <h2>Order Summary</h2>
+            <% let totalAmount=0; %>
+            <% cart.forEach(item => {%>
+            <div class="product-details">
+                <img src="/uploads/re-image/<%= item.productId.productImage[0] %>" alt="<%= item.productId.productName %>" class="product-image">
+                <div class="product-info">
+                    <h3><%= item.productId.productName %></h3>
+                    <p>Quantity: <%= item.quantity %></p>
+                    <p>Price: $<%= item.productId.salePrice %></p>
+                    <p>Color:  <%= item.colorStockId.color %></p>
+                   
+                  
+                </div>
+               
+            </div>
+            <% totalAmount += item.productId.salePrice * item.quantity %>
+            <% }) %>
+        <p class="total">Total: $<%= totalAmount.toFixed(2) %></p>
+
+        <% cart.forEach(function(item,index) { %>
+            <input type="hidden" name="cartItems[<%= index %>][productId]" value="<%= item.productId.productName %>">
+                <input type="hidden" name="cartItems[<%= index %>][quantity]" value="<%= item.quantity %>">
+                <input type="hidden" name="cartItems[<%= index %>][size]" value="<%= item.color %>">
+                <input type="hidden" name="cartItems[<%= index %>][price]" value="<%= item.productId.salesPrice%>">
+
+            <% })%>
+
+            <div class="coupon-form">
+                <input type="hidden" placeholder="Enter coupon code" class="coupon-input">
+                <button class="apply-button">APPLY</button>
+                <button class="remove-coupon">remove coupon</button>
+            </div>
+            
+            <div class="available-coupons">
+                <h3>Available Coupons</h3>
+                <div class="coupon-item">
+                    <div>
+                        <strong>FLAT05</strong>
+                        <p></p>
+                    </div>
+                    <button class="copy-button">COPY</button>
+                </div>
+            </div>
+
+            
+            <div class="payment-methods">
+                <h3>Payment Methods</h3>
+                <div class="payment-option">
+                    <label>
+                        <input type="radio" id="cod"name="paymentMethod" value="COD">
+                        Cash on Delivery
+                    </label>
+                    
+                </div>
+                <div class="payment-option">
+                    <label>
+                        <input type="hidden" name="payment" value="razorpay">
+                       
+                    </label>
+                </div>
+                <div class="payment-option">
+                    <label>
+                        <input type="hidden" name="payment" value="wallet">
+                        
+                    </label>
+                    <span class="warning"></span>
+                </div>
+            </div>
+            
+            <button 
+                id="placeOrderBtn" 
+                class="btn btn-primary btn-block"
+                <%= address.length === 0 ? 'disabled' : '' %>
+            >
+                Place Order
+            </button>
+        </div>
+    </div>
+        
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script>
+        
+document.addEventListener('DOMContentLoaded', () => {
+    const placeOrderBtn = document.getElementById('placeOrderBtn');
+
+    placeOrderBtn.addEventListener('click', async () => {
+        const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+
+        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+    
+        if (!selectedAddress) {
+            // SweetAlert for missing address selection
+            Swal.fire({
+                icon: 'warning',
+                title: 'Oops...',
+                text: 'Please select a shipping address',
+            });
+            return;
+        }
+
+         if (!selectedPaymentMethod) {
+                // SweetAlert for missing payment method selection
+                Swal.fire({
+                    icon: 'warning',
+                    title: 'Oops...',
+                    text: 'Please select a payment method',
+                });
+                return;
+            }
+
+
+
+        try {
+            const response = await fetch("/place-order", {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    selectedAddress: selectedAddress.value,
+                    paymentMethod: selectedPaymentMethod.value  
+                })
+            });
+
+            const result = await response.json();
+            if (response.ok) {
+                // SweetAlert for successful order placement
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Order Placed Successfully!',
+                    text: 'Your order has been placed. Redirecting to order details...',
+                    timer: 3000, // Optional: Set a timer to auto-close the alert
+                    showConfirmButton: false
+                }).then(() => {
+                    window.location.href = `/orders/${result.orderId}`; // Redirect after alert
+                });
+            } else {
+                // SweetAlert for failure
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Order Placement Failed',
+                    text: result.message || 'Failed to place the order. Please try again.',
+                });
+            }
+        } catch (error) {
+            console.error('Order placement error:', error);
+            // SweetAlert for error handling
+            Swal.fire({
+                icon: 'error',
+                title: 'An error occurred',
+                text: 'Something went wrong while placing the order. Please try again.',
+            });
+        }
+    });
+});
+</script>
+<%include("../partials/mainfooter")%>
