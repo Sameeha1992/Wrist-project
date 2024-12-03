@@ -14,13 +14,13 @@ const LoadCheckout = async(req,res)=>{
         .populate({
             path: 'productId',
             populate: {
-                path: 'colorStock', // Populate the colorStock array
-                model: 'ColorStock' // Ensure this matches your ColorStock model name
+                path: 'colorStock',
+                model: 'ColorStock' 
             }
         })
-        .populate('categoryId')// Assuming you have a categoryId in your Cart schema
+        .populate('categoryId')
         .populate('colorStockId')
-       console.log(cartDetails,"CARTDETAILSS")
+      
 
 
         res.render("checkout",{
@@ -38,14 +38,14 @@ const LoadCheckout = async(req,res)=>{
 
 const placeOrder = async (req, res) => {
     try {
-        const userId = req.session.user; // Get the user ID from session
-        const { selectedAddress, paymentMethod } = req.body; // Extract data from the request body
+        const userId = req.session.user; 
+        const { selectedAddress, paymentMethod } = req.body;
 
-        console.log("User ID:", userId);
-        console.log("Selected Address:", selectedAddress);
-        console.log("Payment Method:", paymentMethod);
+        // console.log("User ID:", userId);
+        // console.log("Selected Address:", selectedAddress);
+        // console.log("Payment Method:", paymentMethod);
 
-        // Fetch cart items directly from the Cart collection
+       
         const cartItems = await Cart.find({ userId: userId })
             .populate({
                 path: 'productId',
@@ -60,90 +60,117 @@ const placeOrder = async (req, res) => {
                 select: 'categoryName'
             });
 
-        // If cart is empty, return an error response
+
+           
+          console.log("CARTITEM------------",cartItems)
+       
         if (cartItems.length === 0) {
             return res.status(400).json({ message: 'Cart is empty' });
         }
 
-        // Find the selected shipping address from the user's profile
+        console.log("CARTITEM22222222222222222222222")
+        
         const currentUser = await User.findById(userId);
         const shippingAddress = currentUser.address.find(
             addr => addr._id.toString() === selectedAddress
         );
 
-        // If the address is invalid, return an error response
+        
+
+       
+        
         if (!shippingAddress) {
             return res.status(400).json({ message: 'Invalid address selected' });
         }
 
-        // Validate stock for each cart item and prepare the order items
+       
+        
         const orderItems = await Promise.all(cartItems.map(async (cartItem) => {
             const product = await Product.findById(cartItem.productId._id);
             const colorStock = product.colorStock.find(
                 stock => stock._id.toString() === cartItem.colorStockId._id.toString()
             );
 
-            // Check if there is sufficient stock for the selected color
+          
+          
+
+           
             if (!colorStock || colorStock.quantity < cartItem.quantity) {
-                throw new Error(`Insufficient stock for ${product.productName} in ${cartItem.colorStockId.color}`);
+                return res.status(400).json({message:`Insufficient stock for ${product.productName} in ${cartItem.colorStockId.color}`});
             }
 
-            // Return the order item with product details
-            return {
+            return{
                 productId: cartItem.productId._id,
                 quantity: cartItem.quantity,
-                color: colorStock.color, // Ensure color is assigned from colorStock
+                color: colorStock.color, 
                 price: cartItem.productId.salePrice,
-                totalPrice: cartItem.productId.salePrice * cartItem.quantity
+                totalPrice: cartItem.productId.salePrice * cartItem.quantity,
+                colorStockId: cartItem.colorStockId._id // Adding this to ensure all required fields are present
             };
-        }));
 
-        // Calculate the total order amount
+          
+        }));
+        console.log(orderItems,"OrdersItemss")
+
+       
+        
+       
         const totalAmount = orderItems.reduce((total, item) => total + item.totalPrice, 0);
 
-        // Create a new order in the database
+
+        console.log(totalAmount,"TOTALAMOUNT")
+        
         const newOrder = new Order({
             userId,
             orderItem: orderItems,
             shippingAddress: `${shippingAddress.address_name}, ${shippingAddress.house_name}, ${shippingAddress.street_address}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.pincode}`,
             zip: shippingAddress.pincode,
-            country: 'India', // Default to India
+            country: 'India', 
             phone: currentUser.phone || 'Not Provided',
-            paymentMethod: paymentMethod || 'COD', // Default to COD if no payment method is provided
-            orderStatus: 'Processing', // Initial status of the order
+            paymentMethod: paymentMethod || 'COD', 
+            orderStatus: 'Processing', 
             totalAmount
         });
 
-        // Save the order to the database
+        console.log(newOrder,"NEWORDER")
+       
         const savedOrder = await newOrder.save();
+        console.log(savedOrder,"SAVEDORDER")
 
-        // Update product stock based on the order items
+        
         for (let item of orderItems) {
-            await Product.updateOne(
+           const updated= await Product.updateOne(
                 { _id: item.productId, "colorStock._id": item.colorStockId },
                 { $inc: { "colorStock.$.quantity": -item.quantity } }
             );
+            console.log(updated,"UPDATED")
+
+            if(updated.modifiedCount ===0) {
+                return res.status(400).json({message:`failed to update stock for ${item.productId}`})
+            }
         }
 
-        // Clear the user's cart and update order history
+        
         await User.findByIdAndUpdate(
             userId,
             {
                 $push: { orderHistory: savedOrder._id },
-                $set: { cart: [] } // Empty the cart after the order is placed
+                $set: { cart: [] } 
             }
         );
 
-        // Delete the cart items to prevent reordering
+       
         await Cart.deleteMany({ userId: userId });
 
-        // Respond with the success message and order ID
-        res.status(201).json({
-            message: 'Order placed successfully',
-            orderId: savedOrder._id,
-            paymentMethod:savedOrder.paymentMethod,
-            order:savedOrder
-        });
+        res.status(200).json({success:true,message:"Your oreder is successfully placed"})
+
+       
+        // res.status(201).render("orderSuccess",{
+        //     message: 'Order placed successfully',
+        //     orderId: savedOrder._id,
+        //     paymentMethod:savedOrder.paymentMethod,
+        //     order:savedOrder
+        // });
 
     } catch (error) {
         console.error("Error placing order:", error);
@@ -153,6 +180,17 @@ const placeOrder = async (req, res) => {
         });
     }
 };
+
+const successOrder = async(req,res)=>{
+    try {
+        console.log("order is successfully places")
+        res.status(200).render("orderSuccess")
+        
+    } catch (error) {
+        console.error("Error occured while order success",error)
+        
+    }
+}
 
 
 
@@ -167,4 +205,5 @@ const placeOrder = async (req, res) => {
 module.exports = {
     LoadCheckout,
     placeOrder,
+    successOrder,
 }

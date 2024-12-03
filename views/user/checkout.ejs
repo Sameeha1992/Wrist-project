@@ -257,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     timer: 3000, // Optional: Set a timer to auto-close the alert
                     showConfirmButton: false
                 }).then(() => {
-                    window.location.href = `/orders/${result.orderId}`; // Redirect after alert
+                    window.location.href = `/orderSuccess`; // Redirect after alert
                 });
             } else {
                 // SweetAlert for failure

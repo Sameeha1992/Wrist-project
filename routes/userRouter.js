@@ -10,6 +10,7 @@ const userController = require("../controllers/user/userController");
 const profileController = require("../controllers/user/profileController");
 const cartController = require("../controllers/user/cartController");
 const checkoutController = require("../controllers/user/checkoutController")
+const orderController = require("../controllers/user/orderController")
 const passport = require("passport");
 
 
@@ -64,6 +65,14 @@ user_router.delete("/deleteCart",userAuth,cartController.deleteCart)
 
 user_router.get("/checkout",userAuth,checkoutController.LoadCheckout);
 user_router.post("/place-order",userAuth,checkoutController.placeOrder)
+user_router.get("/orderSuccess",userAuth,checkoutController.successOrder)
+
+
+//Order Management:-
+
+user_router.get("/orders",userAuth,orderController.loadOrderPage);
+user_router.get("view-order/:id",userAuth,orderController.viewOrderDetails);
+user_router.post('/cancel-order', userAuth, orderController.cancelOrder);
 
 
 //Address management:-

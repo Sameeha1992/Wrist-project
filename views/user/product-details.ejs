@@ -161,7 +161,32 @@
             outline: none;
         }
         .color-button:hover {
-          border: 3px solid #555; /* Slightly thicker border on hover */
+          border: 3px solid #555; 
+
+          .color-button-wrapper {
+    position: relative;
+    display: inline-block;
+    margin: 5px;
+}
+
+.color-button.disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.out-of-stock-label {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    color: var(--accent-color);
+    font-size: 0.7rem;
+    margin-top: 5px;
+}
+
+.color-button:disabled {
+    pointer-events: none;
+}
 }
     </style>
 </head>
@@ -253,12 +278,20 @@
                                         default: colorHex = '#000000'; break;
                                     }
                                 %>
-                               <button class="color-button" 
-                    style="background-color: <%= colorHex %>" 
-                    title="<%= color.color %>"
-                    data-color="<%= color.color %>"
-                    data-id="<%= color._id %>">
-            </button>
+                               <div class="color-button-wrapper <%= color.quantity <= 0 ? 'out-of-stock' : '' %>">
+                                <button 
+                                    class="color-button <%= color.quantity <= 0 ? 'disabled' : '' %>" 
+                                    style="background-color: <%= colorHex %>" 
+                                    title="<%= color.color %>"
+                                    data-color="<%= color.color %>"
+                                    data-id="<%= color._id %>"
+                                    data-stock="<%= color.quantity %>"
+                                    <%= color.quantity <= 0 ? 'disabled' : '' %>>
+                                </button>
+                                <% if (color.quantity <= 0) { %>
+                                    <span class="out-of-stock-label">Out of Stock</span>
+                                <% } %>
+                            </div>
                                   
                             <% }) %>
                         </div>
@@ -386,14 +419,33 @@ document.addEventListener('DOMContentLoaded', () => {
     // Color button selection logic
     colorButtons.forEach(button => {
         button.addEventListener('click', () => {
-            // Remove active state from all buttons
-            colorButtons.forEach(btn => btn.classList.remove('active'));
+            
+
+            if (button.disabled) {
+                Toastify({
+                    text: "This color is currently out of stock.Please select another color",
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    style: { 
+                        backgroundColor:  "#e74c3c"
+                    }
+                }).showToast();
+                return;
+            }
+
+
+            colorButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.closest('.color-button-wrapper').classList.remove('active');
+            });
             
             // Add active state to selected button
             button.classList.add('active');
+            button.closest('.color-button-wrapper').classList.add('active');
             
-            // Enable add to cart button
-            addToCartBtn.disabled = false;
+           
+            
             
             // Store selected color
             selectedColor = {
@@ -405,30 +457,22 @@ document.addEventListener('DOMContentLoaded', () => {
             // Update quantity input max based on selected color stock
             quantityInput.max = Math.min(selectedColor.stock, 5);
             quantityInput.value = 1;
+            addToCartBtn.disabled = false;
         });
     });
 
     // Quantity input validation
-    quantityInput.addEventListener('change', () => {
-        const value = parseInt(quantityInput.value);
-        const max = parseInt(quantityInput.max);
-        
-        if (value > max) {
-            quantityInput.value = max;
-        } else if (value < 1) {
-            quantityInput.value = 1;
-        }
-    });
+   
 
     // Add to Cart Button Handler
     addToCartBtn.addEventListener('click', () => {
         if (!selectedColor) {
             Toastify({
-                text: "Please select a color first!",
+                text: "Please select an available color first!",
                 duration: 3000,
                 gravity: "top",
                 position: "right",
-               style:{ backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)"
+               style:{ backgroundColor: "#f39c12"
             }
             }).showToast();
             return;
@@ -456,7 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 gravity: "top",
                 position: "right",
                 style: { 
-                    backgroundColor: "linear-gradient(to right, #00b09b, #96c93d)"
+                    backgroundColor: "#2ecc71"
                 }
             }).showToast();
 
@@ -484,7 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 gravity: "top",
                 position: "right",
                 style: { 
-                    backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)"
+                    backgroundColor: "#e74c3c"
                 }
             }).showToast();
         }
@@ -497,7 +541,7 @@ document.addEventListener('DOMContentLoaded', () => {
             gravity: "top",
             position: "right",
             style: { 
-                backgroundColor: "linear-gradient(to right, #ff5f6d, #ffc371)"
+                backgroundColor: "#e74c3c"
             }
         }).showToast();
     }
