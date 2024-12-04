@@ -66,13 +66,30 @@ const viewOrderDetails = async (req,res)=>{
             return res.status(404).render('404')
         }
 
-        res.render("orderDetails",{
-            order,
-            
-            formateDate :(date)=>new Date(date).toLocaleDateString()
+        const items = order.orderItem.map(item =>({
+            name:item.productId.productName,
+            Image:item.productId.productImage,
+            color:item.color,
+            price:item.price || item.productId.salePrice,
+            quantity:item.quantity,
+            totalPrice:item.totalPrice
+        }))
 
-        })
-        
+        const orderData = {
+            _id: order._id,
+            createdAt: order.createdAt,
+            orderStatus: order.orderStatus,
+            shippingAddress: order.shippingAddress,
+            paymentMethod: order.paymentMethod,
+            subtotal: items.reduce((acc, item) => acc + item.price * item.quantity, 0),
+            tax: 0, // Add tax if needed
+            shipping: 0, // Add shipping cost if applicable
+            total: order.totalAmount || items.reduce((acc, item) => acc + item.price * item.quantity, 0),
+            items // Attach transformed items
+        };
+
+        res.render("orderDetails", { order: orderData });
+
     } catch (error) {
         console.error("Error is viewing order detail page",error);
         res.status(500).render("500")
@@ -82,54 +99,53 @@ const viewOrderDetails = async (req,res)=>{
 
 
 
-const cancelOrder = async (req,res)=>{
-
+const cancelOrder = async(req,res)=>{
     try {
-        const {orderId} = req.body;
+        const orderId = req.params.id;
         const userId = req.session.user;
 
         const order = await Order.findOne({
             _id:orderId,
             userId:userId
-        });
+        })
 
         if(!order) {
             return res.status(404).json({message:"Order not found"})
         }
 
-        if(order.orderStatus !=="Processing"){
+        const cancelableStatuses =["Processing","Dispatched","Shipped"];
+        if(!cancelableStatuses.includes(order.orderStatus)){
             return res.status(400).json({
-                message:"Order cannot be cancelled at this stage"
-            });
+                message:'This order cannot be cancelled'
+            })
         }
 
-        order.orderStatus = 'Cancelled';
+        order.orderStatus ='Cancelled';
         await order.save();
 
-        for(let item of order.orderItem) {
-            await Product.updateOne(
-                {
-                    _id:item.productId,
-                    'colorStock.color': item.color
-                },
-                {
-                    $inc:{
-                        'colorStock.$.quantity':item.quantity
-                    }
+        for (let item of order.orderItem) {
+            const product = await Product.findById(item.productId);
+            if (product) {
+                const colorStockIndex = product.colorStock.findIndex(
+                    (colorStock) => colorStock.color === item.color
+                );
+
+                if (colorStockIndex !== -1) {
+                    product.colorStock[colorStockIndex].quantity += item.quantity;
+                    await product.save();
                 }
-            );
+            }
         }
-        res.status(200).json({
-            message:"Order cancelled successfully",
-            orderId:order._id
-        })
+
+        res.status(200).json({message:'Order cancelled successfully'})
         
     } catch (error) {
-        console.error("Error cancelling order",error);
-        res.status(500).json({message:"Failed to cancel order"})
+        console.error('Error cancelling order:',error);
+        res.status(500).json({message:'Internal server error'})
         
     }
 };
+
 
 const formatOrderStatus = (status) => {
     const statusClasses = {
@@ -146,4 +162,5 @@ module.exports={
     loadOrderPage,
     viewOrderDetails,
     cancelOrder,
+    
 }

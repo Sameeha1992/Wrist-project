@@ -87,14 +87,10 @@
                                                    <%= order.orderStatus || 'Unknown' %>
 </span>
                                         </td>
-                                        <td><%= order.totalAmount ? `$${order.totalAmount.toFixed(2)}` : 'N/A' %></td>
+                                        <td><%= order.totalAmount ? `₹${order.totalAmount.toFixed(2)}` : 'N/A' %></td>
                                         <td>
                                             <a href="/view-order/<%= order._id %>" class="btn btn-warning btn-sm">View Order</a>
-                                            <% if (order.orderStatus === 'Processing' || order.orderStatus === 'Dispatch') { %>
-                                                <form action="<%= order._id %>" method="POST" style="display: inline;">
-                                                    <button type="submit" class="btn btn-danger btn-sm ms-2" onclick="return confirm('Are you sure you want to cancel this order?')">Cancel Order</button>
-                                                </form>
-                                            <% } %>
+                                           
                                         </td>
                                         
                                     </tr>

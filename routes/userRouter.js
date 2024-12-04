@@ -71,8 +71,9 @@ user_router.get("/orderSuccess",userAuth,checkoutController.successOrder)
 //Order Management:-
 
 user_router.get("/orders",userAuth,orderController.loadOrderPage);
-user_router.get("view-order/:id",userAuth,orderController.viewOrderDetails);
-user_router.post('/cancel-order', userAuth, orderController.cancelOrder);
+user_router.get("/view-order/:id",userAuth,orderController.viewOrderDetails);
+user_router.post("/cancel-order/:id",userAuth,orderController.cancelOrder)
+
 
 
 //Address management:-

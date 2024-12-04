@@ -85,93 +85,17 @@ const logout=async(req,res)=>{
 }
 
 
-
-
-// //Login function
-// const Adminlogin=async(req,res)=>{
-//     console.log("login is coming")
-//     try {    
-//       const {email,password}=req.body;
-//       const admin=await User.findOne({isAdmin:true,email});
-//       console.log("hiiii data vannoooo?/",admin);
-
-//       if(!admin){
-//         return res.json({success:false,message:"Incorrect email or password"})
-//       }
-
-//       const passwordMatch=await bcrypt.compare(password,admin.password)
-//       console.log("Password match status",passwordMatch);
-      
-//       if(passwordMatch){
-//         req.session.admin=true;
-//         return res.json({success:true,message:"Login Successfully"})
-//       }  else {
-//         return res.json({success : false , message : "Incorrect email or password"})
-//       }
-      
-      
-//     } catch (error) {
-//       console.log("login error",error);
-//      return  res.json({success:false,message:"Something went wrong"})
-      
-//     }
-//   }
-
-
-
-
-
-
-
-
-
-// //main
-// const Adminlogin= async(req,res)=>{
+const userOrders = async(req,res)=>{
+  try {
+    console.log("Started login page")
+    res.render("adminOrder");
+    console.log("got userOrderPage")
     
+  } catch (error) {
+    console.error("error in getting the orderpage of the user")
     
-//     try {
-//         const{email,password}=req.body;
-//         const admin = await User.findOne({email,isAdmin:true});
-        
-        
-
-//         if(admin){
-//             const passwordMatch=await bcrypt.compare(password,admin.password);
-//             if(passwordMatch){
-//                 req.session.admin = true;
-                
-//                 return res.redirect("/admin/dashboard")
-//             } else{
-//                 return res.redirect("/admin/login")
-//             }
-//         } 
-        
-//     } catch (error) {
-//         console.log("login error",error);
-//         return res.redirect("/pageerror")
-        
-//     }
-// }
-
-
-// const loadDashboard=async (req,res)=>{
-//     console.log("keritto")
-   
-//     try {
-
-//         if(req.session.admin){
-//             res.render("dashboard");
-
-//         } else{
-//             res.redirect("/pageerror")
-//         }
-
-        
-//     } catch (error) {
-        
-//     }
-// }
-
+  }
+}
 
 module.exports={
     loadLogin,
@@ -179,4 +103,5 @@ module.exports={
     loadDashboard,
     pageerror,
     logout,
+    userOrders
 }

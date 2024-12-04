@@ -61,4 +61,10 @@ router.get("/editProduct",adminAuth,productController.getEditProduct);
 router.post("/editProduct/:id",adminAuth,uploads.array("images",4),productController.editProduct);
 router.post("/deleteImage",adminAuth,productController.deleteSingleImage)
 
+
+
+//Order Management:-
+
+router.get("/adminOrder",adminAuth,adminController.userOrders)
+
 module.exports=router;
