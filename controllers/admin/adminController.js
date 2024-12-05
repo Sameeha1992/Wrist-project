@@ -85,17 +85,6 @@ const logout=async(req,res)=>{
 }
 
 
-const userOrders = async(req,res)=>{
-  try {
-    console.log("Started login page")
-    res.render("adminOrder");
-    console.log("got userOrderPage")
-    
-  } catch (error) {
-    console.error("error in getting the orderpage of the user")
-    
-  }
-}
 
 module.exports={
     loadLogin,
@@ -103,5 +92,5 @@ module.exports={
     loadDashboard,
     pageerror,
     logout,
-    userOrders
+   
 }

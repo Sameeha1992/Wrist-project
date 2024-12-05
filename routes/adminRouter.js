@@ -5,6 +5,7 @@ const customerController=require("../controllers/admin/customerController")
 const categoryController = require("../controllers/admin/categoryController");
 const brandController = require("../controllers/admin/brandController")
 const productController = require("../controllers/admin/productController");
+const adminOrderController = require("../controllers/admin/adminOrderController")
 
 const {userAuth,adminAuth, isAdminLogout} = require("../middlewares/auth");
 const multer = require("multer");
@@ -65,6 +66,10 @@ router.post("/deleteImage",adminAuth,productController.deleteSingleImage)
 
 //Order Management:-
 
-router.get("/adminOrder",adminAuth,adminController.userOrders)
+router.get("/orders",adminAuth,adminOrderController.userOrders);
+// router.put('/orders/:orderId/product/:productId/:color/status',adminAuth,adminOrderController.updateStatus);
+// router.get('/orders/details', adminAuth, adminOrderController.getPopUpOrderDetails);
+// router.delete('/orders/:orderId/product/:productId/:color', adminAuth, adminOrderController.deleteOrderListProduct);
+// router.put('/orders/:orderId/product/:productId/return', adminAuth, adminOrderController.handleReturn);
 
 module.exports=router;

@@ -64,6 +64,28 @@
             border-color: #80bdff;
             box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
         }
+        /* Updated pagination styles */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+        .pagination a {
+            color: #57595b;
+            padding: 8px 16px;
+            text-decoration: none;
+            transition: background-color .3s;
+            border: 1px solid #ddd;
+            margin: 0 4px;
+        }
+        .pagination a.active {
+            background-color: #3e4145;
+            color: white;
+            border: 1px solid #007bff;
+        }
+        .pagination a:hover:not(.active) {
+            background-color: #ddd;
+        }
     </style>
 </head>
 <body>
@@ -96,32 +118,73 @@
                         </tr>
                     </thead>
                     <tbody>
+                        <% orders.forEach(order =>{ %>
                         <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
+                            <td><%= order._id %></td>
+                            <td><%= order.userId.name%></td>
+                            <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
+                            <td><%= order.totalAmount %></td>
+                            <td class="order-status"><%= order.orderStatus %></td>
                             <td>
-                                <select class="form-select form-select-sm" onchange="">
-                                    <option value="Processing">Processing</option>
-                                    <option value="Dispatched">Dispatched</option>
-                                    <option value="Shipped">Shipped</option>
-                                    <option value="Delivered">Delivered</option>
-                                    <option value="Cancelled">Cancelled</option>
-                                </select>
+                                <select class="form-select form-select-sm status-change" 
+                                data-order-id="<%= order._id %>"
+                                data-product-id="<%= order.orderItem[0].productId %>"
+                                data-color="<%= order.orderItem[0].color %>">
+                                <option value="Processing" <%= order.orderStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
+                                <option value="Dispatched" <%= order.orderStatus === 'Dispatched' ? 'selected' : '' %>>Dispatched</option>
+                                <option value="Shipped" <%= order.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
+                                <option value="Delivered" <%= order.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
+                                <option value="Cancelled" <%= order.orderStatus === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
+                            </select>
                             </td>
                             <td>
-                                <button class="btn btn-sm btn-secondary" onclick="viewDetails">View Details</button>
-                            </td>
+                                <div class="btn-group" role="group">
+                                    <button class="btn btn-sm btn-secondary view-details" 
+                                        data-order-id="<%= order._id %>">
+                                        View Details
+                                    </button>
+
+                                    <button class="btn btn-sm btn-danger cancel-order" 
+                                        data-order-id="<%= order._id %>"
+                                        data-product-id="<%= order.orderItem[0].productId %>"
+                                        data-color="<%= order.orderItem[0].color %>">
+                                        Cancel
+                                    </button>
                         </tr>
+                        <% });%>
                     </tbody>
                 </table>
+
+                <div class="pagination">
+                    <% for(let i = 1; i <= totalPages; i++) { %>
+                        <a href="?page=<%= i %>" class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+                    <% } %>
+                </div>
+
             </div>
         </main>
     </div>
 
+
+
+    <div class="modal fade" id="orderDetailsModal" tabindex="-1">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Order Details</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body" id="orderDetailsContent">
+                    <!-- Dynamic content will be inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
    
+
+    
     <%- include("../partials/admin/footer") %>
 </body>
 </html>
