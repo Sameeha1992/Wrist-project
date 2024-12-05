@@ -82,10 +82,10 @@ const viewOrderDetails = async (req,res)=>{
             shippingAddress: order.shippingAddress,
             paymentMethod: order.paymentMethod,
             subtotal: items.reduce((acc, item) => acc + item.price * item.quantity, 0),
-            tax: 0, // Add tax if needed
-            shipping: 0, // Add shipping cost if applicable
+            
+           
             total: order.totalAmount || items.reduce((acc, item) => acc + item.price * item.quantity, 0),
-            items // Attach transformed items
+            items 
         };
 
         res.render("orderDetails", { order: orderData });

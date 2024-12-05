@@ -61,6 +61,7 @@
         data: JSON.stringify({ elemId: id }),
         success: function (response) {
             if (response.success) {
+                window.location.reload()
                 Toastify({
                     text: response.message,
                     duration: 2000,
@@ -71,6 +72,7 @@
                 }).showToast();
 
                 address.remove();
+              
             } else {
                 Toastify({
                     text: response.message,
@@ -339,6 +341,7 @@
             })
                 .then(response => {
                     if (response.ok) {
+                        window.location.reload()
                         return response.json();
                     } else {
                         throw new Error("Internal server error!!")
@@ -355,6 +358,7 @@
                             stopOnFocus: true
                         }).showToast();
                         updateAddressWrapper(data.user.addresses);
+                       
                         
                        
                     } else {

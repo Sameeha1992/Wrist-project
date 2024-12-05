@@ -86,6 +86,26 @@
         .pagination a:hover:not(.active) {
             background-color: #ddd;
         }
+
+        .notification {
+    position: fixed;
+    bottom: 10px;
+    right: 10px;
+    padding: 10px 20px;
+    color: white;
+    border-radius: 5px;
+    z-index: 1000;
+    font-family: Arial, sans-serif;
+}
+
+.notification.success {
+    background-color: green;
+}
+
+.notification.error {
+    background-color: red;
+}
+
     </style>
 </head>
 <body>
@@ -121,7 +141,8 @@
                         <% orders.forEach(order =>{ %>
                         <tr>
                             <td><%= order._id %></td>
-                            <td><%= order.userId.name%></td>
+                            <td><%= order.userId?.name || 'Deleted User'%></td>
+            
                             <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
                             <td><%= order.totalAmount %></td>
                             <td class="order-status"><%= order.orderStatus %></td>
@@ -130,12 +151,20 @@
                                 data-order-id="<%= order._id %>"
                                 data-product-id="<%= order.orderItem[0].productId %>"
                                 data-color="<%= order.orderItem[0].color %>">
+                                data-original-status ="<%= order.orderStatus%>"
                                 <option value="Processing" <%= order.orderStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
                                 <option value="Dispatched" <%= order.orderStatus === 'Dispatched' ? 'selected' : '' %>>Dispatched</option>
                                 <option value="Shipped" <%= order.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
                                 <option value="Delivered" <%= order.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
                                 <option value="Cancelled" <%= order.orderStatus === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
                             </select>
+
+                            <button class="btn btn-sm btn-primary update-status"
+                            data-order-id="<%= order._id %>" 
+                            data-product-id="<%= order.orderItem[0].productId %>"
+                            data-color="<%= order.orderItem[0].color %>">
+                            Update
+                            </button>
                             </td>
                             <td>
                                 <div class="btn-group" role="group">
@@ -144,12 +173,7 @@
                                         View Details
                                     </button>
 
-                                    <button class="btn btn-sm btn-danger cancel-order" 
-                                        data-order-id="<%= order._id %>"
-                                        data-product-id="<%= order.orderItem[0].productId %>"
-                                        data-color="<%= order.orderItem[0].color %>">
-                                        Cancel
-                                    </button>
+                                   
                         </tr>
                         <% });%>
                     </tbody>
@@ -166,7 +190,6 @@
     </div>
 
 
-
     <div class="modal fade" id="orderDetailsModal" tabindex="-1">
         <div class="modal-dialog modal-lg">
             <div class="modal-content">
@@ -175,14 +198,156 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="orderDetailsContent">
-                    <!-- Dynamic content will be inserted here -->
+                    <!-- Order ID and Status -->
+                    <p><strong>Order ID:</strong> <span id="order-id"></span></p>
+                    <p><strong>Status:</strong> <span id="order-status"></span></p>
+    
+                    <!-- Order Metadata -->
+                    <p><strong>Created At:</strong> <span id="order-created-at"></span></p>
+                    <p><strong>Shipping Address:</strong> <span id="order-shipping-address"></span></p>
+                    <p><strong>Payment Method:</strong> <span id="order-payment-method"></span></p>
+                    <p><strong>Subtotal:</strong> $<span id="order-subtotal"></span></p>
+    
+                    <!-- Items Section -->
+                    <h5>Items:</h5>
+                    <ul id="order-items-list" class="list-unstyled">
+                        <!-- Items will be dynamically injected here -->
+                    </ul>
                 </div>
             </div>
         </div>
     </div>
+    
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
    
+    <script>
+       document.addEventListener('DOMContentLoaded', () => {
+    const updateButtons = document.querySelectorAll('.update-status'); // Corrected variable name for clarity
+
+    updateButtons.forEach(button => {
+        button.addEventListener('click', async () => { // Attach event listener to each button
+            const row = button.closest('tr'); // Get the corresponding table row
+            const select = row.querySelector('.status-change'); // Get the select element inside the same row
+            
+            const orderId = select.getAttribute('data-order-id'); // Retrieve order ID
+            const productId = select.getAttribute('data-product-id'); // Retrieve product ID
+            const color = select.getAttribute('data-color'); // Retrieve product color
+            const newStatus = select.value; // Get the selected value (new status)
+
+            console.log('Order ID:', orderId);
+            console.log('Product ID:', productId);
+            console.log('Color:', color);
+            console.log('New Status:', newStatus);
+
+            try {
+                // Send the PATCH request
+                const response = await fetch(`/admin/update-order-status/${orderId}`, {
+                    method: 'PATCH',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                   body:JSON.stringify({ newStatus})
+                });
+
+                const result = await response.json();
+
+                if (result.success) {
+                    const statusCell = row.querySelector('.order-status');
+                    statusCell.textContent = newStatus; // Update the status in the UI
+
+                    // Highlight the row for success
+                    row.classList.add('table-success');
+                    setTimeout(() => {
+                        row.classList.remove('table-success');
+                    }, 2000);
+
+                    showNotification('Order status updated successfully', 'success');
+                } else {
+                    showNotification(result.message, 'error');
+                    select.value = select.getAttribute('data-original-status'); // Revert the select value
+                }
+            } catch (error) {
+                console.error('Error updating order status:', error);
+                showNotification('Failed to update order status', 'error');
+
+                // Revert the select value on error
+                select.value = select.getAttribute('data-original-status');
+            }
+        });
+    });
+});
+
+
+function showNotification(message, type) {
+    const notification = document.createElement('div');
+    notification.className = `alert alert-${type === 'success' ? 'success' : 'danger'} alert-dismissible fade show`;
+    notification.innerHTML = `
+        <strong>${type === 'success' ? 'Success!' : 'Error!'}</strong> ${message}
+        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+    `;
+    document.body.appendChild(notification);
+
+    // Remove the notification after 5 seconds
+    setTimeout(() => {
+        notification.remove();
+    }, 5000);
+}
+
+
+
+
+
+document.addEventListener("DOMContentLoaded", () => {
+    const modalBody = document.getElementById("orderDetailsContent");
+
+    // Attach event listener to dynamically load order details
+    document.querySelectorAll(".view-details-btn").forEach((button) => {
+        button.addEventListener("click", async () => {
+            const orderId = button.getAttribute("data-order-id");
+
+            try {
+                const response = await fetch(`/orders/details/${orderId}`);
+                const data = await response.json();
+
+                if (data.success) {
+                    const order = data.order;
+
+                    // Update modal placeholders with data
+                    document.getElementById("order-id").textContent = order._id;
+                    document.getElementById("order-status").textContent = order.orderStatus;
+                    document.getElementById("order-created-at").textContent = new Date(order.createdAt).toLocaleString();
+                    document.getElementById("order-shipping-address").textContent = order.shippingAddress;
+                    document.getElementById("order-payment-method").textContent = order.paymentMethod;
+                    document.getElementById("order-subtotal").textContent = order.subtotal.toFixed(2);
+
+                    // Populate the items list
+                    const itemsList = document.getElementById("order-items-list");
+                    itemsList.innerHTML = ""; // Clear any previous content
+
+                    order.items.forEach((item) => {
+                        const listItem = document.createElement("li");
+                        listItem.innerHTML = `
+                            <div class="d-flex align-items-center">
+                                <img src="${item.image}" alt="${item.name}" style="width:50px;height:50px;object-fit:cover;margin-right:10px;">
+                                <span>${item.name} - $${item.price.toFixed(2)} x ${item.quantity} = $${item.totalPrice.toFixed(2)}</span>
+                            </div>
+                        `;
+                        itemsList.appendChild(listItem);
+                    });
+                } else {
+                    modalBody.innerHTML = `<p>Error loading order details: ${data.message}</p>`;
+                }
+            } catch (error) {
+                console.error("Error fetching order details:", error);
+                modalBody.innerHTML = `<p>Something went wrong while fetching order details.</p>`;
+            }
+        });
+    });
+});
+
+
+    </script>
 
     
     <%- include("../partials/admin/footer") %>
