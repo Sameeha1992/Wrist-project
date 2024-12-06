@@ -12,8 +12,9 @@ const { viewOrderDetails } = require("../user/orderController");
 
 const userOrders = async(req,res)=>{
     try {
-     const page=1;
+     const page=parseInt(req.query.page) || 1;
      const limit = 10;
+     const skip =(page-1) * limit;
      
      const orders = await Order.find()
      .populate({
@@ -25,6 +26,7 @@ const userOrders = async(req,res)=>{
       select:'productName productImage'
      })
      .sort({createdAt:-1})
+     .skip(skip)
      .limit(limit);
 
 
@@ -91,6 +93,14 @@ const userOrders = async(req,res)=>{
         });
       }
 
+      if ((order.orderStatus === 'Shipped' || order.orderStatus === 'Delivered') && newStatus === 'Cancelled') {
+        return res.status(400).json({
+            success: false,
+            message: "Cannot cancel an order that has already been shipped or delivered"
+        });
+    }
+
+
 
       const validStatuses = ['Processing','Delivered','Cancelled','Shipped','Dispatched'];
       if(!validStatuses.includes(newStatus)){
@@ -149,18 +159,26 @@ const userOrders = async(req,res)=>{
 
 
   const viewUserOrderDetails = async (req,res)=>{
+
+    console.log("Startinggg to view the orderdetaill")
     try {
 
       const orderId = req.params.id;
-      const userId = req.session.user;
+      console.log(orderId,"ORDERID")
+      
+      
+
+      
 
       const order = await Order.findOne({
         _id:orderId,
-        userId:userId
+        
       }).populate({
         path:"orderItem.productId",
         select:'productName productImage salePrice'
       });
+
+      console.log(order,"ORDERSSSSSSS")
 
       if(!order){
         return res.status(404).render('404')
@@ -177,6 +195,7 @@ const userOrders = async(req,res)=>{
 
       const orderData ={
         _id:order._id,
+        orderId:orderId,
         createdAt:order.createdAt,
         orderStatus:order.orderStatus,
         shippingAddress:order.shippingAddress,
@@ -184,7 +203,7 @@ const userOrders = async(req,res)=>{
         subtotal:items.reduce((acc,item)=>acc +item.price * item.quantity,0),
         items
       };
-      res.json({success:true,order:orderData})
+      res.render("userOrdersdetailPage",{order:orderData})
       
     } catch (error) {
 

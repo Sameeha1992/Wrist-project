@@ -68,8 +68,7 @@ router.post("/deleteImage",adminAuth,productController.deleteSingleImage)
 
 router.get("/orders",adminAuth,adminOrderController.userOrders);
 router.patch("/update-order-status/:id",adminAuth,adminOrderController.updatedOrderStatus);
-router.get("/orders/details/:id",adminAuth,adminOrderController.viewUserOrderDetails)
-// router.get('/orders/details', adminAuth, adminOrderController.getPopUpOrderDetails);
+router.get("/orderDetails/:id",adminAuth,adminOrderController.viewUserOrderDetails)
 // router.delete('/orders/:orderId/product/:productId/:color', adminAuth, adminOrderController.deleteOrderListProduct);
 // router.put('/orders/:orderId/product/:productId/return', adminAuth, adminOrderController.handleReturn);
 

@@ -106,6 +106,14 @@
     background-color: red;
 }
 
+#toast-container {
+    position: fixed;
+    top: 20px; 
+    right: 20px; 
+    z-index: 1050;
+}
+
+
     </style>
 </head>
 <body>
@@ -180,8 +188,8 @@
                 </table>
 
                 <div class="pagination">
-                    <% for(let i = 1; i <= totalPages; i++) { %>
-                        <a href="?page=<%= i %>" class="<%= currentPage === i ? 'active' : '' %>"><%= i %></a>
+                    <% for (let i = 1; i <= totalPages; i++) { %>
+                        <a href="?page=<%= i %>" class="<%= i === currentPage ? 'active' : '' %>"><%= i %></a>
                     <% } %>
                 </div>
 
@@ -190,38 +198,41 @@
     </div>
 
 
-    <div class="modal fade" id="orderDetailsModal" tabindex="-1">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Order Details</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body" id="orderDetailsContent">
-                    <!-- Order ID and Status -->
-                    <p><strong>Order ID:</strong> <span id="order-id"></span></p>
-                    <p><strong>Status:</strong> <span id="order-status"></span></p>
-    
-                    <!-- Order Metadata -->
-                    <p><strong>Created At:</strong> <span id="order-created-at"></span></p>
-                    <p><strong>Shipping Address:</strong> <span id="order-shipping-address"></span></p>
-                    <p><strong>Payment Method:</strong> <span id="order-payment-method"></span></p>
-                    <p><strong>Subtotal:</strong> $<span id="order-subtotal"></span></p>
-    
-                    <!-- Items Section -->
-                    <h5>Items:</h5>
-                    <ul id="order-items-list" class="list-unstyled">
-                        <!-- Items will be dynamically injected here -->
-                    </ul>
-                </div>
-            </div>
-        </div>
-    </div>
-    
-
+    <div id="toast-container" style="position: fixed; top: 20px; right: 20px; z-index: 1050;"></div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
    
     <script>
+        function showNotification(message, type) {
+            const toastContainer = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast align-items-center text-bg-${type === 'success' ? 'success' : 'danger'} border-0`;
+            toast.role = 'alert';
+            toast.ariaLive = 'assertive';
+            toast.ariaAtomic = 'true';
+            toast.innerHTML = `
+                <div class="d-flex">
+                    <div class="toast-body">
+                        ${message}
+                    </div>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="toast" aria-label="Close"></button>
+                </div>
+            `;
+
+            toastContainer.appendChild(toast);
+
+            // Initialize and show the toast
+            const toastInstance = new bootstrap.Toast(toast);
+            toastInstance.show();
+
+            // Remove the toast after 5 seconds
+            setTimeout(() => {
+                toastInstance.hide();
+                toast.remove();
+            }, 5000);
+        }
+
+
+
        document.addEventListener('DOMContentLoaded', () => {
     const updateButtons = document.querySelectorAll('.update-status'); // Corrected variable name for clarity
 
@@ -297,54 +308,17 @@ function showNotification(message, type) {
 
 
 
+document.addEventListener('DOMContentLoaded',()=>{
+    const viewDetailButtons = document.querySelectorAll('.view-details');
 
-document.addEventListener("DOMContentLoaded", () => {
-    const modalBody = document.getElementById("orderDetailsContent");
+    viewDetailButtons.forEach(button=>{
+        button.addEventListener('click',()=>{
 
-    // Attach event listener to dynamically load order details
-    document.querySelectorAll(".view-details-btn").forEach((button) => {
-        button.addEventListener("click", async () => {
-            const orderId = button.getAttribute("data-order-id");
-
-            try {
-                const response = await fetch(`/orders/details/${orderId}`);
-                const data = await response.json();
-
-                if (data.success) {
-                    const order = data.order;
-
-                    // Update modal placeholders with data
-                    document.getElementById("order-id").textContent = order._id;
-                    document.getElementById("order-status").textContent = order.orderStatus;
-                    document.getElementById("order-created-at").textContent = new Date(order.createdAt).toLocaleString();
-                    document.getElementById("order-shipping-address").textContent = order.shippingAddress;
-                    document.getElementById("order-payment-method").textContent = order.paymentMethod;
-                    document.getElementById("order-subtotal").textContent = order.subtotal.toFixed(2);
-
-                    // Populate the items list
-                    const itemsList = document.getElementById("order-items-list");
-                    itemsList.innerHTML = ""; // Clear any previous content
-
-                    order.items.forEach((item) => {
-                        const listItem = document.createElement("li");
-                        listItem.innerHTML = `
-                            <div class="d-flex align-items-center">
-                                <img src="${item.image}" alt="${item.name}" style="width:50px;height:50px;object-fit:cover;margin-right:10px;">
-                                <span>${item.name} - $${item.price.toFixed(2)} x ${item.quantity} = $${item.totalPrice.toFixed(2)}</span>
-                            </div>
-                        `;
-                        itemsList.appendChild(listItem);
-                    });
-                } else {
-                    modalBody.innerHTML = `<p>Error loading order details: ${data.message}</p>`;
-                }
-            } catch (error) {
-                console.error("Error fetching order details:", error);
-                modalBody.innerHTML = `<p>Something went wrong while fetching order details.</p>`;
-            }
-        });
-    });
-});
+            const orderId = button.getAttribute('data-order-id');
+            window.location.href =`/admin/orderDetails/${orderId}`;
+        })
+    })
+})
 
 
     </script>
