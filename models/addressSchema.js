@@ -35,4 +35,4 @@ const addressSchema = new mongoose.Schema({
     }
 })
 
-module.exports = mongoose.model("address",addressSchema);
+module.exports = addressSchema;

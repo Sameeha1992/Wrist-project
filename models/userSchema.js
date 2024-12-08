@@ -1,5 +1,5 @@
 const mongoose= require("mongoose")
-const address = require("../models/addressSchema")
+const addressSchema = require("../models/addressSchema")
 const {Schema} = mongoose;
 const bcrypt = require("bcrypt")
 
@@ -79,12 +79,15 @@ const userSchema=new Schema({
 
     }],
 
-    address:[address.schema]
+    address:[addressSchema]
 
 
    
 
 } , {timestamps : true});
+userSchema.methods.verifyPassword = async function(password) {
+    return await bcrypt.compare(password,this.password)
+}
 
 const User = mongoose.model("User",userSchema);
 module.exports=User;

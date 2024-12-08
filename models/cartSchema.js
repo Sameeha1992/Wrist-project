@@ -20,14 +20,14 @@ const cartSchema = new mongoose.Schema(
     },
     colorStockId: {
       type: mongoose.Types.ObjectId,
-       required: true, 
+      
        
      
     },
     quantity: {
       type: Number, 
       required: true,
-      min: 1,
+      min: 0,
       max:5
     },
   },

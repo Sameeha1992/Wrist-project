@@ -31,7 +31,7 @@ const categoryInfo = async(req,res)=>{
             totalPages:totalPages,
             totalCategories:totalCategories
         })
-        console.log(totalPages)
+     
         
     } catch (error) {
         console.error(error);
@@ -46,7 +46,7 @@ const addCategory= async(req,res)=>{
     try {
         const existingCategory = await Category.findOne({name:name});
         if(existingCategory){
-            console.log("category added")
+          
             return res.status(400).json({error:"Category already exists"})
         }
         const newCategory = new Category({
@@ -65,7 +65,7 @@ const addCategory= async(req,res)=>{
  const addCategoryOffer = async (req,res)=>{
     try {
         const percentage = parseInt(req.body.percentage);
-        console.log(req.body.percentage)
+       
         const categoryId = req.body.categoryId;
         const category = await Category.findById(categoryId);
         if(!category){
@@ -177,8 +177,7 @@ const addCategory= async(req,res)=>{
         name:categoryName,
         description:description,
       },{new:true});
-      console.log(updateCategory)
-
+     
       if(updateCategory){
         res.redirect("/admin/category")
       }else{

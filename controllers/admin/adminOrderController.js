@@ -63,8 +63,7 @@ const userOrders = async(req,res)=>{
       // const {orderId} = req.params.id;
       const {newStatus} = req.body;
 
-      // console.log("ORDERID:--",orderId);
-      console.log('Request params:', orderId);
+    
 
       if (!orderId ||!newStatus) {
         console.log("Missing required fields", { orderId, newStatus });
@@ -84,7 +83,7 @@ const userOrders = async(req,res)=>{
         });
       }
 
-      console.log("ORDERRRR",order)
+    
 
       if(order.orderStatus ==='Cancelled'){
         return res.status(400).json({
@@ -164,12 +163,8 @@ const userOrders = async(req,res)=>{
     try {
 
       const orderId = req.params.id;
-      console.log(orderId,"ORDERID")
       
       
-
-      
-
       const order = await Order.findOne({
         _id:orderId,
         
@@ -178,7 +173,7 @@ const userOrders = async(req,res)=>{
         select:'productName productImage salePrice'
       });
 
-      console.log(order,"ORDERSSSSSSS")
+    
 
       if(!order){
         return res.status(404).render('404')

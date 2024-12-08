@@ -312,10 +312,11 @@ const loadAddressPage = async(req,res)=>{
   try {
     const user_id = req.session.user;
     const userData = await User.findById(user_id);
+  
     const addresses = userData ? userData.address :[];
 
-    console.log(req.session.user)
-    console.log(addresses);
+  
+   
   
     
 
@@ -371,6 +372,8 @@ const addAddress = async (req, res) => {
       alt_phone: req.body.altphone,
     };
 
+    console.log(newAddress,"NEWADDRESS")
+
     user.address.push(newAddress);
     const userData = await user.save();
     console.log(userData);
@@ -385,6 +388,60 @@ const addAddress = async (req, res) => {
     res.status(500).send("Internal server error");
   }
 };
+
+
+const updateAddress = async(req,res)=>{
+  try {
+
+    const {id} = req.params;
+    const {
+      name,
+      house,
+      street,
+      state,
+      city,
+      pincode,
+      phone,
+      altphone
+    } = req.body;
+
+    const user = await User.findById(req.session.user);
+
+    console.log(req.body,"REQ>SESSION>USER")
+
+    if(!user){
+      return res.status(404).json({success:false,message:"User not found"})
+    }
+    
+    const addressToUpdate = user.address.id(id);
+
+    if(!addressToUpdate){
+      return res.status(404).json({success:false,message:'Address not found'})
+    }
+
+    addressToUpdate.address_name = name;
+        addressToUpdate.house_name = house;
+        addressToUpdate.street_address = street;
+        addressToUpdate.state = state;
+        addressToUpdate.city = city;
+        addressToUpdate.pincode = pincode;
+        addressToUpdate.phone = phone;
+        addressToUpdate.alt_phone = altphone;
+
+        // Save the updated user document
+        await user.save();
+        res.status(200).json({ 
+          success: true, 
+          message: 'Address updated successfully',
+          user: user
+      });
+    
+  } catch (error) {
+    console.error('Error updating address:',error);
+    res.status(500).json({success:false,message:'Internal server error'})
+    
+  }
+}
 
 
 const deleteAddress = async(req,res)=>{
@@ -421,6 +478,8 @@ const deleteAddress = async(req,res)=>{
     changePasswordValid,
     loadAddressPage,
     addAddress,
+    updateAddress,
+    
     deleteAddress,
    
    

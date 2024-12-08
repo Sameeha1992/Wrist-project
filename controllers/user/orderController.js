@@ -11,7 +11,7 @@ const loadOrderPage = async(req,res)=>{
         if(!userId){
             return res.redirect("/login")
         }
-        console.log(userId,"USERIDD")
+     
         const orders = await Order.find({userId:userId})
         .populate({
             path:'orderItem.productId',
@@ -20,12 +20,10 @@ const loadOrderPage = async(req,res)=>{
         .select('orderId orderStatus totalAmount createdAt')
         .sort({createdAt:-1});
 
-        console.log(orders.map(order => ({ orderId: order.orderId, orderStatus: order.orderStatus })));
-
-        console.log("GOT THE ORDERIDDDD---------------- ")
+      
 
 
-        console.log(orders,"ORDERSSSS")
+        
 
         const newDate =(date)=>{return new Date(date)};
 
@@ -38,7 +36,7 @@ const loadOrderPage = async(req,res)=>{
         });
 
         
-        console.log("The order page is successfull rendered")
+        
         
     } catch (error) {
         console.error("Error in loading the orderPage",error);

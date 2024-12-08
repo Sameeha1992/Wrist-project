@@ -28,9 +28,28 @@
                                         <% addresses.forEach((address, index) => { %>
                                             <div class="card mb-2" id="address<%= index %>">
                                                 <div class="card-body">
-                                                    <div class="d-flex justify-content-between">
-                                                        <h5 class="card-title"><%= address.address_name %></h5>
-                                                        <button class="btn btn-sm btn-danger" onclick="deleteAddress('<%= address._id %>')">Delete</button>
+                                                    <div class="d-flex justify-content-between align-items-center">
+                                                        <h5 class="card-title mb-0"><%= address.address_name %></h5>
+                                                        <div>
+                                                            <button class="btn btn-sm btn-warning me-2 edit-address" 
+                                                            data-id="<%= address._id %>"
+                                                            data-name="<%= address.address_name %>"
+                                                            data-house="<%= address.house_name %>"
+                                                            data-street="<%= address.street_address %>"
+                                                            data-city="<%= address.city %>"
+                                                            data-state="<%= address.state %>"
+                                                            data-pincode="<%= address.pincode %>"
+                                                            data-phone="<%= address.phone %>"
+                                                            data-altphone="<%= address.alt_phone %>">
+                                                            Edit
+                                                        </button>
+
+                                                        <button class="btn btn-sm btn-danger delete-address" 
+                                                        data-id="<%= address._id %>" 
+                                                        data-index="<%= index %>">
+                                                        Delete
+                                                       </button>
+                                                        </div>
                                                     </div>
                                                     <p class="card-text m-0"><%= address.house_name + ", " + address.street_address %></p>
                                                     <p class="card-text m-0"><%= address.city + ", " + address.state + " , " + address.pincode %></p>
@@ -46,7 +65,6 @@
                             </div>
                         </div>
                     </div>
-
                     
              
                     <script>
@@ -205,11 +223,14 @@
             </main>
         </div>
     </div>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous">
+        
        
 
     </script>
@@ -218,194 +239,303 @@
 
 </html>
   <script>
-      
-      const submit = document.getElementById("formSubmit");
-      const addressWrapper = document.getElementById("addressWrapper");
 
-      function validate(){
-        const addressName = document.getElementById("addressName").value;
-        const houseName = document.getElementById("houseName").value;
-        const streetName = document.getElementById("streetName").value;
-        const city = document.getElementById("city").value;
-            const state = document.getElementById("state").value;
-            const pinCode = document.getElementById("pinCode").value;
-            const phoneNumber = document.getElementById("phoneNumber").value;
-            const altPhoneNumber = document.getElementById("altPhoneNumber").value;
+    $(document).ready(function(){
+        const $submit =$('#formSubmit');
+        const $addressWrapper = $('#addressWrapper');
+        let currentEditId = null;
 
+        function validate() {
+    // Convert inputs to strings to ensure we can use .match()
+    const addressName = String($("#addressName").val()).trim();
+    const houseName = String($("#houseName").val()).trim();
+    const streetName = String($("#streetName").val()).trim();
+    const city = String($("#city").val()).trim();
+    const state = String($("#state").val()).trim();
+    const pinCode = String($("#pinCode").val()).trim();
+    const phoneNumber = String($("#phoneNumber").val()).trim();
+    const altPhoneNumber = String($("#altPhoneNumber").val()).trim();
 
-            let formOK = true;
-            let AddressRegex = /^[0-9A-Za-z\s\.,#-]+$/;
-            let numberRegex = /^\d$/;
-  if(addressName.length <3){
-    document.getElementById("AN").textContent = "at least 3 characters";
-    formOK = false;
-  }  else if(!addressName.match(AddressRegex)){
-    document.getElementById("AN").textContent = "Only the specified special characters";
-    formOK = false;
-  } else{
-    document.getElementById("AN").textContent ="";
-  }
+    let formOK = true;
+    let AddressRegex = /^[0-9A-Za-z\s\.,#-]+$/;
+    let numberRegex = /^\d+$/;
 
+    // Address Name Validation
+    if (addressName.length < 3) {
+        $("#AN").text("at least 3 characters");
+        formOK = false;
+    } else if (!AddressRegex.test(addressName)) {
+        $("#AN").text("Only the specified special characters");
+        formOK = false;
+    } else {
+        $("#AN").text("");
+    }
 
+    // House Name Validation
+    if (houseName.length < 3) {
+        $("#HN").text("at least 3 characters");
+        formOK = false;
+    } else if (!AddressRegex.test(houseName)) {
+        $("#HN").text("Only the specified special characters");
+        formOK = false;
+    } else {
+        $("#HN").text("");
+    }
 
-  if(houseName.length <3){
-    document.getElementById("HN").textContent ="at least 3 characters";
-    formOK = false
-  } else if(!houseName.match(AddressRegex)){
-    document.getElementById("HN").textContent = "'Only the specified special characters";
-    formOK = false;
-  } else {
-    document.getElementById("HN").textContent ="";
-  }
+    // Street Name Validation
+    if (streetName.length < 3) {
+        $("#SN").text("at least 3 characters");
+        formOK = false;
+    } else if (!AddressRegex.test(streetName)) {
+        $("#SN").text("Only the specified special characters [ . , # - ] allowed.");
+        formOK = false;
+    } else {
+        $("#SN").text("");
+    }
 
-  
-  if (streetName.length < 3) {
-                document.getElementById("SN").textContent = "at least 3 characters";
-                formOK = false
-            } else if (!streetName.match(AddressRegex)) {
-                document.getElementById("SN").textContent = "Only the specified special characters [ . , # - ] allowed."
-                formOK = false
-            } else {
-                document.getElementById("SN").textContent = "";
-            }
+    // City Validation
+    if (city.length < 3) {
+        $("#C").text("at least 3 characters");
+        formOK = false;
+    } else if (!AddressRegex.test(city)) {
+        $("#C").text("Only the specified special characters [ . , # - ] allowed.");
+        formOK = false;
+    } else {
+        $("#C").text("");
+    }
 
-            if (city.length < 3) {
-                document.getElementById("C").textContent = "at least 3 characters";
-                formOK = false
-            } else if (!city.match(AddressRegex)) {
-                document.getElementById("C").textContent = "Only the specified special characters [ . , # - ] allowed."
-                formOK = false
-            } else {
-                document.getElementById("C").textContent = "";
-            }
+    // State Validation
+    if (state === '') {
+        $("#S").text("please select one option");
+        formOK = false;
+    } else {
+        $("#S").text("");
+    }
 
-            if (state === '') {
-                document.getElementById("S").textContent = "please select one option";
-                formOK = false
-            } else {
-                document.getElementById("S").textContent = "";
-            }
+    // Pin Code Validation
+    if (pinCode.length !== 6 || !numberRegex.test(pinCode)) {
+        $("#PC").text("Enter a valid 6-digit");
+        formOK = false;
+    } else {
+        $("#PC").text("");
+    }
 
-            if (pinCode.length !== 6 && !pinCode.match(numberRegex)) {
-                document.getElementById("PC").textContent = "Enter a valid 6-digit";
-                formOK = false
-            } else {
-                document.getElementById("PC").textContent = "";
-            }
+    // Phone Number Validation
+    if (phoneNumber.length !== 10 || !numberRegex.test(phoneNumber)) {
+        $("#PN").text("Enter a valid 10-digit");
+        formOK = false;
+    } else {
+        $("#PN").text("");
+    }
 
-            if (phoneNumber.length !== 10 && !phoneNumber.match(numberRegex)) {
-                document.getElementById("PN").textContent = "Enter a valid 10-digit";
-                formOK = false
-            } else {
-                document.getElementById("PN").textContent = "";
-            }
+    // Alt Phone Number Validation
+    if (altPhoneNumber.length !== 0 && 
+        (altPhoneNumber.length !== 10 || !numberRegex.test(altPhoneNumber))) {
+        $("#APN").text("Enter a valid 10-digit");
+        formOK = false;
+    } else {
+        $("#APN").text("");
+    }
 
-            if (altPhoneNumber.length === 0 || altPhoneNumber.length === 10) {
-                document.getElementById("APN").textContent = "";
-            } else if ((altPhoneNumber.length >= 1 && altPhoneNumber.length < 10) && !altPhoneNumber.match(numberRegex)) {
-                document.getElementById("APN").textContent = "Enter a valid 10-digit";
-                formOK = false;
-            }
+    return formOK;
+}
 
-              return formOK;
+      function updateAddressWrapper(addresses) {
+        const $wrapper = $("#addressWrapper");
+        $wrapper.empty();
 
-      }
-
-
-
-
-      submit.addEventListener("click",(e)=>{
-
-        console.log("address starting page")
-        e.preventDefault();
-          if(!validate()) return;
-
-          const formData ={
-                name: document.getElementById("addressName").value,
-                house: document.getElementById("houseName").value,
-                street: document.getElementById("streetName").value,
-                state: document.getElementById("state").value,
-                city: document.getElementById("city").value,
-                pincode: document.getElementById("pinCode").value,
-                phone: document.getElementById("phoneNumber").value,
-                altphone: document.getElementById("altPhoneNumber").value,
-          }
-       
-          fetch('/addaddress', {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify(formData),
-                
-            })
-                .then(response => {
-                    if (response.ok) {
-                        window.location.reload()
-                        return response.json();
-                    } else {
-                        throw new Error("Internal server error!!")
-                    }
-                })
-                .then(data => {
-                    if (data.success) {
-                        Toastify({
-                            text: data.message,
-                            duration: 2000,
-                            gravity: "bottom",
-                            position: "left",
-                            backgroundColor: "#03c03c",
-                            stopOnFocus: true
-                        }).showToast();
-                        updateAddressWrapper(data.user.addresses);
-                       
-                        
-                       
-                    } else {
-                        Toastify({
-                            text: data.message,
-                            duration: 2000,
-                            gravity: "bottom",
-                            position: "left",
-                            backgroundColor: "#ff0000",
-                            stopOnFocus: true
-                        }).showToast();
-                    }
-                    console.log("working addresss")
-
-                })
-                .catch(error => {
-                    console.error(error.message);
-                });
-
-            // Function to update the address wrapper content
-            function updateAddressWrapper(address) {
-                const html = address.map((address, index) =>
-                        `<div class="card mb-2" id="address${index}">
-                            <div class="card-body">
-                                <div class="d-flex justify-content-between">
-                                    <h5 class="card-title">
-                                        ${address.address_name}
-                                    </h5>
-                                    <button class="btn btn-dark" onclick="deleteAddress('${address._id}', ${index})">Delete</button>
-                                </div>
-                                <p class="card-text m-0">
-                                    ${address.house_name}, ${address.street_address}
-                                </p>
-                                <p class="card-text m-0">
-                                    ${address.city}, ${address.state}, ${address.pincode}
-                                </p>
-                                <p class="card-text m-0">Phone: ${address.phone}</p>
-                                <p class="card-text m-0">Alt Phone: ${address.alt_phone}</p>
+        addresses.forEach((address, index) => {
+            const addressHtml = `
+                <div class="card mb-2" id="address${index}">
+                    <div class="card-body">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <h5 class="card-title mb-0">${address.address_name}</h5>
+                            <div>
+                                <button class="btn btn-sm btn-warning me-2 edit-address" 
+                                    data-id="${address._id}"
+                                    data-name="${address.address_name}"
+                                    data-house="${address.house_name}"
+                                    data-street="${address.street_address}"
+                                    data-city="${address.city}"
+                                    data-state="${address.state}"
+                                    data-pincode="${address.pincode}"
+                                    data-phone="${address.phone}"
+                                    data-altphone="${address.alt_phone}">
+                                    Edit
+                                </button>
+                                <button class="btn btn-sm btn-danger delete-address" data-id="${address._id}" data-index="${index}">Delete</button>
                             </div>
-                        </div>`).join('');
+                        </div>
+                        <p class="card-text m-0">${address.house_name}, ${address.street_address}</p>
+                        <p class="card-text m-0">${address.city}, ${address.state}, ${address.pincode}</p>
+                        <p class="card-text m-0">Phone: ${address.phone}</p>
+                        <p class="card-text m-0">Alt Phone: ${address.alt_phone}</p>
+                    </div>
+                </div>
+            `;
+            $wrapper.append(addressHtml);
+        });
+    }
 
-                console.log(html)
-                addressWrapper.innerHTML = html;
+    function resetForm() {
+        $("#addAddressForm")[0].reset();
+        currentEditId = null;
+    }
+
+    // Edit Address - Delegated Event
+    $(document).on('click', '.edit-address', function() {
+        currentEditId = $(this).data('id');
+        
+        $("#addressName").val($(this).data('name'));
+        $("#houseName").val($(this).data('house'));
+        $("#streetName").val($(this).data('street'));
+        $("#city").val($(this).data('city'));
+        $("#state").val($(this).data('state'));
+        $("#pinCode").val($(this).data('pincode'));
+        $("#phoneNumber").val($(this).data('phone'));
+        $("#altPhoneNumber").val($(this).data('altphone'));
+    });
+
+    // Delete Address - Delegated Event
+    $(document).on('click', '.delete-address', function() {
+    const addressId = $(this).data('id');
+
+    // Show SweetAlert2 confirmation dialog
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            $.ajax({
+                url: "/deleteaddress",
+                type: "DELETE",
+                contentType: "application/json",
+                data: JSON.stringify({ elemId: addressId }),
+                success: function(response) {
+                    if (response.success) {
+                        Toastify({
+                            text: response.message,
+                            duration: 2000,
+                            gravity: "bottom",
+                            position: "left",
+                            style: { backgroundColor: "#03c03c" },
+                            stopOnFocus: true
+                        }).showToast();
+                        window.location.reload()
+
+                        // Remove the address from the DOM
+                       
+                    } else {
+                        Toastify({
+                            text: response.message,
+                            duration: 2000,
+                            gravity: "bottom",
+                            position: "left",
+                            style : { backgroundColor: "#ff0000" },
+                            stopOnFocus: true
+                        }).showToast();
+                    }
+                },
+                error: function(xhr) {
+                    console.error("Error occurred:", xhr.responseText);
+                    Toastify({
+                        text: "An error occurred while deleting the address.",
+                        duration: 2000,
+                        gravity: "bottom",
+                        position: "left",
+                        style: { backgroundColor: "#ff0000" },
+                        stopOnFocus: true
+                    }).showToast();
+                }
+            });
+        }
+    });
+});
+
+
+    $submit.on('click', function(e) {
+        e.preventDefault();
+
+        if (!validate()) return;
+
+        const formData = {
+            name: $("#addressName").val(),
+            house: $("#houseName").val(),
+            street: $("#streetName").val(),
+            state: $("#state").val(),
+            city: $("#city").val(),
+            pincode: $("#pinCode").val(),
+            phone: $("#phoneNumber").val(),
+            altphone: $("#altPhoneNumber").val(),
+        };
+
+        const url = currentEditId 
+            ? `/updateaddress/${currentEditId}` 
+            : '/addaddress';
+        const method = currentEditId ? 'PUT' : 'POST';
+
+        $.ajax({
+            url: url,
+            type: method,
+            contentType: "application/json",
+            data: JSON.stringify(formData),
+            success: function(data) {
+                if (data.success) {
+                    Toastify({
+                        text: data.message,
+                        duration: 2000,
+                        gravity: "bottom",
+                        position: "left",
+                        style:{backgroundColor: "#03c03c"},
+                        stopOnFocus: true
+                    }).showToast();
+
+                console.log(data.user.addresses,"DATA.USER.ADDRESSES")
+                    updateAddressWrapper(data.user.addresses);
+                    resetForm();
+                    
+                } else {
+                    Toastify({
+                        text: data.message,
+                        duration: 2000,
+                        gravity: "bottom",
+                        position: "left",
+                        style:{backgroundColor: "#ff0000"},
+                        stopOnFocus: true
+                    }).showToast();
+                }
+            },
+            error: function(xhr) {
+                console.error("Error occurred:", xhr.responseText);
+                Toastify({
+                    text: "An error occurred while processing the address.",
+                    duration: 2000,
+                    gravity: "bottom",
+                    position: "left",
+                    style:{backgroundColor: "#ff0000"},
+                    stopOnFocus: true
+                }).showToast();
             }
+        });
+    });
+});
 
-      })
+    
 
+     
+       
+
+ 
+
+
+
+
+      
 
 
 </script>

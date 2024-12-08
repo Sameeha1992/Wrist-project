@@ -329,7 +329,7 @@ const loadProductDetail = async (req, res) => {
     
     const productId = req.query.id;
     const product = await Product.findById({ _id: productId });
-    console.log(product,"PRODUCT")
+   
 
     if (!product) {
       return res.status(404).send("Product not found");
@@ -414,8 +414,7 @@ const logout = async (req, res) => {
        
 
 
-        const {category, sort, search, page =1} = req.query;
-        
+        const {category, sort, search, page } = req.query;
 
         const limit = 8;
         const skip =(page-1) * limit;
@@ -430,37 +429,41 @@ const logout = async (req, res) => {
           query.productName = {$regex:search,$options:"i"}
         }
         const totalProducts = await Product.countDocuments(query);
-        let productData = await Product
-        .find(query)
+
+
+       
+        let sortCriteria ={};
+        if(sort){
+          switch (sort) {
+            case "price-low-high":
+              sortCriteria.salePrice = 1; // Ascending
+              break;
+            case "price-high-low":
+              sortCriteria.salePrice = -1; // Descending
+              break;
+            case "name-az":
+              sortCriteria.productName = 1; // Ascending
+              break;
+            case "name-za":
+              sortCriteria.productName = -1; // Descending
+              break;
+          }
+        }  else{
+          sortCriteria.createdAt=-1;
+        }
+        let productData = await Product.find(query)
         .populate("category")
+        .sort(sortCriteria)
         .skip(skip)
         .limit(limit);
-
-        if(sort) {
-          switch (sort){
-            case "price-low-high":
-              productData.sort((a,b)=>a.salePrice-b.salePrice);
-              break;
-
-              case "price-high-low":
-                productData.sort((a,b)=>b.salePrice -a.salePrice);
-                break;
-
-                case "name-az":
-                  productData.sort((a,b)=>a.productName.localeCompare(b.productName));
-                  break;
-
-                  case "name-za":
-                    productData.sort((a,b)=>b.productName.localeCompare(a.productName));
-                    break;
-          }
-        }
+       
+       
         
         const categories = await Category.find({isListed:true});
         const totalPages = Math.ceil(totalProducts/limit);
         const currentPage = parseInt(page);
         
-          
+        
         res.render("shop",{
           user:userData,
           products:productData,

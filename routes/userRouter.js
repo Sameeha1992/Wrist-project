@@ -78,7 +78,8 @@ user_router.post("/cancel-order/:id",userAuth,orderController.cancelOrder)
 
 //Address management:-
 user_router.get("/userAddress",userAuth,profileController. loadAddressPage);
-user_router.post("/addaddress",userAuth,profileController.addAddress)
+user_router.post("/addaddress",userAuth,profileController.addAddress);
+user_router.put("/updateaddress/:id",userAuth,profileController. updateAddress)
 user_router.delete("/deleteaddress",userAuth,profileController.deleteAddress)
 // user_router.post("/update-address",userAuth,profileController.updateAddress);
 

@@ -5,7 +5,8 @@ const colorStockSchema = new mongoose.Schema({
     color:{
         type:String,
         enum:["red","blue","white","black","silver","golden","pink"],
-        required:true
+        
+        
     },
     quantity:{
         type:Number,
@@ -15,7 +16,7 @@ const colorStockSchema = new mongoose.Schema({
     status:{
         type:String,
         enum:["Available","Out of Stock","Discontinued"],
-        required:true,
+        
         default:"Available"
 
     }

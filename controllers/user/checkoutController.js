@@ -39,11 +39,9 @@ const LoadCheckout = async(req,res)=>{
 const placeOrder = async (req, res) => {
     try {
         const userId = req.session.user; 
-        const { selectedAddress, paymentMethod } = req.body;
+        const { orderItem,selectedAddress, paymentMethod } = req.body;
 
-        // console.log("User ID:", userId);
-        // console.log("Selected Address:", selectedAddress);
-        // console.log("Payment Method:", paymentMethod);
+       
 
        
         const cartItems = await Cart.find({ userId: userId })
@@ -62,13 +60,13 @@ const placeOrder = async (req, res) => {
 
 
            
-          console.log("CARTITEM------------",cartItems)
+          
        
         if (cartItems.length === 0) {
             return res.status(400).json({ message: 'Cart is empty' });
         }
 
-        console.log("CARTITEM22222222222222222222222")
+       
         
         const currentUser = await User.findById(userId);
         const shippingAddress = currentUser.address.find(
@@ -91,6 +89,10 @@ const placeOrder = async (req, res) => {
                 stock => stock._id.toString() === cartItem.colorStockId._id.toString()
             );
 
+
+
+           
+
           
           
 
@@ -110,15 +112,18 @@ const placeOrder = async (req, res) => {
 
           
         }));
-        console.log(orderItems,"OrdersItemss")
+        
 
        
         
        
         const totalAmount = orderItems.reduce((total, item) => total + item.totalPrice, 0);
+        if(isNaN(totalAmount)){
+            return res.status(400).json({message:'Invalid total amount'})
+        }
 
 
-        console.log(totalAmount,"TOTALAMOUNT")
+        
         
         const newOrder = new Order({
             userId,
@@ -132,10 +137,10 @@ const placeOrder = async (req, res) => {
             totalAmount
         });
 
-        console.log(newOrder,"NEWORDER")
+        
        
         const savedOrder = await newOrder.save();
-        console.log(savedOrder,"SAVEDORDER")
+        
 
         
         for (let item of orderItems) {
@@ -143,7 +148,7 @@ const placeOrder = async (req, res) => {
                 { _id: item.productId, "colorStock._id": item.colorStockId },
                 { $inc: { "colorStock.$.quantity": -item.quantity } }
             );
-            console.log(updated,"UPDATED")
+       
 
             if(updated.modifiedCount ===0) {
                 return res.status(400).json({message:`failed to update stock for ${item.productId}`})
@@ -164,7 +169,7 @@ const placeOrder = async (req, res) => {
 
         res.status(200).json({success:true,message:"Your oreder is successfully placed"})
 
-       
+
         // res.status(201).render("orderSuccess",{
         //     message: 'Order placed successfully',
         //     orderId: savedOrder._id,
@@ -183,7 +188,7 @@ const placeOrder = async (req, res) => {
 
 const successOrder = async(req,res)=>{
     try {
-        console.log("order is successfully places")
+       
         res.status(200).render("orderSuccess")
         
     } catch (error) {

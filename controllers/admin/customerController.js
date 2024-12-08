@@ -4,7 +4,7 @@ const User = require("../../models/userSchema");
 
 const customerInfo = async(req,res)=>{
     try {
-        console.log("checking")
+       
         let search ="";
         if(req.query.search){
             search=req.query.search;
@@ -64,7 +64,7 @@ const customerInfo = async(req,res)=>{
 const customerBlocked= async(req,res)=>{
     try {
         let id=req.query.id;
-        console.log("blocking user id",id)
+       
         await User.updateOne({_id:id},{$set:{isBlocked:true}});
         res.redirect("/admin/users")
         
@@ -78,7 +78,7 @@ const customerBlocked= async(req,res)=>{
 const customerUnblocked = async(req,res)=>{
     try {
         let id=req.query.id;
-        console.log("unblocking user id",id)
+       
         await User.updateOne({_id:id},{$set:{isBlocked:false}});
         res.redirect("/admin/users") 
         

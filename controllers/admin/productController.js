@@ -31,7 +31,7 @@ const getProductAddPage = async (req,res)=>{
 const addProducts = async (req,res)=>{
     try {
         const products = req.body;
-        console.log("product inte dataaaaa",products)
+      
 
 
         const productExists = await Product.findOne({
@@ -161,7 +161,7 @@ const blockProduct = async (req, res) => {
 const unblockProduct = async (req, res) => {
     try {
         let id = req.query.id;
-        console.log("unblocking product",id)
+       
         await Product.updateOne({ _id: id }, { $set: { isBlocked: false } });
         res.redirect("/admin/product")
     } catch (error) {
@@ -179,14 +179,13 @@ const getEditProduct = async (req,res)=>{
         const product = await Product.findOne({_id:id})
         .populate('category',"_id name")
         .populate('brand','_id brandName');
-        console.log("colorstock",product.colorStock)
+        
        
        
         const category = await Category.find({isListed:true});
         
         const brand = await Brand.find({isBlocked:false});
-        console.log("Product Brand",product.brand)
-        console.log("Product Ctegory",product.category)
+       
         
         res.render("edit-product",{
             product:product,
@@ -286,86 +285,6 @@ const editProduct = async (req, res) => {
         res.redirect('/admin/product');
     }
 };
-
-//         const existingProduct = await Product.findOne({
-//             productName:product.productName,
-//             _id:{$ne:id}
-//         })
-//         console.log(existingProduct,"existinggggggggg")
-
-//         if(existingProduct){
-//             return res.status(400).json({error:"Product with this name already exists.Please try with another name"})
-//         }
-
-//         const images = [];
-
-//         if(req.files && req.files.length>0){
-//            req.files.forEach((file)=> images.push(file.filename))
-//         }
-
-//         let brandId = product.brand; // default to existing brand
-//         if (data.brand) {
-//             const brand = await Brand.findOne({ name: data.brand });
-//             if (!brand) {
-//                 return res.status(400).json({ error: "Brand not found" });
-//             }
-//             brandId = brand._id; // update to the new brand ObjectId
-//         }
-// console.log(brandId,"brandIdddddddddd")
-
-
-//         const colorStock = data.colorStock ? data.colorStock.map(stock =>({
-//             color:stock.color,
-//             quantity:parseInt(stock.quantity) || 0,
-//             status:stock.status || 'Available'
-//         })) : product.colorStock;
-
-//         console.log("colorStockkkk",colorStock)
-
-//        const updateFields = {             
-//             productName: data.productName || product.productName,
-//             description: data.descriptionData || product.description,
-//             brand:product.brand,
-//             category: data.category || product.category,
-//             regularPrice: parseFloat(data.regularPrice) || product.regularPrice,
-//             salePrice: parseFloat(data.salePrice) || product.salePrice,
-//             colorStock: colorStock,
-//             productImage: images.length > 0 ? images : product.productImage,
-//         }
-
-
-//         console.log(updateFields,"fieldssssssssssssssssssssss")
-        
-//         // Validate prices
-//         if (updateFields.salePrice > updateFields.regularPrice) {
-//             return res.status(400).render('error', { 
-//                 message: "Sale price cannot exceed regular price" 
-//             });
-//         }
-
-
-//         console.log("updateFieldsssssss",data.brand)
-
-          
-
-//         const updateProduct= await Product.findByIdAndUpdate(id,updateFields,{new:true});
-
-//         if(!updateProduct){
-//             return res.status(500).render('error',{message:"Failed to update products"})
-//         }
-
-//         req.flash('success','Product updated successfully');
-//         res.redirect("/admin/product")
-
-         
-
-        
-//     } catch (error) {
-//         console.error("Edit Product",error);
-//        res.status(500).render('error',{message:"An unexpected error occured"})
-        
-//     }
-// }
 
 const deleteSingleImage = async(req,res)=>{
     try {
