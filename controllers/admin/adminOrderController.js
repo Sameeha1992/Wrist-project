@@ -16,7 +16,7 @@ const userOrders = async(req,res)=>{
      const limit = 10;
      const skip =(page-1) * limit;
      
-     const orders = await Order.find()
+     const orders = await Order.find({})
      .populate({
       path:'userId',
       select:'name email'

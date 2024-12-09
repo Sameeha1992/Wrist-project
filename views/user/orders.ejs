@@ -76,6 +76,7 @@
                                 <% orders.forEach(order => { %>
                                     <tr>
                                         <td><%= order._id %></td>
+                                        <td><%= order.orderItem.productId%></td>
                                         <td><%= order.createdAt.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }) %></td>
                                         <td>
                                             <span class="badge rounded-pill

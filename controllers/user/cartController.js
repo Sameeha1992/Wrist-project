@@ -27,19 +27,26 @@ const loadCart = async (req, res) => {
         select: "name",
       });
 
+     
+
     const processedCartDetails = cartDetails.map((item) => {
       const cartItem = item.toObject();
+
+    
 
       if (!cartItem.productId || cartItem.productId.isBlocked) {
         cartItem.error = "Product is unavailable";
         return cartItem;
       }
 
-      cartItem.quantity = Math.min(cartItem.quantity, 5);
+      cartItem.quantity = Math.min(cartItem.quantity,5);
+      console.log(cartItem.quantity,"CART ITEM QUANTITY")
 
       return cartItem;
     });
 
+
+    
     const totalAmount = processedCartDetails.reduce((total, item) => {
       return item.productId && !item.productId.isBlocked
         ? total + item.productId.salePrice * item.quantity
@@ -84,6 +91,7 @@ const addToCart = async (req, res) => {
     }
 
     const colorStock = product.colorStock.id(colorStockId);
+    console.log(colorStock,"Colorstockkkkk")
     if (!colorStock) {
       return res.status(404).json({
         success: false,
@@ -133,9 +141,7 @@ const addToCart = async (req, res) => {
       );
 
       const cartItemCount = await Cart.countDocuments({ userId });
-      colorStock.quantity -= quantity;
-
-      await product.save();
+      
       return res.status(200).json({
         success: true,
         message: "Cart updated successfully!",
@@ -160,8 +166,7 @@ const addToCart = async (req, res) => {
 
       await newCartItem.save();
 
-      colorStock.quantity -= quantity;
-      await product.save();
+     
       console.log(product, "product");
 
       const cartItemCount = await Cart.countDocuments({ userId });
@@ -170,7 +175,7 @@ const addToCart = async (req, res) => {
         success: true,
         message: "Product added to cart successfully!",
         cartItemCount,
-        remainingStock: colorStock.quantity,
+        
       });
     }
   } catch (error) {
@@ -219,10 +224,7 @@ const deleteCart = async (req, res) => {
 
     await Cart.findByIdAndDelete(cartItemId);
     const updateProduct = await Product.findById({ _id: productId }).populate('colorStock');
-    updateProduct.colorStock[0].quantity += cartQuantity;
-
-    await updateProduct.save()
-    console.log(updateProduct,'updateProduct')
+   
 
     const remainingCartItems = await Cart.find({
       userId: userId,
@@ -253,58 +255,6 @@ module.exports = {
   loadCart,
   addToCart,
   deleteCart,
-  // updateCartQuantity
+  
 };
 
-// const User=require("../../models/userSchema");
-// const Cart = require("../../models/cartSchema");
-// const Product =require("../../models/productSchema")
-
-// const addToCart = async (req, res) => {
-//   try {
-//       const userId = req.session.user; // Extract user ID from session
-//       const { categoryId, productId, quantity } = req.body; // Extract request body
-//       const maxLimit = 5;
-
-//       // Check if the product already exists in the user's cart
-//       const cartItem = await Cart.findOne({ userId, productId });
-
-//       if (cartItem) {
-//           // If the product exists, update the quantity
-//           const newQuantity = cartItem.quantity + quantity;
-
-//           if (newQuantity > maxLimit) {
-//               return res
-
-//                   .json({ message: `Maximum limit of ${maxLimit} exceeded.` });
-//           }
-
-//           await Cart.updateOne(
-//               { userId, productId },
-//               { $set: { quantity: newQuantity } }
-//           );
-
-//           return res.status(200).json({ message: "Cart updated successfully!" });
-//       } else {
-//           // If the product doesn't exist, add it to the cart
-//           const newCartItem = new Cart({
-//               userId,
-//               categoryId,
-//               productId,
-//               quantity,
-//           });
-
-//           await newCartItem.save();
-
-//           return res.status(200).json({ message: "Product added to cart successfully!" });
-//       }
-//   } catch (error) {
-//       console.error("Error adding to cart:", error);
-//       res.status(500).json({ message: "Internal server error" });
-//   }
-// };
-
-// module.exports={
-//     loadCart,
-//     addToCart,
-// }

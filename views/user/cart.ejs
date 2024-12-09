@@ -195,6 +195,25 @@
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script>
 
+document .addEventListener('DOMContentLoaded',function(){
+  const decreaseBtn = document.querySelector('.decrease');
+  const increaseBtn = document.querySelector('.increase');
+  const quantityInput = document.querySelector('.quantity-amount');
+
+  decreaseBtn.addEventListener('click',function(){
+    let currentQuantity = parseInt(quantityInput.value);
+
+    if(currentQuantity>0){
+      currentQuantity--;
+      quantityInput.value = currentQuantity;
+    }
+  });
+  increaseBtn.addEventListener('click',function(){
+    let currentQuantity = parseInt(quantityInput.value);
+    currentQuantity++;
+    quantityInput.value = currentQuantity;
+  })
+})
 document.querySelectorAll('.remove-btn').forEach(button => {
     button.addEventListener('click', async (event) => {
       event.preventDefault();
