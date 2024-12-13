@@ -29,6 +29,14 @@ const userOrders = async(req,res)=>{
      .skip(skip)
      .limit(limit);
 
+    
+    orders.forEach(order=>{
+      order.orderItem.forEach(item=>{
+      
+      })
+     })
+
+
 
      
      const totalOrders = await Order.countDocuments();
@@ -55,111 +63,110 @@ const userOrders = async(req,res)=>{
 
 
   const updatedOrderStatus = async(req,res)=>{
-    try {
-
-      const orderId = req.params.id;
-      
-
-      // const {orderId} = req.params.id;
-      const {newStatus} = req.body;
-
+   
+      try {
+        const { productId, itemId, color, newStatus } = req.body;
+        const orderId = req.params.id;
     
-
-      if (!orderId ||!newStatus) {
-        console.log("Missing required fields", { orderId, newStatus });
-        return res.status(400).json({
+        if (!orderId || !newStatus) {
+          return res.status(400).json({
             success: false,
             message: "Missing required fields",
-            details: { orderId,newStatus }
-        });
-    }
-     
-      const order = await Order.findById(orderId);
-
-      if(!order) {
-        return res.status(404).json({
-          success:false,
-          message:"Order not found"
-        });
-      }
-
-    
-
-      if(order.orderStatus ==='Cancelled'){
-        return res.status(400).json({
-          success:false,
-          message:"Cannot update status of a cancelled order"
-        });
-      }
-
-      if ((order.orderStatus === 'Shipped' || order.orderStatus === 'Delivered') && newStatus === 'Cancelled') {
-        return res.status(400).json({
-            success: false,
-            message: "Cannot cancel an order that has already been shipped or delivered"
-        });
-    }
-
-
-
-      const validStatuses = ['Processing','Delivered','Cancelled','Shipped','Dispatched'];
-      if(!validStatuses.includes(newStatus)){
-        return res.status(400).json({
-          success:false,
-          message:"Invalid order status"
-        });
-      }
-
-      for (let item of order.orderItem) {
-        const product = await Product.findById(item.productId);  // Assuming Product is the model for products
-        if (product) {
-          product.stockQuantity += item.quantity;
-          await product.save();
+            details: { orderId, newStatus },
+          });
         }
-      }
-      
-      
-
-      order.orderItem.forEach((item)=>{
-        item.orderStatus = newStatus;
-      });
-
-      const isAllSameStatus = order.orderItem.every(item => item.orderStatus === newStatus);
-      if (isAllSameStatus) {
-        order.orderStatus = newStatus;
-      }
-
-      await order.save();
-
-     
-
-     
-
     
-      return res.status(200).json({
-        success:true,
-        message:"Order status updated successfully",
-        updatedOrder:order
-      });
+        const order = await Order.findById(orderId).populate({
+          path: 'orderItem.productId',
+          select: 'productName productImage salePrice colorStock',
+        });
+    
+        if (!order) {
+          return res.status(404).json({
+            success: false,
+            message: "Order not found",
+          });
+        }
+    
+        const validStatuses = ['Processing', 'Delivered', 'Cancelled', 'Shipped'];
+        if (!validStatuses.includes(newStatus)) {
+          return res.status(400).json({
+            success: false,
+            message: "Invalid order status",
+          });
+        }
+    
+        const itemToUpdate = order.orderItem.find(
+          (item) => item._id.toString() === itemId && item.color === color
+        );
+    
+        if (!itemToUpdate) {
+          return res.status(404).json({
+            success: false,
+            message: "Order item not found",
+          });
+        }
+    
+        // Business rules:
+        if (
+          (itemToUpdate.itemStatus === 'Shipped' || itemToUpdate.itemStatus === 'Delivered') &&
+          newStatus === 'Cancelled'
+        ) {
+          return res.status(400).json({
+            success: false,
+            message: "Cannot cancel an item that has already been shipped or delivered",
+          });
+        }
+    
+        if (itemToUpdate.itemStatus === 'Cancelled' && ['Shipped', 'Delivered'].includes(newStatus)) {
+          return res.status(400).json({
+            success: false,
+            message: "Cannot change the status of a cancelled item to shipped or delivered",
+          });
+        }
+    
+        // Update stock if item is cancelled
+        if (newStatus === 'Cancelled') {
+          const product = await Product.findById(productId);
+          if (product) {
+            product.stockQuantity += itemToUpdate.quantity;
+            await product.save();
+          }
+        }
+    
+        // Update the item's status
+        itemToUpdate.itemStatus = newStatus;
 
+        const allItemsHaveSameStatus = order.orderItem.every(
+          (item) => item.itemStatus === newStatus
+      );
 
-      
-    } catch (error) {
-      console.error("Error updating order status:",error)
-      return res.status(500).json({
-        success:false,
-        message:"Internal server error",
-        error:error.message
-
-      })
-      
-    }
-  }
-
-
+      if (allItemsHaveSameStatus) {
+          order.orderStatus = newStatus;
+      }
+    
+        // Save the order
+        await order.save();
+    
+        return res.status(200).json({
+          success: true,
+          message: "Order item status updated successfully",
+          updatedItem: itemToUpdate,
+        });
+      } catch (error) {
+        console.error("Error updating order status:", error);
+        return res.status(500).json({
+          success: false,
+          message: "Internal server error",
+          error: error.message,
+        });
+      }
+    };
+    
 
   const viewUserOrderDetails = async (req,res)=>{
 
-    console.log("Startinggg to view the orderdetaill")
+ 
     try {
 
       const orderId = req.params.id;
@@ -173,6 +180,8 @@ const userOrders = async(req,res)=>{
         select:'productName productImage salePrice'
       });
 
+
+  
     
 
       if(!order){
@@ -180,12 +189,15 @@ const userOrders = async(req,res)=>{
       }
 
       const items = order.orderItem.map(item=>({
+        id:item.productId._id,
         name:item.productId.productName,
         Image:item.productId.productImage,
         color:item.color,
         price:item.price || item.productId.salePrice,
         quantity:item.quantity,
-        totalPrice:item.totalPrice
+        totalPrice:item.totalPrice,
+        orderItemId:item._id,
+        itemStatus:item.itemStatus
       }));
 
       const orderData ={
@@ -215,7 +227,5 @@ const userOrders = async(req,res)=>{
     userOrders,
     updatedOrderStatus,
     viewUserOrderDetails,
-    // deleteOrderListProduct,
-    // handleReturn,
    
   }

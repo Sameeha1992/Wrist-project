@@ -65,12 +65,14 @@ const viewOrderDetails = async (req,res)=>{
         }
 
         const items = order.orderItem.map(item =>({
+            _id:item._id,
             name:item.productId.productName,
             Image:item.productId.productImage,
             color:item.color,
             price:item.price || item.productId.salePrice,
             quantity:item.quantity,
-            totalPrice:item.totalPrice
+            totalPrice:item.totalPrice,
+            itemStatus:item.itemStatus
         }))
 
         const orderData = {
@@ -80,8 +82,6 @@ const viewOrderDetails = async (req,res)=>{
             shippingAddress: order.shippingAddress,
             paymentMethod: order.paymentMethod,
             subtotal: items.reduce((acc, item) => acc + item.price * item.quantity, 0),
-            
-           
             total: order.totalAmount || items.reduce((acc, item) => acc + item.price * item.quantity, 0),
             items 
         };
@@ -99,7 +99,7 @@ const viewOrderDetails = async (req,res)=>{
 
 const cancelOrder = async(req,res)=>{
     try {
-        const orderId = req.params.id;
+        const {orderId,itemId} = req.params;
         const userId = req.session.user;
 
         const order = await Order.findOne({
@@ -111,31 +111,42 @@ const cancelOrder = async(req,res)=>{
             return res.status(404).json({message:"Order not found"})
         }
 
+        const itemToCancel = order.orderItem.find(item =>item._id.toString() === itemId);
+
+        if(!itemToCancel){
+            return res.status(404).json({success:false,message:'Item not found'})
+        }
+
         const cancelableStatuses =["Processing","Dispatched","Shipped"];
-        if(!cancelableStatuses.includes(order.orderStatus)){
+        if(!cancelableStatuses.includes(itemToCancel.itemStatus)){
             return res.status(400).json({
+                success:false,
                 message:'This order cannot be cancelled'
             })
         }
 
-        order.orderStatus ='Cancelled';
-        await order.save();
-
-        for (let item of order.orderItem) {
-            const product = await Product.findById(item.productId);
+       itemToCancel.itemStatus  ='Cancelled';
+      
+            const product = await Product.findById(itemToCancel.productId);
             if (product) {
                 const colorStockIndex = product.colorStock.findIndex(
-                    (colorStock) => colorStock.color === item.color
+                    (colorStock) => colorStock.color === itemToCancel.color
                 );
 
                 if (colorStockIndex !== -1) {
-                    product.colorStock[colorStockIndex].quantity += item.quantity;
+                    product.colorStock[colorStockIndex].quantity += itemToCancel.quantity;
                     await product.save();
                 }
             }
-        }
+        
+            const allitemsCancelled = order.orderItem.every(item =>item.itemStatus ==='Cancelled');
 
-        res.status(200).json({message:'Order cancelled successfully'})
+            if(allitemsCancelled) {
+                order.orderStatus ='Cancelled'
+            }
+            await order.save()
+
+        res.json({success:true,message:'Order cancelled successfully',orderStatus:order.orderStatus})
         
     } catch (error) {
         console.error('Error cancelling order:',error);

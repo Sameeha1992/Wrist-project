@@ -1,5 +1,5 @@
 
-<%- include("../partials/user/header") %>
+<%- include("../partials/user/header",{cartCount:cartCount}) %>
 <style>
 .pagination {
     margin: 20px 0; 
@@ -53,9 +53,13 @@
     }
 
     .panel-title a.active {
-        color: #88c8bc;
+        color: #262828;
         font-weight: bold;
     }
+    .sidebar-box-2 a {
+    color: #555;
+}
+
 </style>
 </style>
 
@@ -83,7 +87,7 @@
                                 <a href="/productDetails?id=<%= product._id %>" class="img-prod">
                                     <img class="img-fluid" src="/uploads/re-image/<%= product.productImage[0] %>" alt="<%= product.productName %>">
                                     <% if (product.productOffer > 0) { %>
-                                        <span class="status"><%=product.productOffer%>% OFF</span>
+                                        <span class="status"><%=product.productOffer%></span>
                                     <% } %>
                                     <div class="overlay"></div>
                                 </a>
@@ -144,6 +148,9 @@
                                 </div>
                                 <div class="col-md-12">
                                     <button type="submit" class="btn btn-primary btn-block">Search</button>
+                                </div>
+                                <div class="col-md-12">
+                                    <button type="button" id="clear-search" class="btn btn-secondary btn-block">Clear Search</button>
                                 </div>
                             </div>
                         </form>
@@ -293,9 +300,25 @@
     document.getElementById('categories-toggle').addEventListener('click', function() {
         var categoriesList = document.getElementById('categories-list');
         if (categoriesList.style.display === 'none') {
-            categoriesList.style.display = 'block'; // Show categories
+            categoriesList.style.display = 'block';
         } else {
-            categoriesList.style.display = 'none'; // Hide categories
+            categoriesList.style.display = 'none'; 
         }
     });
+
+
+    document.getElementById('clear-search').addEventListener('click', function() {
+   
+    document.querySelector('input[name="search"]').value = '';
+
+   
+    fetch('/shop')
+        .then(response => response.text())
+        .then(data => {
+          
+            document.getElementById('product-list').innerHTML = data; // Assuming you have a div with this ID
+        })
+        .catch(error => console.error('Error fetching data:', error));
+});
+
 </script>

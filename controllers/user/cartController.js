@@ -188,6 +188,54 @@ const addToCart = async (req, res) => {
   }
 };
 
+const updateCartQuantity = async(req,res)=>{
+
+  const {cartItemId,quantity} = req.body;
+ 
+  try {
+    const cartItem = await Cart.findOne({productId: cartItemId});
+   
+    
+
+    if(!cartItem){
+      return res.status(404).json({success:false,message:"Cart item not found"})
+    }
+
+    const product = await Product.findById(cartItem.productId);
+    console.log(product,"PRODUCT")
+
+    if(!product){
+      return res.status(404).json({success: false,message:"Product not found"})
+
+    }
+
+    if(quantity>5){
+      return res.status(400).json({success:false,message:"You can only have a maximum of 5 items"})
+    }
+       cartItem.quantity = quantity;
+       await cartItem.save();
+
+   const newTotal = quantity *product.salePrice;
+
+   const cartItems = await Cart.find({userId: cartItem.userId});
+   const productPrices = await Promise.all(cartItems.map(async (item) => {
+    const product = await Product.findById(item.productId);
+    return product.price * item.quantity; // Calculate total for this item
+  }));
+
+  const cartTotal = productPrices.reduce((total, itemTotal) => total + itemTotal, 0);
+
+  return res.status(200).json({success:true,newTotal,cartTotal})
+    
+  } catch (error) {
+    console.error('Error updating cart quantity:', error);
+    return res.status(500).json({ success: false, message: 'An error occurred while updating the cart quantity.' });
+  }
+}
+
+
+
+
 const deleteCart = async (req, res) => {
   try {
     if (!req.session.user) {
@@ -255,6 +303,7 @@ module.exports = {
   loadCart,
   addToCart,
   deleteCart,
+  updateCartQuantity,
   
 };
 

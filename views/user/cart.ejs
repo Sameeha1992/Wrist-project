@@ -115,7 +115,7 @@
                         <p class="text-muted"><%= item.productId.brand %></p>
                         <p class="text-muted">Status: <%= item.productId.status %></p>
                       </td>
-                      <td>$<%= item.productId.salePrice.toFixed(2) %></td>
+                      <td>₹<%= item.productId.salePrice.toFixed(2) %></td>
                       <td>
                         <div class="quantity-container">
                           <button class="btn btn-outline-black decrease" type="button">&minus;</button>
@@ -189,37 +189,84 @@
     </div>
   </div>
 </div>
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script>
+  $(document).ready(function() {
+    const productContainers = $('.product-container');
 
-document .addEventListener('DOMContentLoaded',function(){
-  const decreaseBtn = document.querySelector('.decrease');
-  const increaseBtn = document.querySelector('.increase');
-  const quantityInput = document.querySelector('.quantity-amount');
+    productContainers.each(function() {
+      const container = $(this);
+      console.log(container,"CONTAINER")
+      const decreaseBtn = container.find('.decrease');
+      console.log("dcreseBTN",decreaseBtn)
+      const increaseBtn = container.find('.increase');
+      const quantityInput = container.find('.quantity-amount');
+      const cartItemId = container.data('cart-item-id');
+     
 
-  decreaseBtn.addEventListener('click',function(){
-    let currentQuantity = parseInt(quantityInput.value);
+      let displayedQuantity = parseInt(quantityInput.val());
+      
 
-    if(currentQuantity>0){
-      currentQuantity--;
-      quantityInput.value = currentQuantity;
+      decreaseBtn.on('click', function() {
+        if (displayedQuantity > 0) {
+          displayedQuantity--;
+          quantityInput.val(displayedQuantity);
+          updateCartQuantity(cartItemId, displayedQuantity);
+        }
+      });
+
+      increaseBtn.on('click', function() {
+        displayedQuantity++;
+        quantityInput.val(displayedQuantity);
+        updateCartQuantity(cartItemId, displayedQuantity);
+      });
+    });
+
+    function updateCartQuantity(cartItemId, quantity) {
+      $.ajax({
+        url: '/updateCartQuantity',
+        type: 'POST',
+        contentType: 'application/json',
+        data: JSON.stringify({ cartItemId, quantity }),
+        success: function(data) {
+          if (data.success) {
+            console.log('Cart quantity updated successfully');
+          } else {
+            console.error('Failed to update cart quantity:', data.message);
+            Toastify({
+              text: data.message,
+              duration: 3000,
+              gravity: "top",
+              position: "right",
+              style: { backgroundColor: "red" }
+            }).showToast();
+          }
+        },
+        error: function(xhr, status, error) {
+          console.error('Error updating cart quantity:', error);
+          Toastify({
+            text: "An error occurred while updating the cart quantity.",
+            duration: 3000,
+            gravity: "top",
+            position: "right",
+            style: { backgroundColor: "red" }
+          }).showToast();
+        }
+      });
     }
-  });
-  increaseBtn.addEventListener('click',function(){
-    let currentQuantity = parseInt(quantityInput.value);
-    currentQuantity++;
-    quantityInput.value = currentQuantity;
-  })
-})
-document.querySelectorAll('.remove-btn').forEach(button => {
-    button.addEventListener('click', async (event) => {
+
+
+    
+
+    $('.remove-btn').on('click', async function(event) {
       event.preventDefault();
 
-      const cartItemId = button.id;
-      const productRow = button.closest('.product-container');
+      const cartItemId = $(this).attr('id');
+      const productRow = $(this).closest('.product-container');
+     
 
       if (!cartItemId) {
         Toastify({
@@ -232,82 +279,67 @@ document.querySelectorAll('.remove-btn').forEach(button => {
         return;
       }
 
-      try {
-        const response = await fetch('/deleteCart', {
-          method: 'DELETE',
-          headers: {
-            'Content-Type': 'application/json'
+      const result = await Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      });
+
+      if (result.isConfirmed) {
+        $.ajax({
+          url: '/deleteCart',
+          type: 'DELETE',
+          contentType: 'application/json',
+          data: JSON.stringify({ cartItemId }),
+          success: function(data) {
+            if (data.success) {
+              productRow.remove();
+              const cartTotalElement = $('.cartTotals');
+              cartTotalElement.text(data.newTotalAmount);
+
+              Toastify({
+                text: "Item deleted from cart",
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                style: { backgroundColor: "green" }
+              }).showToast();
+
+              const tableBody = $('table tbody');
+              if (tableBody.find('tr.product-container').length === 0) {
+                tableBody.html(`
+                  <tr>
+                    <td colspan="6" class="text-center">Your cart is empty</td>
+                  </tr>
+                `);
+              }
+            } else {
+              Toastify({
+                text: data.message || "Failed to remove item from cart",
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                style: { backgroundColor: "red" }
+              }).showToast();
+            }
           },
-          body: JSON.stringify({ cartItemId })
-        });
-
-        // Log full response details
-        console.log('Full Response:', {
-          status: response.status,
-          statusText: response.statusText
-        });
-
-        // Parse the response text
-        const responseText = await response.text();
-        
-        // Try to parse the JSON
-        let result;
-        try {
-          result = JSON.parse(responseText);
-        } catch (parseError) {
-          throw new Error(`Failed to parse response: ${responseText}`);
-        }
-
-        // Check for success
-        if (result.success) {
-          // Remove the product row from the table
-          productRow.remove();
-
-          // Update the total amount
-          const cartTotalElement = document.querySelector('.cartTotals');
-          cartTotalElement.textContent = result.newTotalAmount;
-
-          // Show success toast
-          Toastify({
-            text: "Item deleted from cart",
-            duration: 3000,
-            gravity: "top",
-            position: "right",
-            style: { backgroundColor: "green" }
-          }).showToast();
-
-          // If no items left, show empty cart message
-          const tableBody = document.querySelector('table tbody');
-          if (tableBody.querySelectorAll('tr.product-container').length === 0) {
-            tableBody.innerHTML = `
-              <tr>
-                <td colspan="6" class="text-center">Your cart is empty</td>
-              </tr>
-            `;
+          error: function(xhr, status, error) {
+            console.error('Error:', error);
+            Toastify({
+              text: error.message || "An error occurred while removing the item",
+              duration: 3000,
+              gravity: "top",
+              position: "right",
+              style: { backgroundColor: "red" }
+ }).showToast();
           }
-        } else {
-          // Show error toast
-          Toastify({
-            text: result.message || "Failed to remove item from cart",
-            duration: 3000,
-            gravity: "top",
-            position: "right",
-            style: { backgroundColor: "red" }
-          }).showToast();
-        }
-      } catch (error) {
-        console.error('Error:', error);
-        Toastify({
-          text: error.message || "An error occurred while removing the item",
-          duration: 3000,
-          gravity: "top",
-          position: "right",
-          style: { backgroundColor: "red" }
-        }).showToast();
+        });
       }
     });
-});
-
- 
+  });
 </script>
 <%- include("../partials/mainfooter") %>

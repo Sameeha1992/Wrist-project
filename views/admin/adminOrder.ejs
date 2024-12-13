@@ -141,8 +141,8 @@
                             <th>Customer</th>
                             <th>Date</th>
                             <th>Total</th>
-                            <th>Status</th>
-                            <th>Action</th>
+                           
+                            
                         </tr>
                     </thead>
                     <tbody>
@@ -153,27 +153,8 @@
             
                             <td><%= new Date(order.createdAt).toLocaleDateString() %></td>
                             <td><%= order.totalAmount %></td>
-                            <td class="order-status"><%= order.orderStatus %></td>
-                            <td>
-                                <select class="form-select form-select-sm status-change" 
-                                data-order-id="<%= order._id %>"
-                                data-product-id="<%= order.orderItem[0].productId %>"
-                                data-color="<%= order.orderItem[0].color %>">
-                                data-original-status ="<%= order.orderStatus%>"
-                                <option value="Processing" <%= order.orderStatus === 'Processing' ? 'selected' : '' %>>Processing</option>
-                                <option value="Dispatched" <%= order.orderStatus === 'Dispatched' ? 'selected' : '' %>>Dispatched</option>
-                                <option value="Shipped" <%= order.orderStatus === 'Shipped' ? 'selected' : '' %>>Shipped</option>
-                                <option value="Delivered" <%= order.orderStatus === 'Delivered' ? 'selected' : '' %>>Delivered</option>
-                                <option value="Cancelled" <%= order.orderStatus === 'Cancelled' ? 'selected' : '' %>>Cancelled</option>
-                            </select>
-
-                            <button class="btn btn-sm btn-primary update-status"
-                            data-order-id="<%= order._id %>" 
-                            data-product-id="<%= order.orderItem[0].productId %>"
-                            data-color="<%= order.orderItem[0].color %>">
-                            Update
-                            </button>
-                            </td>
+                           
+                            
                             <td>
                                 <div class="btn-group" role="group">
                                     <button class="btn btn-sm btn-secondary view-details" 

@@ -22,7 +22,17 @@ const loadLandingPage = async (req, res) => {
 
     const categories = await Category.find({ isListed: true });
     const brands = await Brand. find({isBlocked:false});
+
+    let cartCount = 0;
+
+    if(user){
+      const userData = await User.findOne({_id:user});
+      cartCount = await Cart.countDocuments({ userId:userData._id})
+    } else {
+      cartCount = await Cart.countDocuments();
+    }
    
+    
 
 
     const totalProducts = await Product.countDocuments({
@@ -71,6 +81,7 @@ const loadLandingPage = async (req, res) => {
         products: productswithColorStock,
         currentPage,
         totalPages,
+        cartCount:cartCount
        
       });
     
@@ -328,6 +339,8 @@ const loadProductDetail = async (req, res) => {
       
     
     const productId = req.query.id;
+    const cartCount = 0;
+   
     const product = await Product.findById({ _id: productId });
    
 
@@ -342,7 +355,7 @@ const loadProductDetail = async (req, res) => {
 
 
 
-    res.render("product-details", { product,relatedProducts});
+    res.render("product-details", { product,relatedProducts,cartCount});
   }
   } catch (error) {
     console.error("Error in loading product detail:", error);
@@ -411,7 +424,7 @@ const logout = async (req, res) => {
       } else {
         const userId = req.session.user;
         const userData = await User.findOne({_id:userId});
-       
+       let cartCount =0;
 
 
         const {category, sort, search, page } = req.query;
@@ -420,6 +433,11 @@ const logout = async (req, res) => {
         const skip =(page-1) * limit;
 
         let query ={isBlocked:false};
+
+        if(userId){
+          const userData = await User.findOne({_id:userId});
+          cartCount = await Cart.countDocuments({userId:userData._id})
+        }
        
          
         if(category && category !== "All Categories") {
@@ -473,6 +491,7 @@ const logout = async (req, res) => {
           category:category || "All Categories",
           sort: sort || '',
           search: search || "",
+          cartCount:cartCount,
 
         });
 

@@ -127,9 +127,11 @@
 		
 			
 		
-
-		  <li class="nav-item cta cta-colored"><a href="cart.html" class="nav-link"><span class="icon-shopping_cart"></span>[0]</a></li>
-
+         <%if(cartCount>0) {%>
+		  <li class="nav-item cta cta-colored"><a href="/cart" class="nav-link"><span class="icon-shopping_cart"></span><%=[cartCount]%></a></li>
+<%} else{ %>
+	<li class="nav-item cta cta-colored"><a href="/cart" class="nav-link"><span class="icon-shopping_cart"></span>[0]</a></li>
+	<%}%>
 		</ul>
 	  </div>
 	</div>
@@ -139,7 +141,7 @@
 	const userId = "<%= userId %>";
 	if (userId) {
 	  console.log("User is logged in with ID:", userId);
-	  // Additional frontend code can go here
+	  
 	} else {
 	  console.log("User is not logged in");
 	}

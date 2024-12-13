@@ -34,6 +34,11 @@ const orderSchema=new Schema({
             },
             totalPrice:{
                 type:Number
+            },
+            itemStatus: {
+                type: String,
+                enum: ['Processing', 'Delivered', 'Cancelled', 'Shipped'],
+                default: 'Processing'
             }
         }
     ],
@@ -56,7 +61,7 @@ const orderSchema=new Schema({
     },
     orderStatus:{
         type: String,
-        enum:['Processing','Delivered','Cancelled','Shipped','Dispatched'],
+        enum:['Processing','Delivered','Cancelled','Shipped'],
         default:'Processing',
         required: true
 

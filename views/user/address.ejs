@@ -374,6 +374,7 @@
                 </div>
             `;
             $wrapper.append(addressHtml);
+            
         });
     }
 
@@ -493,10 +494,14 @@
                         position: "left",
                         style:{backgroundColor: "#03c03c"},
                         stopOnFocus: true
-                    }).showToast();
+                    }).showToast()
+                   setTimeout(()=>{
+                    window.location.reload()
+                   },3000) 
 
                 console.log(data.user.addresses,"DATA.USER.ADDRESSES")
                     updateAddressWrapper(data.user.addresses);
+                    
                     resetForm();
                     
                 } else {

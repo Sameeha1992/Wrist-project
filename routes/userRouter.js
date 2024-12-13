@@ -57,7 +57,8 @@ user_router.post("/changePassword",userAuth,profileController.changePasswordVali
 //Cart Management:-
 
 user_router.get("/cart",userAuth,cartController.loadCart);
-user_router.post("/addcart",cartController.addToCart);
+user_router.post("/addcart",userAuth,cartController.addToCart);
+user_router.post("/updateCartQuantity",userAuth,cartController.updateCartQuantity)
 user_router.delete("/deleteCart",userAuth,cartController.deleteCart)
 
 
@@ -72,7 +73,7 @@ user_router.get("/orderSuccess",userAuth,checkoutController.successOrder)
 
 user_router.get("/orders",userAuth,orderController.loadOrderPage);
 user_router.get("/view-order/:id",userAuth,orderController.viewOrderDetails);
-user_router.post("/cancel-order/:id",userAuth,orderController.cancelOrder)
+user_router.post("/cancel-order/:orderId/:itemId",userAuth,orderController.cancelOrder)
 
 
 

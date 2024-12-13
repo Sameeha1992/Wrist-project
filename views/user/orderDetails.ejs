@@ -56,8 +56,8 @@
 
         <!-- Order ID and Status -->
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <h1 class="h3">Order Id #<%= order._id %></h1>
-            <span class="badge badge-processing"><%= order.orderStatus %></span>
+            <h1 class="h3">Order ID #<%= order._id %></h1>
+            
         </div>
 
         <!-- Order Details -->
@@ -93,6 +93,29 @@
                         <div class="col-10 col-md-7">
                             <h5 class="mb-1"><%= item.name %></h5>
                             <p class="text-muted mb-0">Color: <%= item.color %></p>
+                            <p class="mb-0">
+                                <span class="badge 
+                                    <%= 
+                                        item.itemStatus === 'Processing' ? 'badge-warning' : 
+                                        item.itemStatus === 'Shipped' ? 'badge-info' : 
+                                        item.itemStatus === 'Delivered' ? 'badge-success' : 
+                                        'badge-danger'
+                                    %>">
+                                    <%= item.itemStatus %>
+                                </span>
+                            </p>
+                            <p class="mb-0">
+                                Current Status: 
+                                <span id="current-status-<%= item._id %>" 
+                                    class="badge bg-<%= 
+                                        item.itemStatus === 'Processing' ? 'primary' :
+                                        item.itemStatus === 'Shipped' ? 'info' :
+                                        item.itemStatus === 'Delivered' ? 'success' :
+                                        item.itemStatus === 'Cancelled' ? 'danger' : 'secondary'
+                                    %>">
+                                  <%= item.itemStatus %>
+                              </span>
+                            </p>
                         </div>
                         <div class="col-6 col-md-2 text-md-end">
                             <p class="mb-0">Qty: <%= item.quantity %></p>
@@ -100,6 +123,15 @@
                         <div class="col-6 col-md-2 text-end">
                             <p class="mb-0">₹<%= item.price.toFixed(2) %></p>
                         </div>
+
+                        <% if(['Processing','Shipped'].includes(item.itemStatus)) { %>
+                            <div class="col-12 mt-2">
+                                <button class="btn btn-sm btn-danger" onclick="cancelIndividualItem('<%= order._id %>', '<%= item._id %>')">
+                                    Cancel Item
+                                </button>
+                            </div>
+                            <% } %>
+
                     </div>
                 <% }); %>
             </div>
@@ -125,11 +157,7 @@
         </div>
     </div>
     
-     <% if(['Processing','Dispatched','Shipped'].includes(order.orderStatus)) { %>
-    <div class="text-center mb-4">
-        <button class="btn btn-danger" onclick="confirmCancel('<%=order._id %>')">Cancel Order</button>
-    </div>
-    <% } %>
+    
 </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
@@ -137,7 +165,7 @@
 
     <script>
 
-        function confirmCancel(orderId) {
+        function cancelIndividualItem(orderId,itemId) {
             Swal.fire({
                 title: 'Are you sure?',
                 text: 'Do you want to cancel this order?',
@@ -150,7 +178,7 @@
             }).then((result) => {
                 if (result.isConfirmed) {
                     // Send AJAX request to cancel the order
-                    fetch(`/cancel-order/${orderId}`, {
+                    fetch(`/cancel-order/${orderId}/${itemId}`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json'

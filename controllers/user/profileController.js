@@ -112,9 +112,9 @@ const forgotEmailValid = async(req,res)=>{
 const verifyForgotPassOtp= async(req,res)=>{
       try {
         const enteredOtp = req.body.otp;
-        // console.log(req.session.userOtp.otp,'enterdotp')
+        
         if(enteredOtp ===req.session.userOtp.otp){
-          // req.session.userOtp =null;
+        
           res.json({success:true,redirectUrl:"/reset-password"});
         }else{
           res.status(400).json({success:false,message:'OTP not matching'})
