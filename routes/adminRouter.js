@@ -28,8 +28,8 @@ router.get("/logout",adminController.logout);
 //Customer Management
 
 router.get("/users",adminAuth,customerController.customerInfo)
-router.get("/blockCustomer",adminAuth,customerController.customerBlocked)
-router.get("/unblockCustomer",adminAuth,customerController.customerUnblocked)
+router.patch("/blockCustomer",adminAuth,customerController.customerBlocked)
+router.patch("/unblockCustomer",adminAuth,customerController.customerUnblocked)
 
 //Category Management
 

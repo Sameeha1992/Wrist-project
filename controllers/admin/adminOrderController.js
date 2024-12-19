@@ -107,24 +107,25 @@ const userOrders = async(req,res)=>{
           });
         }
     
-        // Business rules:
-        if (
-          (itemToUpdate.itemStatus === 'Shipped' || itemToUpdate.itemStatus === 'Delivered') &&
-          newStatus === 'Cancelled'
-        ) {
-          return res.status(400).json({
-            success: false,
-            message: "Cannot cancel an item that has already been shipped or delivered",
-          });
-        }
-    
-        if (itemToUpdate.itemStatus === 'Cancelled' && ['Shipped', 'Delivered'].includes(newStatus)) {
-          return res.status(400).json({
-            success: false,
-            message: "Cannot change the status of a cancelled item to shipped or delivered",
-          });
-        }
-    
+        
+        const currentStatus = itemToUpdate.itemStatus;
+
+        const allowedTransitions = {
+          Processing: ['Shipped', 'Delivered'],
+          Shipped: ['Delivered'],
+          Delivered: [], // No changes allowed from Delivered
+          Cancelled: [], // No changes allowed from Cancelled
+        };
+
+        // Check if the new status is valid for the current status
+    if (!allowedTransitions[currentStatus]?.includes(newStatus)) {
+      return res.status(400).json({
+        success: false,
+        message: `Cannot change status from ${currentStatus} to ${newStatus}`,
+      });
+    }
+
+      
         // Update stock if item is cancelled
         if (newStatus === 'Cancelled') {
           const product = await Product.findById(productId);

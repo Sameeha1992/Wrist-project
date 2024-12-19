@@ -24,7 +24,7 @@ user_router.get("/shop",userController.loadShoppingPage)
 user_router.get("/signup",userController.loadSignup);
 user_router.post("/signup", userController.signup);
 
-user_router.get("/login",usermiddleware.isLogout,userController.loadLogin)
+user_router.get("/login",userController.loadLogin)
 user_router.post("/login",userController.login)
 user_router.get("/logout",userController.logout);
 user_router.get("/verify-otp", userController.getotp);

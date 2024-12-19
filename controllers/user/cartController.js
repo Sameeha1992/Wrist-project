@@ -40,7 +40,6 @@ const loadCart = async (req, res) => {
       }
 
       cartItem.quantity = Math.min(cartItem.quantity,5);
-      console.log(cartItem.quantity,"CART ITEM QUANTITY")
 
       return cartItem;
     });
@@ -91,7 +90,6 @@ const addToCart = async (req, res) => {
     }
 
     const colorStock = product.colorStock.id(colorStockId);
-    console.log(colorStock,"Colorstockkkkk")
     if (!colorStock) {
       return res.status(404).json({
         success: false,
@@ -106,8 +104,7 @@ const addToCart = async (req, res) => {
       });
     }
 
-    console.log(quantity, "Quantity");
-    console.log(colorStock.quantity, "COLORSTOCK QUNATITY");
+    
 
     const existingCartItem = await Cart.findOne({
       userId,
@@ -118,8 +115,7 @@ const addToCart = async (req, res) => {
     if (existingCartItem) {
       const newQuantity = existingCartItem.quantity + quantity;
 
-      console.log(newQuantity, "newqauntity");
-      console.log(newQuantity > maxLimit, "newQuantity > maxLimit");
+      
 
       if (newQuantity > maxLimit) {
         return res.status(400).json({
@@ -167,7 +163,6 @@ const addToCart = async (req, res) => {
       await newCartItem.save();
 
      
-      console.log(product, "product");
 
       const cartItemCount = await Cart.countDocuments({ userId });
 
@@ -188,48 +183,77 @@ const addToCart = async (req, res) => {
   }
 };
 
+
+//Update the cart quantity:-
 const updateCartQuantity = async(req,res)=>{
 
   const {cartItemId,quantity} = req.body;
  
   try {
-    const cartItem = await Cart.findOne({productId: cartItemId});
+    const userId = req.session.user
+    const cartItem = await Cart.findOne({ userId: userId, productId: cartItemId })
+    .populate({path:'productId',
+      populate:{
+        path:'colorStock'
+      }
+    });
+
+
+    
+    // const cartWithAvailableStock = cartItem
+  
+
+    if(!cartItem || !cartItem.productId){
+      return res.status(404).json({success:false,message:"Cart item or product not found"})
+    }
    
     
 
-    if(!cartItem){
-      return res.status(404).json({success:false,message:"Cart item not found"})
+    const product = cartItem.productId;
+    const colorStock = product.colorStock.find(
+      stock => stock._id.toString() === cartItem.colorStockId.toString()
+    );
+
+  
+
+
+    if (quantity < 1 || quantity>5) {
+      return res.status(400).json({ success: false, message: "Quantity must be between 1 and 5" });
+  }
+
+  if(!colorStock || colorStock.status !="Available"){
+    return res.status(400).json({success:false,message:"Selected color is not available"})
+  }
+
+
+    
+
+    if (quantity > colorStock.quantity) {
+        return res.status(400).json({ 
+            success: false, 
+            message: `Only ${colorStock.quantity} items available in stock for selected product`,
+            availableStock: colorStock.quantity 
+        });
     }
 
-    const product = await Product.findById(cartItem.productId);
-    console.log(product,"PRODUCT")
 
-    if(!product){
-      return res.status(404).json({success: false,message:"Product not found"})
 
-    }
-
-    if(quantity>5){
-      return res.status(400).json({success:false,message:"You can only have a maximum of 5 items"})
-    }
        cartItem.quantity = quantity;
        await cartItem.save();
 
-   const newTotal = quantity *product.salePrice;
+       const cartItems = await Cart.find({ userId:userId }).populate('productId');
+       const cartTotal = cartItems.reduce((total, item) => total + (item.productId.salePrice * item.quantity), 0);
 
-   const cartItems = await Cart.find({userId: cartItem.userId});
-   const productPrices = await Promise.all(cartItems.map(async (item) => {
-    const product = await Product.findById(item.productId);
-    return product.price * item.quantity; // Calculate total for this item
-  }));
-
-  const cartTotal = productPrices.reduce((total, itemTotal) => total + itemTotal, 0);
-
-  return res.status(200).json({success:true,newTotal,cartTotal})
+       return res.status(200).json({
+           success: true,
+           cartTotal: cartTotal,
+           newTotal: product.salePrice * quantity,
+           message:"Cart updated successfully"
+       });
     
   } catch (error) {
     console.error('Error updating cart quantity:', error);
-    return res.status(500).json({ success: false, message: 'An error occurred while updating the cart quantity.' });
+    return res.status(500).json({ success: false, message: 'Maximum Quantity Reached' });
   }
 }
 

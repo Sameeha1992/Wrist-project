@@ -28,38 +28,47 @@
 	<style>
 		.pagination-container {
   display: flex;
-  justify-content: center; /* Center the pagination */
-  margin: 20px 0; /* Add some margin above and below */
+  justify-content: center; 
+  margin: 20px 0;
 }
 
 .pagination {
   display: flex;
-  align-items: center; /* Align items vertically */
+  align-items: center; 
 }
 
 .pagination-link {
-  text-decoration: none; /* Remove underline */
-  color: #007bff; /* Bootstrap primary color */
-  padding: 10px 15px; /* Add padding for better click area */
-  border: 1px solid #007bff; /* Border color */
-  border-radius: 5px; /* Rounded corners */
-  margin: 0 5px; /* Space between links */
-  transition: background-color 0.3s, color 0.3s; /* Smooth transition */
+  text-decoration: none; 
+  color: #007bff;
+  padding: 10px 15px; 
+  border: 1px solid #007bff; 
+  border-radius: 5px; 
+  margin: 0 5px; 
+  transition: background-color 0.3s, color 0.3s; 
 }
 
 .pagination-link:hover {
-  background-color: #007bff; /* Change background on hover */
-  color: white; /* Change text color on hover */
+  background-color: #007bff; 
+  color: white;
 }
 
 .pagination-info {
-  margin: 0 10px; /* Add some margin around the info text */
-  font-weight: bold; /* Make the text bold */
+  margin: 0 10px; 
+  font-weight: bold; 
 }
+.username-highlight {
+    font-weight: bold !important;
+    color: #333333 !important;
+    text-transform: uppercase !important;
+}
+
+.username-highlight:hover {
+    color: #000000 !important;
+}
+
 	</style>
 
-	<!-- Include jQuery and Bootstrap JS -->
-
+	
   </head>
 
   <body class="goto-here">
@@ -105,8 +114,8 @@
 		
 		  <li class="nav-item dropdown">
 			<% if (userId) { %>
-			<a class="nav-link dropdown-toggle" href="#" id="profileDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-				account</a>
+			<a class="nav-link dropdown-toggle username-highlight" href="#" id="profileDropdown" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				WELCOME <%= userName %></a>
 			<div class="dropdown-menu" aria-labelledby="profileDropdown">
 				<a class="dropdown-item" href="/userProfile">Profile</a>
 				<a class="dropdown-item" href="/logout">Logout</a>

@@ -65,8 +65,18 @@ const customerBlocked= async(req,res)=>{
     try {
         let id=req.query.id;
        
-        await User.updateOne({_id:id},{$set:{isBlocked:true}});
-        res.redirect("/admin/users")
+        const updatedUser = await User.findOneAndUpdate(
+            { _id: id },
+            { $set: { isBlocked: true } },
+            { new: true } 
+          );
+          
+          if(!updatedUser){
+            return res.status(404).json({message:"User not found"})
+          }
+          
+
+        return res.status(200).json({message:"User blocked successfully"})
         
     } catch (error) {
         res.redirect("/pageerror")
@@ -79,11 +89,21 @@ const customerUnblocked = async(req,res)=>{
     try {
         let id=req.query.id;
        
-        await User.updateOne({_id:id},{$set:{isBlocked:false}});
-        res.redirect("/admin/users") 
+        const updateUser = await User.findOneAndUpdate(
+            { _id: id },
+            { $set: { isBlocked: false } },
+            { new: true } 
+          );
+
+          if(!updateUser){
+            return res.status(404).json({message:"User not found"})
+
+          }
+
+          return res.status(200).json({message:"User unblocked successfully"})
+
         
-        
-    } catch (error) {
+       } catch (error) {
         console.log("error",error)
         res.redirect("/pageerror");
         

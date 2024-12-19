@@ -36,11 +36,13 @@
                 <%if(data[i].isBlocked===false){%>
               
               
-                <a href="/admin/blockCustomer?id=<%-data[i]._id%>" class="action-button block">Block</a>
+                <!-- <button href="/admin/blockCustomer?id=<%-data[i]._id%>" class="action-button block">Block</a> -->
                 
+                  <button class="action-button block" onclick="userBlock('<%-data[i]._id%>')">Block</button>
                 <%}else{%>
                     
-                        <a href="/admin/unblockCustomer?id=<%-data[i]._id%>"class="action-button unblock">Unblock</a>
+                        <!-- <a href="/admin/unblockCustomer?id=<%-data[i]._id%>"class="action-button unblock">Unblock</a> -->
+                         <button class="action-button unblock" onclick="userUnblock('<%-data[i]._id%>')">Unblock</button>
                         
                         <% } %>
             </td>
@@ -246,5 +248,120 @@
 
   </style>
 
+  <script>
+   async function userBlock(userId) {
+  Swal.fire({
+    icon: "warning",
+    title: "Are you sure?",
+    text: "Do you really want to block this user? This action cannot be undone!",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, Block!",
+    cancelButtonText: "Cancel",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch(`/admin/blockCustomer?id=${userId}`, {
+          method: "PATCH",
+        });
+
+        if (!response.ok) {
+          const errorMessage = await response.json();
+          throw new Error(errorMessage.message || "An error occurred");
+        }
+
+        const successResponse = await response.json();
+
+        // Show success message after successful request
+        Swal.fire({
+          title: "Success!",
+          text: successResponse.message,
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then(() => {
+          window.location.reload(); // Reload the page after confirmation
+        });
+      } catch (error) {
+        console.error("An error occurred while blocking the user", error);
+
+        // Show error alert if the request fails
+        Swal.fire({
+          title: "Error!",
+          text: error.message,
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      }
+    } else {
+      // Logic for cancel or no action
+      Swal.fire(
+        "Cancelled",
+        "The user has not been blocked.",
+        "info"
+      );
+    }
+  });
+}
+
+
+
+async function userUnblock(userId){
+  Swal.fire({
+    icon: "warning",
+    title: "Are you sure?",
+    text: "Do you really want to unblock this user? This action cannot be undone!",
+    showCancelButton: true,
+    confirmButtonColor: "#d33",
+    cancelButtonColor: "#3085d6",
+    confirmButtonText: "Yes, unBlock!",
+    cancelButtonText: "Cancel",
+  }) .then(async (result)=>{
+    if(result.isConfirmed) {
+      try {
+        const response = await fetch(`/admin/unblockCustomer?id=${userId}`,{
+          method:"PATCH",
+        });
+
+        if(!response.ok) {
+          const errorMessage = await response.json();
+          throw new Error(errorMessage.message || "An error occured")
+        }
+
+        const successResponse = await response.json();
+
+        Swal.fire({
+          title: "Success!",
+          text:successResponse.message,
+          icon: "success",
+          confirmButtonText: "OK",
+        }).then(() =>{
+          window.location.reload();
+        })
         
-        <%- include("../partials/admin/footer") %>
+      } catch (error) {
+        console.error("An error occurred while unblocking the user", error);
+
+
+        Swal.fire({
+          title: "Error!",
+          text: error.message,
+          icon: "error",
+          confirmButtonText: "OK",
+        });
+      }
+    } else {
+      // Logic for cancel or no action
+      Swal.fire(
+        "Cancelled",
+        "The user has not been blocked.",
+        "info"
+      );
+    }
+  });
+}
+
+  </script>
+
+        
+<%- include("../partials/admin/footer") %>

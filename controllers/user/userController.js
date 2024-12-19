@@ -77,7 +77,8 @@ const loadLandingPage = async (req, res) => {
     if (user) {
       const userData = await User.findOne({ _id: user });
       res.render("home", {
-        user: userData,
+        user: userData._id,
+        userName:userData.name,
         products: productswithColorStock,
         currentPage,
         totalPages,
@@ -102,10 +103,21 @@ const loadLandingPage = async (req, res) => {
 
 const loadHomepage = async (req, res) => {
   try {
-    if (!req.session.user) {
+    const userId = req.session.user
+    if (!userId) {
       res.redirect("/login");
     } else {
-      res.render("home");
+      const user = await User.findById(userId).select('name email');
+
+      if (!user) {
+        console.error("User not found for ID:", userId);
+        return res.redirect("/login");
+      }
+      
+      res.render("home",{
+        userId,
+        userName :user.name,
+      });
     }
   } catch (error) {
     console.log("Homepage not rendered:", error);
@@ -492,6 +504,8 @@ const logout = async (req, res) => {
           sort: sort || '',
           search: search || "",
           cartCount:cartCount,
+          userName: userData.name || "",
+          userId: userData._id || null
 
         });
 

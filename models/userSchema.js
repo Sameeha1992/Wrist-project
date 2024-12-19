@@ -39,7 +39,8 @@ const userSchema=new Schema({
 
     isBlocked:{
         type:Boolean,
-        default:false
+        default:false,
+        index:true
     },
     isAdmin: {
         type:Boolean,

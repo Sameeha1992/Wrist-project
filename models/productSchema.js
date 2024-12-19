@@ -35,12 +35,14 @@ const productSchema = new Schema({
     brand:{
         type:Schema.Types.ObjectId,
         ref:"Brand",
-        required:true
+        required:true,
+        index:true
     },
     category:{
         type:Schema.Types.ObjectId,
         ref:"Category",
-        required:true
+        required:true,
+        index:true
     },
     regularPrice:{
         type:Number,
@@ -63,7 +65,8 @@ const productSchema = new Schema({
     },
     isBlocked:{
         type:Boolean,
-        default:false
+        default:false,
+        index:true
     },
     
    
