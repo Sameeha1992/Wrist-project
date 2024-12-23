@@ -73,7 +73,7 @@ user_router.get("/orderSuccess",userAuth,checkoutController.successOrder)
 
 user_router.get("/orders",userAuth,orderController.loadOrderPage);
 user_router.get("/view-order/:id",userAuth,orderController.viewOrderDetails);
-user_router.post("/cancel-order/:orderId/:itemId",userAuth,orderController.cancelOrder)
+user_router.post("/cancel-order/:orderId/:itemId",userAuth,orderController.cancelOrder);
 
 
 

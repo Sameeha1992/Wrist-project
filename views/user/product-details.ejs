@@ -147,31 +147,63 @@
             background-color: #2980b9;
         }
         .color-stock {
-            display: flex;
-            gap: 15px;
-            margin-top: 20px;
-        }
-        .color-button {
-            width: 30px;
-            height: 30px;
-            border: 2px solid #000; /* Black border */
-            border-radius: 50%;    /* Circle shape */
-            cursor: pointer;
-            margin: 5px;
-            outline: none;
-        }
-        .color-button:hover {
-          border: 3px solid #555; 
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+}
 
-          .color-button-wrapper {
+.color-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    align-items: center;
+}
+
+.color-button-wrapper {
     position: relative;
-    display: inline-block;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
     margin: 5px;
 }
 
+.color-button {
+    width: 24px;
+    height: 24px;
+    border: 2px solid #ccc;
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 0;
+    transition: all 0.2s ease;
+    position: relative;
+}
+
+.color-button:hover:not(.disabled) {
+    transform: scale(1.1);
+    border-color: #555;
+}
+
+.color-button.active {
+    border-color: #000;
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+}
+
 .color-button.disabled {
-    opacity: 0.5;
+    opacity: 0.6;
     cursor: not-allowed;
+    position: relative;
+}
+
+.color-button.disabled::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: -2px;
+    right: -2px;
+    height: 2px;
+    background-color: #e74c3c;
+    transform: rotate(-45deg);
 }
 
 .out-of-stock-label {
@@ -179,14 +211,23 @@
     top: 100%;
     left: 50%;
     transform: translateX(-50%);
-    color: var(--accent-color);
-    font-size: 0.7rem;
-    margin-top: 5px;
+    white-space: nowrap;
+    color: #e74c3c;
+    font-size: 0.65rem;
+    font-weight: 500;
+    margin-top: 4px;
 }
 
-.color-button:disabled {
-    pointer-events: none;
+.color-button-wrapper.active .color-button {
+    border-color: #000;
+    transform: scale(1.1);
 }
+
+.low-stock-label {
+    color: rgb(12, 86, 4);
+    font-size: 0.7rem; 
+    font-style: italic; /* Makes it distinct from regular text */
+    margin-left: 3px; /* Adds spacing from the color button */
 }
     </style>
 </head>
@@ -290,7 +331,9 @@
                                 </button>
                                 <% if (color.quantity <= 0) { %>
                                     <span class="out-of-stock-label">Out of Stock</span>
-                                <% } %>
+                                <% } else if(color.quantity <5) {%>
+                                    <span class="low-stock-label"><%= color.quantity %> quantity left</span>
+                                    <% } %>
                             </div>
                                   
                             <% }) %>
@@ -410,10 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const colorButtons = document.querySelectorAll('.color-button');
     const addToCartBtn = document.getElementById('addToCartBtn');
     const quantityInput = document.getElementById('quantityInput');
-    console.log(colorButtons,"colorbuttonnn");
-    console.log(addToCartBtn,"Addtocartbutton")
-    console.log(quantityInput,"QUANTITYINPUT")
-
+    
     let selectedColor = null;
 
     // Color button selection logic

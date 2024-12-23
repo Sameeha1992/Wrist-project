@@ -3,6 +3,14 @@ const User = require("../../models/userSchema");
 const Cart = require("../../models/cartSchema");
 const Order = require("../../models/orderSchema");
 const mongoose = require('mongoose');
+const Razorpay = require('razorpay');
+require("dotenv").config();
+const crypto = require("crypto");
+
+const razorpay = new Razorpay({
+    key_id:process.env.RAZORPAY_KEYID,
+    key_secret:process.env.RAZORPAY_KEYSECRET
+})
 
 
 const loadOrderPage = async(req,res)=>{
@@ -154,6 +162,11 @@ const cancelOrder = async(req,res)=>{
         
     }
 };
+
+
+
+
+
 
 
 const formatOrderStatus = (status) => {

@@ -167,95 +167,184 @@
   <script>
 
 
-    document.addEventListener("DOMContentLoaded", function () {
+document.addEventListener("DOMContentLoaded", function () {
+  const form = document.getElementById("signform");
+  const messageDiv = document.getElementById("messageDiv");
 
-      signform.addEventListener("submit", function (e) {
-        e.preventDefault();
-        document.getElementById("nameError").textContent = "";
-        document.getElementById("emailError").textContent = "";
-        document.getElementById("phoneError").textContent = "";
-        document.getElementById("passwordError").textContent = "";
-        document.getElementById("confirmPasswordError").textContent = "";
+  // Get all input elements
+  const inputs = {
+    name: document.getElementById("name"),
+    email: document.getElementById("email"),
+    phone: document.getElementById("phone"),
+    password: document.getElementById("password"),
+    confirm_password: document.getElementById("confirm_password")
+  };
 
-        const name = document.getElementById("name").value
-        const email = document.getElementById("email").value
-        const phone = document.getElementById("phone").value
-        const password = document.getElementById("password").value
-        const confirm_password = document.getElementById("confirm_password").value
+  // Create error elements if they don't exist
+  Object.keys(inputs).forEach(inputName => {
+    let errorElement = document.getElementById(`${inputName}Error`);
+    if (!errorElement) {
+      errorElement = document.createElement('div');
+      errorElement.id = `${inputName}Error`;
+      errorElement.className = 'error-message';
+      errorElement.style.display = 'none';
+      errorElement.style.color = 'red';
+      inputs[inputName].insertAdjacentElement('afterend', errorElement);
+    }
+  });
 
-        
-        const namePattern = /^[A-Za-z\s]+$/;
-        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        const phonePattern = /^(?!([0-9])\1{9})\d{10}$/;
-        const passwordPattern = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+  // Validation patterns
+  const patterns = {
+    name: /^[A-Za-z]+(?:\s[A-Za-z]+)*$/,
+    email: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+    phone: /^(?!([0-9])\1{9})\d{10}$/,
+    password: /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/
+  };
 
-        let isValid = true;
+  // Error messages
+  const errorMessages = {
+    name: {
+      empty: "Name is required",
+      invalid: "Name should only contain letters and single spaces between words"
+    },
+    email: {
+      empty: "Email is required",
+      invalid: "Please enter a valid email address"
+    },
+    phone: {
+      empty: "Phone number is required",
+      invalid: "Please enter a valid 10-digit phone number"
+    },
+    password: {
+      empty: "Password is required",
+      invalid: "Password must contain minimum 8 characters, including letters, numbers, and special characters"
+    },
+    confirm_password: {
+      empty: "Please confirm your password",
+      mismatch: "Passwords do not match"
+    }
+  };
 
-        if (!namePattern.test(name)) {
-          document.getElementById("nameError").textContent = "Name should only contain letters and spaces.";
+  // Add input event listeners for dynamic validation
+  Object.keys(inputs).forEach(inputName => {
+    const input = inputs[inputName];
+    if (!input) {
+      console.warn(`Input element '${inputName}' not found`);
+      return;
+    }
+
+    input.addEventListener('input', function() {
+      validateField(inputName);
+    });
+
+    input.addEventListener('blur', function() {
+      validateField(inputName, true);
+    });
+  });
+
+  // Validate individual field
+  function validateField(fieldName, isFinal = false) {
+    const input = inputs[fieldName];
+    const errorElement = document.getElementById(`${fieldName}Error`);
+    
+    if (!input || !errorElement) {
+      console.warn(`Required elements for '${fieldName}' validation not found`);
+      return false;
+    }
+
+    const value = input.value.trim();
+    
+    // Reset error message
+    errorElement.style.display = "none";
+    errorElement.textContent = "";
+
+    // Skip validation while typing unless it's password confirmation or final validation
+    if (!isFinal && !value && fieldName !== 'confirm_password') {
+      return true;
+    }
+
+    // Empty field validation
+    if (!value) {
+      errorElement.textContent = errorMessages[fieldName].empty;
+      errorElement.style.display = "block";
+      return false;
+    }
+
+    // Pattern validation for fields with patterns
+    if (patterns[fieldName] && !patterns[fieldName].test(value)) {
+      errorElement.textContent = errorMessages[fieldName].invalid;
+      errorElement.style.display = "block";
+      return false;
+    }
+
+    // Special validation for password confirmation
+    if (fieldName === 'confirm_password' && value !== inputs.password.value) {
+      errorElement.textContent = errorMessages.confirm_password.mismatch;
+      errorElement.style.display = "block";
+      return false;
+    }
+
+    return true;
+  }
+
+  // Form submission
+  if (form) {
+    form.addEventListener("submit", function (e) {
+      e.preventDefault();
+      if (messageDiv) {
+        messageDiv.style.display = "none";
+      }
+
+      // Validate all fields
+      let isValid = true;
+      Object.keys(inputs).forEach(fieldName => {
+        if (!validateField(fieldName, true)) {
           isValid = false;
-        }
-
-        if (!emailPattern.test(email)) {
-          document.getElementById("emailError").textContent = "Please enter a valid email address.";
-          isValid = false;
-        }
-
-        if (!phonePattern.test(phone)) {
-          document.getElementById("phoneError").textContent = "Phone number must be valid";
-          isValid = false;
-        }
-
-        if (!passwordPattern.test(password)) {
-          document.getElementById("passwordError").textContent = "Password must be at least 8 characters, include a letter, a number, and a special character.";
-          isValid = false;
-        }
-
-        if (password !== confirm_password) {
-          document.getElementById("confirmPasswordError").textContent = "Passwords do not match.";
-          isValid = false;
-        }
-
-        if (isValid) {
-
-          const formData = {
-            name,
-            email,
-            phone,
-            password
-          };
-
-          fetch("/signup", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(formData),
-          })
-            .then(response => response.json())
-            .then((data) => {
-              if (data.success) {
-                window.location.href = data.redirectUrl;
-              } else {  
-                messageDiv.style.display = "block";
-                messageDiv.classList.add("error");
-                messageDiv.innerHTML = data.message || "An error occured during signup"
-              }
-            })
-            .catch((error) => {
-              messageDiv.style.display = 'block';
-              messageDiv.classList.add('error');
-              messageDiv.innerHTML = 'An error occured' + error.message;
-              console.log(error);
-              
-            })
-
-
         }
       });
-    })
 
+      if (!isValid) return;
 
+      // Prepare form data
+      const formData = {
+        name: inputs.name.value.trim(),
+        email: inputs.email.value.trim(),
+        phone: inputs.phone.value.trim(),
+        password: inputs.password.value
+      };
 
+      // Submit form
+      fetch("/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      })
+      .then(response => response.json())
+      .then((data) => {
+        if (data.success) {
+          window.location.href = data.redirectUrl;
+        } else {
+          if (messageDiv) {
+            messageDiv.style.display = "block";
+            messageDiv.classList.add("error");
+            messageDiv.textContent = data.message || "An error occurred during signup";
+          }
+        }
+      })
+      .catch((error) => {
+        if (messageDiv) {
+          messageDiv.style.display = 'block';
+          messageDiv.classList.add('error');
+          messageDiv.textContent = 'An error occurred. Please try again later.';
+        }
+        console.error("Signup error:", error);
+      });
+    });
+  } else {
+    console.error("Form element not found");
+  }
+});
 
   </script>

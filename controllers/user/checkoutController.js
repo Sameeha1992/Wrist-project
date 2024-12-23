@@ -51,7 +51,7 @@ const placeOrder = async (req, res) => {
             })
             .populate({
                 path: 'colorStockId',
-                select: 'color'
+                select: 'color quantity status'
             })
             .populate({
                 path: 'categoryId',
@@ -85,21 +85,41 @@ const placeOrder = async (req, res) => {
         
         const orderItems = await Promise.all(cartItems.map(async (cartItem) => {
             const product = await Product.findById(cartItem.productId._id);
+
+            if(!product){
+                throw new Error(`Product not found: ${cartItem.productId._id}`);
+            }
             const colorStock = product.colorStock.find(
                 stock => stock._id.toString() === cartItem.colorStockId._id.toString()
             );
 
-
-
-           
-
-          
-          
+            if (!colorStock) {
+                throw new Error(`Color variant not found for product ${product.productName}`);
+            }
 
            
             if (!colorStock || colorStock.quantity < cartItem.quantity) {
-                return res.status(400).json({message:`Insufficient stock for ${product.productName} in ${cartItem.colorStockId.color}`});
+                throw new Error(`Insufficient stock for ${product.productName} in ${cartItem.colorStockId.color}`);
             }
+
+
+            const remainingStock = colorStock.quantity - cartItem.quantity;
+            const stockStatus = remainingStock === 0 ? 'Out_of_Stock' : 
+                              remainingStock < 5 ? 'low_stock' : 'Available';
+
+                 
+                              
+                   await Product.updateOne(
+                           { 
+                                    _id: product._id,
+                                    'colorStock._id': colorStock._id 
+                                },
+                                { 
+                                    $set: { 
+                                        'colorStock.$.status': stockStatus
+                                    }
+                                }
+                            );              
 
             return{
                 productId: cartItem.productId._id,
@@ -151,7 +171,7 @@ const placeOrder = async (req, res) => {
        
 
             if(updated.modifiedCount ===0) {
-                return res.status(400).json({message:`failed to update stock for ${item.productId}`})
+                throw new Error(`Failed to update stock for ${item.productId}`);
             }
         }
 
@@ -167,22 +187,20 @@ const placeOrder = async (req, res) => {
        
         await Cart.deleteMany({ userId: userId });
 
-        res.status(200).json({success:true,message:"Your oreder is successfully placed"})
+        return res.status(200).json({
+            success: true,
+            message: "Your order has been successfully placed"
+        });
 
-
-        // res.status(201).render("orderSuccess",{
-        //     message: 'Order placed successfully',
-        //     orderId: savedOrder._id,
-        //     paymentMethod:savedOrder.paymentMethod,
-        //     order:savedOrder
-        // });
 
     } catch (error) {
         console.error("Error placing order:", error);
-        res.status(400).json({
-            message: "Order validation failed",
-            error: error.message
-        });
+            return res.status(400).json({
+                success:false,
+                message: error.message || "Failed to place order"
+               
+            }); 
+        
     }
 };
 
@@ -196,6 +214,7 @@ const successOrder = async(req,res)=>{
         
     }
 }
+
 
 
 

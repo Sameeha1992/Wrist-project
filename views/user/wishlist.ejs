@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wishlist - WristStyle</title>
+    <%- include("../partials/user/profileHead") %>
+
+    <style>
+        .wishlist-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .wishlist-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .wishlist-table th, .wishlist-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #ddd;
+        }
+        .wishlist-table th {
+            background-color: #f8f8f8;
+        }
+        .product-image {
+            width: 100px;
+            height: auto;
+        }
+        .out-of-stock {
+            color: #ff0000;
+        }
+        .add-to-cart-btn {
+            background-color: #666;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .remove-btn {
+            color: #666;
+            cursor: pointer;
+            border: none;
+            background: none;
+        }
+        .empty-state {
+            text-align: center;
+            background: white;
+            border-radius: 12px;
+            padding: 40px;
+            max-width: 400px;
+            margin: 40px auto;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .empty-state-icon {
+            width: 120px;
+            height: 120px;
+            margin-bottom: 20px;
+        }
+        .empty-state h2 {
+            color: #333;
+            margin-bottom: 8px;
+            font-size: 1.2rem;
+        }
+        .empty-state p {
+            color: #666;
+            margin-bottom: 24px;
+        }
+        .start-shopping-btn {
+            background-color: #f87171;
+            color: white;
+            padding: 12px 24px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 1rem;
+            transition: background-color 0.2s;
+        }
+        .start-shopping-btn:hover {
+            background-color: #ef4444;
+        }
+    </style>
+</head>
+<body>
+    <div class="wishlist-container">
+        <h1>WISH LIST</h1>
+        
+        <% if (!wishlistItems || wishlistItems.length === 0) { %>
+            <div class="empty-state">
+                <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="4" y="4" width="16" height="16" rx="2" stroke="#f87171" stroke-width="2"/>
+                    <circle cx="18" cy="6" r="2" fill="#f87171"/>
+                </svg>
+                <h2>Your wishlist is empty!</h2>
+                <p>Explore more and shortlist some items</p>
+                <a href="/shop">
+                    <button class="start-shopping-btn">START SHOPPING</button>
+                </a>
+            </div>
+        <% } else { %>
+            <table class="wishlist-table">
+                <thead>
+                    <tr>
+                        <th>REMOVE</th>
+                        <th>IMAGES</th>
+                        <th>PRODUCT</th>
+                        <th>SIZE</th>
+                        <th>COLOR</th>
+                        <th>UNIT PRICE</th>
+                        <th>STOCK STATUS</th>
+                        <th>ADD TO CART</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <% wishlistItems.forEach(item => { %>
+                        <tr>
+                            <td>
+                                <button class="remove-btn" onclick="removeItem('<%= item.id %>')">×</button>
+                            </td>
+                            <td>
+                                <img src="<%= item.image %>" alt="<%= item.name %>" class="product-image">
+                            </td>
+                            <td>
+                                <div><strong><%= item.brand %></strong></div>
+                                <div><%= item.name %></div>
+                            </td>
+                            <td>
+                                <select>
+                                    <option value="M/L" <%= item.size === 'M/L' ? 'selected' : '' %>>M / L</option>
+                                    <option value="S/M" <%= item.size === 'S/M' ? 'selected' : '' %>>S / M</option>
+                                </select>
+                            </td>
+                            <td>
+                                <select>
+                                    <option value="Yellow" <%= item.color === 'Yellow' ? 'selected' : '' %>>Yellow</option>
+                                    <option value="Black" <%= item.color === 'Black' ? 'selected' : '' %>>Black</option>
+                                </select>
+                            </td>
+                            <td>₹<%= item.price %></td>
+                            <td class="<%= item.stockStatus === 'Out of Stock' ? 'out-of-stock' : '' %>">
+                                <%= item.stockStatus %>
+                            </td>
+                            <td>
+                                <button class="add-to-cart-btn" 
+                                        <%= item.stockStatus === 'Out of Stock' ? 'disabled' : '' %>>
+                                    ADD TO CART
+                                </button>
+                            </td>
+                        </tr>
+                    <% }); %>
+                </tbody>
+            </table>
+        <% } %>
+    </div>
+
+    <script>
+        function removeItem(itemId) {
+            // Add removal functionality here
+            console.log('Removing item:', itemId);
+        }
+    </script>
+    <%include("../partials/user/footer")%>
+</body>
+</html>

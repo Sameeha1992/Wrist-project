@@ -15,12 +15,13 @@ const colorStockSchema = new mongoose.Schema({
     },
     status:{
         type:String,
-        enum:["Available","Out of Stock","Discontinued"],
+        enum:["Available","low_stock","Out_of_Stock","Discontinued"],
         
         default:"Available"
 
     }
-})
+});
+
 
 const productSchema = new Schema({
    

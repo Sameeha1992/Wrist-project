@@ -214,8 +214,8 @@
                 <div class="product-info">
                     <h3><%= item.productId.productName %></h3>
                     <p>Quantity: <%= item.quantity %></p>
-                    <p>Price: $<%= item.productId.salePrice %></p>
-                    <p>Color:  <%= item.colorStockId.color %></p>
+                    <p>Price: ₹<%= item.productId.salePrice %></p>
+                    <p>Color:  <%= item.productId.colorStock[0].color %></p>
                    
                   
                 </div>
@@ -223,12 +223,12 @@
             </div>
             <% totalAmount += item.productId.salePrice * item.quantity %>
             <% }) %>
-        <p class="total">Total: $<%= totalAmount.toFixed(2) %></p>
+        <p class="total">Total: ₹<%= totalAmount.toFixed(2) %></p>
 
         <% cart.forEach(function(item,index) { %>
             <input type="hidden" name="cartItems[<%= index %>][productId]" value="<%= item.productId.productName %>">
                 <input type="hidden" name="cartItems[<%= index %>][quantity]" value="<%= item.quantity %>">
-                <input type="hidden" name="cartItems[<%= index %>][size]" value="<%= item.color %>">
+                <input type="hidden" name="cartItems[<%= index %>][size]" value="<%= item.productId.colorStock%>">
                 <input type="hidden" name="cartItems[<%= index %>][price]" value="<%= item.productId.salesPrice%>">
 
             <% })%>
@@ -262,13 +262,15 @@
                 </div>
                 <div class="payment-option">
                     <label>
-                        <input type="hidden" name="payment" value="razorpay">
+                        <input type="radio" id="razorpay"name="paymentMethod" value="razorpay">
+                        Razorpay
                        
                     </label>
                 </div>
                 <div class="payment-option">
                     <label>
-                        <input type="hidden" name="payment" value="wallet">
+                        <input type="radio" id="wallet" name="paymentMethod" value="wallet">
+                        Wallet
                         
                     </label>
                     <span class="warning"></span>
@@ -292,7 +294,127 @@
         
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script>
+
+
+
+
+<script>
+        
+        document.addEventListener('DOMContentLoaded', () => {
+    const placeOrderBtn = document.getElementById('placeOrderBtn');
+
+    placeOrderBtn.addEventListener('click', async () => {
+        const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+
+        // Validate selections
+        if (!selectedAddress) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Oops...',
+                text: 'Please select a shipping address',
+            });
+            return;
+        }
+
+        if (!selectedPaymentMethod) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Oops...',
+                text: 'Please select a payment method',
+            });
+            return;
+        }
+
+        // Show confirmation dialog
+        const result = await Swal.fire({
+            title: 'Confirm Order',
+            text: 'Are you sure you want to place this order?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Place Order',
+            cancelButtonText: 'No, Cancel',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33'
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch("/place-order", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        selectedAddress: selectedAddress.value,
+                        paymentMethod: selectedPaymentMethod.value
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Order Placed Successfully!',
+                        text: data.message,
+                        timer: 3000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = '/orderSuccess';
+                    });
+                } else {
+                    throw new Error(data.message);
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Order Failed',
+                    text: error.message || 'Something went wrong while placing the order.',
+                });
+            }
+        }
+    });
+});
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <!-- <script>
         
 document.addEventListener('DOMContentLoaded', () => {
     const placeOrderBtn = document.getElementById('placeOrderBtn');
@@ -300,8 +422,9 @@ document.addEventListener('DOMContentLoaded', () => {
     placeOrderBtn.addEventListener('click', async () => {
         const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
 
-        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
-    
+        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked')
+       
+          
         if (!selectedAddress) {
             // SweetAlert for missing address selection
             Swal.fire({
@@ -321,9 +444,26 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
                 return;
             }
+           
+            const paymentMethod = selectedPaymentMethod.value;
 
 
-
+           
+           
+            Swal.fire({
+                 icon: 'warning',
+                 title: 'Confirm Order',
+                 text: 'Are you sure you want to confirm this order?',
+                 showCancelButton: true,
+                 confirmButtonText: 'Yes, Confirm',
+                 cancelButtonText: 'No, Cancel',
+                 confirmButtonColor: '#3085d6',
+                 cancelButtonColor: '#d33'
+               }).then(async(result) => {
+                    if (result.isConfirmed) {
+                       
+           if(paymentMethod==="COD"){
+               
         try {
             const response = await fetch("/place-order", {
                 method: 'POST',
@@ -338,15 +478,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const result = await response.json();
             if (response.ok) {
-                // SweetAlert for successful order placement
+
                 Swal.fire({
                     icon: 'success',
                     title: 'Order Placed Successfully!',
                     text: 'Your order has been placed. Redirecting to order details...',
-                    timer: 3000, // Optional: Set a timer to auto-close the alert
+                    timer: 3000, 
                     showConfirmButton: false
                 }).then(() => {
-                    window.location.href = `/orderSuccess`; // Redirect after alert
+                    window.location.href = `/orderSuccess`; 
                 });
             } else {
                 // SweetAlert for failure
@@ -363,9 +503,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 icon: 'error',
                 title: 'An error occurred',
                 text: 'Something went wrong while placing the order. Please try again.',
-            });
-        }
+              });
+               }
+                        } else if(paymentMethod==="razorpay"){
+                            
+
+                        }
+                        Swal.fire(
+                            'Confirmed!',
+                             'Your order has been confirmed.',
+                              'success'
+                  );
+                   } else {
+        // Handle cancellation logic here (optional)
+                     Swal.fire(
+            'Cancelled',
+            'Your order has not been confirmed.',
+            'info'
+        );
+    }
+});
+
+
+           
+
+
+
     });
 });
-</script>
+</script> -->
 <%include("../partials/mainfooter")%>

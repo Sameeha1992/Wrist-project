@@ -195,7 +195,7 @@ const signup = async (req, res) => {
    
     const findUser = await User.findOne({ email });
     if (findUser) {
-      return res.json({ success: false, message: "user already exiss" });
+      return res.json({ success: false, message: "user already exiss" ,messageColor:"red"});
     }
 
     const otp = generateOtp();
