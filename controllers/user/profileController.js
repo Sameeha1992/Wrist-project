@@ -81,28 +81,44 @@ const getForgetPassPage = async(req,res)=>{
 const forgotEmailValid = async(req,res)=>{
   try {
     const {email} = req.body;
+
+    console.log("Received email for OTP generation:", email);
+
     const user = await User.findOne({email:email});
+    console.log("User  found:", user); // Debugging line
+
     if(user){
       const otp = generateOtp();
+      console.log("Generated OTP:", otp); // Debugging line
+
       const emailSent = await sendVerificationEmail(email,otp);
+      console.log("Email sent status:", emailSent); // Debugging line
+
       if(emailSent){ 
         const otpExpiryTime = Date.now() + 1 *   60 * 1000;
         req.session.userOtp = { otp, expiresAt: otpExpiryTime };  
         req.session.email = email;
+        console.log("Session after setting email:", req.session); // Log the entire session
+
+        console.log("Session data after setting OTP:", req.session.userOtp); // Debugging line
+
         res.render('forgetPass-Otp',{
           email,message:null});
         console.log("OTP:",otp);
       }else{
-        res.render("forget-password",{message:"Failed to sent OTP,Please try again"})
+        res.json({success:false,message:"Failed to sent OTP,Please try again"})
   
       } 
     }else{
+      console.warn("No user found with the provided email."); // Debugging line
       res.render("forget-password",{
        message:"User with this email does not exist"
       })
     }
     
   } catch (error) {
+    console.error('Error in forgotEmailValid:', error); // Log the error
+
     res.redirect("/pageNotFound")
     
   }
@@ -112,12 +128,27 @@ const forgotEmailValid = async(req,res)=>{
 const verifyForgotPassOtp= async(req,res)=>{
       try {
         const enteredOtp = req.body.otp;
+        const { otp, expiresAt } = req.session.userOtp || {}; // Get the OTP and expiry time from the session
+
+        console.log(enteredOtp,"ENTEREDOTP")
+        console.log("Stored OTP:", otp); // Log the stored OTP
+        console.log("OTP Expiry Time:", expiresAt); // Log the expiry time
         
-        if(enteredOtp ===req.session.userOtp.otp){
+
+        if (!otp || Date.now() > expiresAt) {
+          console.warn("OTP has expired or does not exist."); // Log warning
+          return res.json({ success: false, message: 'OTP has expired or does not exist' });
+      }
+
+
+
+        if(enteredOtp ===otp){
+          console.log("OTP verified successfully."); // Log success
         
           res.json({success:true,redirectUrl:"/reset-password"});
         }else{
-          res.status(400).json({success:false,message:'OTP not matching'})
+          console.warn("OTP does not match."); // Log warning
+          res.json({success:false,message:'OTP not matching'})
         }
         
       } catch (error) {
@@ -132,36 +163,25 @@ const verifyForgotPassOtp= async(req,res)=>{
 
 
 
-const resendForgetOtp = async (req, res) => {
+const resendOtp = async (req, res) => {
   try {
     
-    const { email } = req.session; 
-    if (!email) {
-      return res.json({
-        success: false,
-        message: "Email not found in session. Please request OTP again.",
-      });
-      
-    }
-
-  
-    const otp = generateOtp();
-    req.session.userOtp = otp; 
-
     
+    const otp = generateOtp();
+    const otpExpiryTime= Date.now() + 1 * 60 * 1000;
+    req.session.userOtp = {otp,expiresAt: otpExpiryTime}; 
+    const email = req.session.email;
+    console.log("Resending OTP to email:",email);
+   
     const emailSent = await sendVerificationEmail(email, otp);
     if (emailSent) {
-      console.log(`Resent OTP to ${email}: ${otp}`);
-      res.json({ success: true, message: "OTP resent successfully." });
-    } else {
-      res.json({
-        success: false,
-        message: "Failed to resend OTP. Please try again.",
-      });
-    }
+      console.log(`Resent OTP: ${otp}`);
+      res.status(200).json({ success: true, message: "Resend OTP successfully." });
+
+    } 
   } catch (error) {
     console.error("Error in resending OTP", error);
-    res.json({
+    res.status(500).json({
       success: false,
       message: "Internal Server Error. Please try again later.",
     });
@@ -186,30 +206,53 @@ const getResetPassPage = async(req,res)=>{
 
 
 
-
-//reset password:-
-const postNewPassword = async(req,res)=>{
+const postNewPassword = async (req, res) => {
   try {
-    const {newPass1,newPass2} = req.body;
-    const email = req.session.email;
-    if(newPass1===newPass2){
-      const passwordHash = await securePassword(newPass1);
-      await User.updateOne(
-        {email:email},
-        {$set:{password:passwordHash}}
-      )
-    
-    } 
       
+      console.log("Request body:", req.body); 
+
+     
+      const { newPass1, newPass2 } = req.body;
+
+     const email = req.session.email;
+
+      console.log("Email from session:", email); 
+
     
-    
+      if (newPass1 === newPass2) {
+          console.log("Passwords match. Proceeding to hash the password."); 
+
+         
+          const passwordHash = await securePassword(newPass1);
+          console.log("Hashed Password:", passwordHash); 
+
+         
+          const result = await User.updateOne(
+              { email: email }, 
+              { $set: { password: passwordHash } } 
+          );
+
+        
+          console.log("Update result:", result); 
+
+          
+          if (result.matchedCount === 0) {
+              console.warn("No user found with the provided email."); 
+              return res.json({success: false, message: 'User not found.'})
+          }
+
+          console.log("Password updated successfully.");
+          return res.json({success:false,message:"Password updated successfully"})
+               
+      } else {
+          console.warn("Passwords do not match."); 
+          res.render("reset-password", { message: 'Passwords do not match' }); 
+      }
   } catch (error) {
-    res.redirect("/pageNotFound")
-    
+      console.error("Error in postNewPassword:", error); 
+      return res.status(500).json({ success: false, message: 'An error occurred while updating the password.' }); 
   }
-}
-
-
+};
 
 
 const userProfile = async(req,res)=>{
@@ -407,7 +450,6 @@ const updateAddress = async(req,res)=>{
 
     const user = await User.findById(req.session.user);
 
-    console.log(req.body,"REQ>SESSION>USER")
 
     if(!user){
       return res.status(404).json({success:false,message:"User not found"})
@@ -470,7 +512,7 @@ const deleteAddress = async(req,res)=>{
     forgotEmailValid,
     verifyForgotPassOtp,
     getResetPassPage,
-    resendForgetOtp,
+    resendOtp,
     postNewPassword,
     userProfile,
     updateProfile,

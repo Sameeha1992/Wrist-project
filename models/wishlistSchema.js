@@ -8,10 +8,15 @@ const wishlistSchema = new Schema({
         ref:"User",
         required:true,
     },
-    products:[{
+    items:[{
         productId:{
             type:Schema.Types.ObjectId,
             ref:"Product",
+           required:true
+        },
+        color: String,
+        addedAt: {
+            type:Date,
             default:Date.now,
         }
     }]

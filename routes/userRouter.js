@@ -10,7 +10,8 @@ const userController = require("../controllers/user/userController");
 const profileController = require("../controllers/user/profileController");
 const cartController = require("../controllers/user/cartController");
 const checkoutController = require("../controllers/user/checkoutController")
-const orderController = require("../controllers/user/orderController")
+const orderController = require("../controllers/user/orderController");
+const wishlistController = require("../controllers/user/wishlistController")
 const passport = require("passport");
 
 
@@ -39,9 +40,9 @@ user_router.get("/productDetails",userController.loadProductDetail);
 user_router.get("/forget-password",profileController. getForgetPassPage);
 user_router.post("/forgot-email-valid",profileController.forgotEmailValid);
 user_router.post('/verify-passForgot-otp',profileController.verifyForgotPassOtp);
-user_router.post("/resentForgetOtp",userAuth,profileController.resendForgetOtp)
-user_router.get("/reset-password",userAuth,profileController.getResetPassPage);
-user_router.post("/reset-password",userAuth,profileController. postNewPassword)
+user_router.get("/reset-password",profileController.getResetPassPage);
+user_router.post("/resend-forgot-otp",profileController.resendOtp)
+user_router.post("/reset-password",profileController. postNewPassword)
 
 
 //Porfie Management
@@ -82,10 +83,14 @@ user_router.get("/userAddress",userAuth,profileController. loadAddressPage);
 user_router.post("/addaddress",userAuth,profileController.addAddress);
 user_router.put("/updateaddress/:id",userAuth,profileController. updateAddress)
 user_router.delete("/deleteaddress",userAuth,profileController.deleteAddress)
-// user_router.post("/update-address",userAuth,profileController.updateAddress);
 
 
 
+//Wishlist Management:-
+user_router.get("/getWishlist",userAuth,wishlistController.getWishlistPage);
+user_router.post("/addToWishlist",userAuth,wishlistController.addToWishlist);
+user_router.post("/remove-from-wishlist",userAuth,wishlistController.removeFromWishlist);
+user_router.post("/move-to-cart",userAuth,wishlistController.addToCartFromWishlist)
 
 
 user_router.get("/auth/google",

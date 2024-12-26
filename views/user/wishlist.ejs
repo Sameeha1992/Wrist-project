@@ -86,9 +86,9 @@
 </head>
 <body>
     <div class="wishlist-container">
-        <h1>WISH LIST</h1>
+        <h1>Welcome, <%= user.name%></h1>
         
-        <% if (!wishlistItems || wishlistItems.length === 0) { %>
+        <% if (!wishlist || !wishlist.items || wishlist.items.length === 0) { %>
             <div class="empty-state">
                 <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="4" y="4" width="16" height="16" rx="2" stroke="#f87171" stroke-width="2"/>
@@ -107,7 +107,6 @@
                         <th>REMOVE</th>
                         <th>IMAGES</th>
                         <th>PRODUCT</th>
-                        <th>SIZE</th>
                         <th>COLOR</th>
                         <th>UNIT PRICE</th>
                         <th>STOCK STATUS</th>
@@ -115,37 +114,38 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <% wishlistItems.forEach(item => { %>
+                    <% wishlist.items.forEach(item => { %>
+
+                        <% 
+                        
+                        const currentColorStock = item.productId.colorStock.find(color => color.color === item.color) || item.productId.colorStock[0];
+                        const isOutOfStock = currentColorStock.status === 'Out_of_Stock';
+                        %>
                         <tr>
                             <td>
-                                <button class="remove-btn" onclick="removeItem('<%= item.id %>')">×</button>
+                                <button class="remove-btn" data-product-id="<%= item.productId._id %>">Remove</button>
                             </td>
                             <td>
-                                <img src="<%= item.image %>" alt="<%= item.name %>" class="product-image">
+                                <img src="/uploads/re-image/<%= item.productId.productImage && item.productId.productImage.length > 0 ? item.productId.productImage[0] : 'default-product.png' %>" alt="<%= item.productId.productName %>" class="product-image">
                             </td>
                             <td>
-                                <div><strong><%= item.brand %></strong></div>
-                                <div><%= item.name %></div>
+                                
+                                <div><%= item.productId.productName %></div>
                             </td>
                             <td>
-                                <select>
-                                    <option value="M/L" <%= item.size === 'M/L' ? 'selected' : '' %>>M / L</option>
-                                    <option value="S/M" <%= item.size === 'S/M' ? 'selected' : '' %>>S / M</option>
-                                </select>
-                            </td>
+                                <span class="color-span"><%= item.color %></span>                             </td>
+                            <td>₹<%= item.productId.salePrice %></td>
+
                             <td>
-                                <select>
-                                    <option value="Yellow" <%= item.color === 'Yellow' ? 'selected' : '' %>>Yellow</option>
-                                    <option value="Black" <%= item.color === 'Black' ? 'selected' : '' %>>Black</option>
-                                </select>
+                                <span class="<%= isOutOfStock ? 'out-of-stock' : '' %>">
+                                    <%= currentColorStock.status %>
+                                </span>
                             </td>
-                            <td>₹<%= item.price %></td>
-                            <td class="<%= item.stockStatus === 'Out of Stock' ? 'out-of-stock' : '' %>">
-                                <%= item.stockStatus %>
-                            </td>
+                            
                             <td>
                                 <button class="add-to-cart-btn" 
-                                        <%= item.stockStatus === 'Out of Stock' ? 'disabled' : '' %>>
+                                onclick="addToCartFromWishlist('<%= item.productId._id %>', '<%= currentColorStock._id %>', '<%= item.color %>')"
+                                <%= currentColorStock.status === 'Out_of_Stock' ? 'disabled' : '' %>>
                                     ADD TO CART
                                 </button>
                             </td>
@@ -156,12 +156,180 @@
         <% } %>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
+
     <script>
-        function removeItem(itemId) {
-            // Add removal functionality here
-            console.log('Removing item:', itemId);
+
+
+        function removeItem(productId, color) {
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "Do you want to remove this product from your wishlist?",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#d33',
+                cancelButtonColor: '#3085d6',
+                confirmButtonText: 'Yes, remove it!',
+                cancelButtonText: 'Cancel'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Perform AJAX request to remove item
+                    $.ajax({
+                        url: '/remove-from-wishlist',
+                        method: 'POST',
+                        data: JSON.stringify({ productId,color }),
+                        contentType: 'application/json',
+                        success: function(response) {
+                            if (response.success) {
+                                // Show success toast
+                                Toastify({
+                                    text: "Item removed from wishlist",
+                                    duration: 3000,
+                                    close: true,
+                                    gravity: "top",
+                                    position: "right",
+                                    style: { backgroundColor: "#2ecc71" }
+                                }).showToast();
+    
+                                window.location.reload();
+
+                            } else {
+
+
+                                Toastify({
+                                    text: response.message||"Failed to remove item",
+                                    duration: 3000,
+                                    close: true,
+                                    gravity: "top",
+                                    position: "right",
+                                    style: { backgroundColor: "#e74c3c" }
+                                }).showToast();
+                            }
+                        },
+                        error: function(xhr) {
+                            // Show error toast for request failure
+                            Toastify({
+                                text: xhr.responseJSON?.message || "Failed to remove item",
+                                duration: 3000,
+                                close: true,
+                                gravity: "top",
+                                position: "right",
+                                style: { backgroundColor: "#e74c3c" }
+                            }).showToast();
+                        }
+                    });
+                }
+            });
         }
+   
+
+        document.addEventListener('DOMContentLoaded', () => {
+    // Changed from wishlist-container to wishlist-table since that's the element in your HTML
+    const wishlistTable = document.querySelector('.wishlist-table');
+    
+    if (wishlistTable) {
+        wishlistTable.addEventListener('click', (event) => {
+            if (event.target.classList.contains('remove-btn')) {
+                const productId = event.target.getAttribute('data-product-id');
+                removeItem(productId);
+            }
+        });
+    }
+});
+    
+
+
+
+function addToCartFromWishlist(productId, colorStockId, selectedColor) {
+    if (!colorStockId) {
+        Toastify({
+            text: "Color variant not found",
+            duration: 3000,
+            close: true,
+            gravity: "top",
+            position: "right",
+            style: { backgroundColor: "#e74c3c" }
+        }).showToast();
+        return;
+    }
+
+    $.ajax({
+        url: "/move-to-cart",  // New endpoint for moving from wishlist to cart
+        method: "POST",
+        contentType: 'application/json',
+        data: JSON.stringify({ 
+            productId: productId,
+            colorStockId: colorStockId
+        }),
+        success: function(response) {
+            if (response.success) {
+                Toastify({
+                    text: "Item moved to cart successfully!",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    style: { backgroundColor: "#2ecc71" }
+                }).showToast();
+
+                // Update cart count in navbar
+                const cartBadge = document.querySelector('.navbar .badge.bg-danger');
+                if (cartBadge && response.cartItemCount) {
+                    cartBadge.textContent = response.cartItemCount;
+                }
+
+                // Remove the item row from wishlist table
+                const itemRow = document.querySelector(`button[data-product-id="${productId}"]`).closest('tr');
+                itemRow.remove();
+
+                // Check if wishlist is empty after removal
+                const wishlistTable = document.querySelector('.wishlist-table tbody');
+                if (!wishlistTable.children.length) {
+                    // Show empty state
+                    const wishlistContainer = document.querySelector('.wishlist-container');
+                    wishlistContainer.innerHTML = `
+                        <div class="empty-state">
+                            <svg class="empty-state-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="4" y="4" width="16" height="16" rx="2" stroke="#f87171" stroke-width="2"/>
+                                <circle cx="18" cy="6" r="2" fill="#f87171"/>
+                            </svg>
+                            <h2>Your wishlist is empty!</h2>
+                            <p>Explore more and shortlist some items</p>
+                            <a href="/shop">
+                                <button class="start-shopping-btn">START SHOPPING</button>
+                            </a>
+                        </div>
+                    `;
+                }
+            } else {
+                Toastify({
+                    text: response.message || "Failed to move item to cart",
+                    duration: 3000,
+                    close: true,
+                    gravity: "top",
+                    position: "right",
+                    style: { backgroundColor: "#e74c3c" }
+                }).showToast();
+            }
+        },
+        error: function(xhr) {
+            Toastify({
+                text: xhr.responseJSON?.message || "Failed to move item to cart",
+                duration: 3000,
+                close: true,
+                gravity: "top",
+                position: "right",
+                style: { backgroundColor: "#e74c3c" }
+            }).showToast();
+        }
+    });
+}
     </script>
+
+
     <%include("../partials/user/footer")%>
 </body>
 </html>

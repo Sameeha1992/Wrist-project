@@ -17,6 +17,8 @@ const userAuth = async (req, res, next) => {
     }
     
    } catch (error) {
+    console.error('Error in userAuth middleware',error);
+    return res.status(500).json({message: 'Internal server error'})
     
    }
 };

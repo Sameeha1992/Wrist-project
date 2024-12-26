@@ -251,7 +251,7 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="/wishlist">
+                        <a class="nav-link" href="/getWishlist">
                             <i class="fas fa-heart"></i>
                             <span class="sr-only">Wishlist</span>
                             <% if (typeof wishlistItemCount !== 'undefined' && wishlistItemCount > 0) { %>
@@ -396,22 +396,7 @@
     <body>
         
     
-        <div id="toastContainer" aria-live="polite" aria-atomic="true" style="position: fixed; top: 20px; right: 20px; z-index: 1050;">
-            <div id="toast" class="toast" style="display: none;">
-                <div class="toast-header">
-                    <strong class="mr-auto">Notification</strong>
-                    <small>just now</small>
-                    <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="toast-body" id="toastBody">
-                    Added items to cart!
-                </div>
-            </div>
-        </div>
-    </body>
-</body>
+        
 </html>
      
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -536,7 +521,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (response.success) {
             Toastify({
                 text: response.message,
-                duration: 3000,
+                duration: 2000,
                 gravity: "top",
                 position: "right",
                 style: { 
@@ -564,7 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {
             Toastify({
                 text: response.message || "Failed to add to cart",
-                duration: 3000,
+                duration: 2000,
                 gravity: "top",
                 position: "right",
                 style: { 
@@ -588,5 +573,140 @@ document.addEventListener('DOMContentLoaded', () => {
 });
     });
 });
+
+
+
+
+document.addEventListener('DOMContentLoaded', () => {
+    const colorButtons = document.querySelectorAll('.color-button');
+    const addToWishlistBtn = document.getElementById('addToWishlistBtn');
+    
+     selectedColor = null;
+
+    // Color button selection logic
+    colorButtons.forEach(button => {
+        button.addEventListener('click', () => {
+            if (button.disabled) {
+                Toastify({
+                    text: "This color is currently out of stock. Please select another color.",
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    style: { 
+                        backgroundColor: "#e74c3c"
+                    }
+                }).showToast();
+                return;
+            }
+
+            // Remove active class from all buttons
+            colorButtons.forEach(btn => {
+                btn.classList.remove('active');
+                btn.closest('.color-button-wrapper').classList.remove('active');
+            });
+            
+            // Add active state to selected button
+            button.classList.add('active');
+            button.closest('.color-button-wrapper').classList.add('active');
+            
+            // Store selected color
+            selectedColor = {
+                color: button.dataset.color,
+                id: button.dataset.id,
+                stock: parseInt(button.dataset.stock)
+            };
+
+            console.log("selected color",selectedColor)
+        });
+    });
+
+
+
+
+    // Add to Wishlist Button Handler
+    addToWishlistBtn.addEventListener('click', () => {
+        if (!selectedColor) {
+            Toastify({
+                text: "Please select an available color first!",
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                style: { 
+                    backgroundColor: "#f39c12"
+                }
+            }).showToast();
+            return;
+        }
+
+        const productId = "<%= product._id %>";
+        const color = selectedColor.color
+
+        // Check if the selected color is in stock
+        if (selectedColor.stock <= 0) {
+            Toastify({
+                text: "Selected color is out of stock!",
+                duration: 3000,
+                gravity: "top",
+                position: "right",
+                style: { 
+                    backgroundColor: "#f39c12"
+                }
+            }).showToast();
+            return;
+        }
+
+       
+        $.ajax({
+            url: '/addToWishlist',
+            method: 'POST',
+            data: JSON.stringify({
+                productId: productId,
+               color:color
+            }),
+            contentType: 'application/json',
+            success: function(response) {
+                if (response.success) {
+                    Toastify({
+                        text: response.message,
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        style: { 
+                            backgroundColor: "#2ecc71"
+                        }
+                    }).showToast();
+
+                    const wishlistBadge = document.querySelector('.navbar .badge.bg-warning');
+                    if (wishlistBadge) {
+                        wishlistBadge.textContent = response.wishlistItemCount;
+                    }
+                } else {
+                    Toastify({
+                        text: response.message || 'Failed to add to wishlist',
+                        duration: 3000,
+                        gravity: "top",
+                        position: "right",
+                        style: {
+                            backgroundColor: "#e74c3c"
+                        }
+                    }).showToast();
+                }
+            },
+            error: function(xhr, status, error) {
+                console.error("Full error details:", xhr.responseText);
+                Toastify({
+                    text: xhr.responseJSON?.message || "An unexpected error occurred",
+                    duration: 3000,
+                    gravity: "top",
+                    position: "right",
+                    style: {
+                        backgroundColor: '#e74c3c'
+                    }
+                }).showToast();
+            }
+        });
+    });
+});
+
 
 </script>

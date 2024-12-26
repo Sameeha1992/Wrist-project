@@ -170,6 +170,24 @@
             color: #666;
             margin-top: 8px;
         }
+
+        .add-address-btn {
+            display: inline-block;
+            margin-top: 16px;
+            padding: 10px 20px;
+            background-color: #dc3545;
+            color: rgb(246, 246, 246); 
+            text-decoration: none;
+            border-radius: 4px;
+            font-size: 14px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .add-address-btn:hover {
+            background-color: #dc3545;
+        }
+
     </style>
 </head>
 <body>
@@ -204,6 +222,8 @@
             <% } else { %>
                 <p class="text-muted">No Shipping addresses available.</p>
             <% } %>
+            <a href="/userAddress" class="add-address-btn">+ Add Address</a>
+
         </div>
         <div class="order-summary">
             <h2>Order Summary</h2>

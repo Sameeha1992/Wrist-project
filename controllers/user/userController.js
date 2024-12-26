@@ -352,6 +352,7 @@ const loadProductDetail = async (req, res) => {
     
     const productId = req.query.id;
     const cartCount = 0;
+    const wishlistCount =0;
    
     const product = await Product.findById({ _id: productId });
    
@@ -367,7 +368,7 @@ const loadProductDetail = async (req, res) => {
 
 
 
-    res.render("product-details", { product,relatedProducts,cartCount});
+    res.render("product-details", { product,relatedProducts,cartCount,wishlistCount});
   }
   } catch (error) {
     console.error("Error in loading product detail:", error);

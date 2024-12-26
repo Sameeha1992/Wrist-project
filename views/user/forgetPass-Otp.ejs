@@ -4,7 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Email Verification</title>
+    <%include("../partials/mainheader")%>
     <style>
+       
+       
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         body {
             font-family: 'Inter', sans-serif;
@@ -202,28 +205,45 @@
 
 document.getElementById("otp").focus();
 
-let timer = parseInt(localStorage.getItem("timer")) || 60;
-let timerInterval;
+let timer = 60;
+let otpTimerInterval;
 
-function startTimer() {
+function updateTimerColor(percentage){
+    const timerElement = document.getElementById('timer');
+    if(percentage > 50){
+        timerElement.style.backgroundColor = '#28a745'
+    }else if(percentage >25){
+        timerElement.style.backgroundColor = '#ffc107';
+    }else {
+        timerElement.style.backgroundColor = '#dc3545';
+    }
+}
 
-    clearInterval(timerInterval);
-    document.getElementById("timer").textContent = `${timer}s`;
-    document.getElementById("otp").disabled = false;
+function startOtpTimer(){
+    const timerElement = document.getElementById('timer');
+    otpTimerInterval = setInterval(function(){
+        const minutes = Math.floor(timer/60);
+        const seconds = timer % 60;
+        timerElement.textContent = `${minutes}: ${seconds <10 ?'0' :''}${seconds}`;
+        updateTimerColor((timer/60) * 100);
+        if(--timer<0){
+            clearInterval(otpTimerInterval);
+            timerElement.textContent = 'Expired'
+            timerElement.style.backgroundColor='red';
+        }
+    },1000)
+}
+
+initializeOtpTimer();
+
+function initializeOtpTimer() {
+
+    clearInterval(otpTimerInterval);
+    timer=60;
+    startOtpTimer();
      
 
-    timerInterval = setInterval(() => {
-        timer--;
-        document.getElementById("timer").textContent =`${timer}s` ;
-        if (timer <= 0) {
-            clearInterval(timerInterval);
-            document.getElementById("timer").textContent = "Expired";
-            document.getElementById("otp").disabled = true;
-            
-        }
-    }, 1000);
 }
-startTimer();
 
 function validateOtpForm(){
     const otpInput = document.getElementById("otp").value;
@@ -241,12 +261,12 @@ function validateOtpForm(){
                 timer:1500,
 
             }).then(()=>{
-                window.location.href = '/reset-password';
+                window.location.href = response.redirectUrl;
             })
            } else{
             Swal.fire({
                 icon:"error",
-                title:'Error',
+                title:'Invalid OTP',
                 text:response.message,
 
             });
@@ -255,8 +275,8 @@ function validateOtpForm(){
         error:function(){
             Swal.fire({
                 icon:"error",
-                title:"Invalid OTP",
-                text:"Please try again"
+                title:"Error",
+                text:"Failed to verify OTP. Please try again"
             })
         }
     })
@@ -265,36 +285,23 @@ function validateOtpForm(){
 
 
 function resendOTP(){
-    const emailElement = document.getElementById("email");
-    const email = emailElement.textContent.trim(); 
-    console.log(email,'email')
 
-    if(timer>0){
-        Swal.fire({
-            icon:"info",
-            title:"Wait",
-            text:"You can only resend  the OTP after it expires"
-        });
-        return;
-    }
-
+    clearInterval(otpTimerInterval);
     timer =60;
-    document.getElementById("otp").disabled = false;
-    document.getElementById("timer").textContent=`${timer}s`;
-    startTimer();
-
+    startOtpTimer();
+    
+    
     
     $.ajax({
 
         type:"POST",
-        url:"/resend-otp", 
-        contentType: "application/json",
-        data: JSON.stringify({ email: "user@example.com" }),
+        url:"/resend-forgot-otp", 
+        
         success:function(response){
             if(response.success){
                 Swal.fire({
                     icon:"success",
-                    title:"OTP resend Successfully",
+                    title:"Resend OTP Successfully",
                     showConfirmButton:false,
                     timer:1500,
                 })
@@ -302,14 +309,25 @@ function resendOTP(){
                 Swal.fire({
                 icon:"error",
                 title:"Error",
-                text:"An error occured while resending OTP.Please try again",
+                text:"Failed to resend OTP. Please try again",
 
                 })
             }
+        },
+        error:function (){
+
+            Swal.fire({
+                icon:"error",
+                title:'Error',
+                text:'Failed to resend OTP. Please try again'
+            })
         }
     })
     return false;
 }
+</script>
+
+<%-include("../partials/mainfooter")%>
 
 
 
@@ -320,174 +338,6 @@ function resendOTP(){
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // document.getElementById("otp").focus();
-       
-            
-        //     let timeInterval;
-        //     let timer = 60;
-
-        //     function updateTimerColor(percentage){
-        //         const timerElement = document.getElementById('timer');
-        //         if(percentage >50){
-        //             timerElement.style.backgroundColor = '#28a745';
-
-        //         } else if(percentage>25){
-        //             timerElement.style.backgroundColor = '#ffc107';
-        //         } else {
-        //             timerElement.style.backgroundColor = '#dc3545';
-        //         }
-        //     }
-
-        //     function startOtpTimer(){
-        //         document.getElementById("timer").textContent=timer;
-        //         const resendBtn =document.getElementById("resendBtn");
-               
-
-        //         otpTimerInterval = setInterval(function(){
-        //             const minutes = Math.floor(timer/60);
-        //             const seconds = timer % 60;
-        //             timerElement.textContent = `${minutes}:${seconds<10 ? '0':''}${seconds}`
-        //              updateTimerColor((timer/60)*100);
-
-
-        //             if(--timer <0){
-        //                 clearInterval(otpTimerInterval);
-        //                 timerElement.textContent = 'Expired';
-        //                 timerElement.style.backgroundColor= 'red';
-        //                 resendBtn.disabled = false;
-        //                 localStorage.removeItem('otpTimer');
-        //             }
-        //         },1000);
-
-        //     }
-
-         
-
-
-        //     function initializeOtpTimer(){
-        //         clearInterval(otpTimerInterval);
-        //         timer = 60;
-        //         localStorage.setItem('otpTimer',timer);
-        //         startOtpTimer();
-        //     }
-
-        //     function validateOtpForm(){
-        //         const otpInput = document.getElementById('otp').value;
-
-        //         $.ajax({
-        //             type:"POST",
-        //             url:'/verify-passForgot-otp',
-        //             data:{otp:otpInput},
-        //             success:function(response){
-        //                 if(response.success){
-                            
-
-        //                     Swal.fire({
-
-        //                         icon:"success",
-        //                         title:'OTP Verfied Successfully',
-        //                         showConfirmButton:false,
-        //                         timer:1500
-        //                     }).then(()=>{
-        //                         localStorage.removeItem('otpTimer')
-        //                         window.location.href= '/reset-password';
-        //                     })
-        //                 } else{
-        //                     Swal.fire({
-        //                         icon:'error',
-        //                         title:'Invalid OTP',
-        //                         text:response.message
-        //                     })
-        //                 }
-        //             },
-        //             error: function(){
-        //                 Swal.fire({
-        //                    icon:'error',
-        //                    title:'Error',
-        //                    text:'Failed to verify OTP,Please try again' 
-        //                 })
-
-        //             }
-        //         });
-        //         return false
-        //     }
-
-        //     document.getElementById('resendBtn').addEventListener('click',function(){
-        //         const resendBtn = this;
-        //         if(timer>0){
-        //             Swal.fire({
-        //                 icon:'info',
-        //                 title:'Please wait',
-        //                 text:'You can resend OTP after the timer expires.'
-        //             });
-        //             return;
-        //         }
-
-        //      $.ajax({
-        //         type:"POST",
-        //         url:'/resend-otp',
-        //         success:function (response){
-        //             if(response.success){
-        //                 Swal.fire({
-        //                     icon:"success",
-        //                     title:'OTP Resend successfully',
-        //                     showConfirmButton:false,
-        //                     timer:1500
-        //                 });
-        //                 initializeOtpTimer(); 
-        //             } else{
-        //                 Swal.fire({
-        //                     icon:'error',
-        //                     title:'Error',
-        //                     text:response.message
-        //                 });
-        //             }
-        //         },
-        //         error:function(){
-        //             Swal.fire({
-        //                 icon:'error',
-        //                 title:'Error',
-        //                 text:'Failed to resend OTP.Please try again.'
-        //             });
-        //         }
-        //      });
-        //      if(timer>0){
-        //         startOtpTimer();
-        //      }
-
-        //     })
-
-            
 </script>
 
 </body>
