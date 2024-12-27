@@ -71,6 +71,8 @@ const loadCart = async (req, res) => {
 
 const addToCart = async (req, res) => {
   try {
+
+    console.log('heloooo')
     if (!req.session.user) {
       return res.status(401).json({
         success: false,
@@ -79,7 +81,8 @@ const addToCart = async (req, res) => {
     }
 
     const userId = req.session.user;
-    const { productId, quantity, colorStockId } = req.body;
+    const { productId, quantity, colorStockId,origin,wishlistId} = req.body;
+    console.log(req.body,'req bodydyy')
     const maxLimit = 5;
 
     const product = await Product.findById(productId);
@@ -90,6 +93,7 @@ const addToCart = async (req, res) => {
       });
     }
 
+   
     const colorStock = product.colorStock.id(colorStockId);
     if (!colorStock) {
       return res.status(404).json({
@@ -137,6 +141,36 @@ const addToCart = async (req, res) => {
         { $set: { quantity: newQuantity } }
       );
 
+
+      console.log(origin,'porgingnngn')
+      if(origin==="wishlist"){
+        const userObjectId = new mongoose.Types.ObjectId(userId);
+                const productObjectId = new mongoose.Types.ObjectId(productId);
+            console.log(userObjectId,'userObjectId')
+            console.log(productObjectId,'productObjectId')
+
+                const result = await Wishlist.updateOne(
+                  {userId:userObjectId},
+                  {
+                      $pull: {
+                          items:{
+                              productId:productObjectId,
+                            
+                          }
+                      }
+                  }
+              )
+              
+        console.log('whislliss update after cart update',result)
+        const updatedWishlist = await Wishlist.findOne({userId:userObjectId});
+
+
+        console.log(updatedWishlist,"updated wishlist")
+        const wishlistCount = updatedWishlist ? updatedWishlist.items.length :0;
+
+        console.log(wishlistCount,"My wishlist count")
+
+      }
       const cartItemCount = await Cart.countDocuments({ userId });
       
       return res.status(200).json({
@@ -164,7 +198,34 @@ const addToCart = async (req, res) => {
       await newCartItem.save();
 
      
+      if(origin==="wishlist"){
+        const userObjectId = new mongoose.Types.ObjectId(userId);
+        const productObjectId = new mongoose.Types.ObjectId(productId);
+        console.log(userObjectId,'userObjectId')
+console.log(productObjectId,'productObjectId')
 
+                const result = await Wishlist.updateOne(
+                  {userId:userObjectId},
+                  {
+                      $pull: {
+                          items:{
+                              productId:productObjectId,
+                            
+                          }
+                      }
+                  },{new:true}
+              )
+              
+        console.log('whislliss update after cart update',result)
+        const updatedWishlist = await Wishlist.findOne({userId:userObjectId});
+
+
+        console.log(updatedWishlist,"updated wishlist")
+        const wishlistCount = updatedWishlist ? updatedWishlist.items.length :0;
+
+        console.log(wishlistCount,"My wishlist count")
+
+      }
       const cartItemCount = await Cart.countDocuments({ userId });
 
       return res.status(200).json({
@@ -271,7 +332,10 @@ const deleteCart = async (req, res) => {
     }
 
     const userId = req.session.user;
+
+    console.log(userId,"USer id of the cart delete")
     const { cartItemId } = req.body;
+    console.log(req.body,"req.boy of the cart delete")
 
     if (!cartItemId) {
       return res.status(400).json({
@@ -292,7 +356,7 @@ const deleteCart = async (req, res) => {
       });
     }
 
-    const cartQuantity = cartItem?.quantity;
+   
     const productId = cartItem?.productId?._id;
 
     await Cart.findByIdAndDelete(cartItemId);
@@ -303,10 +367,13 @@ const deleteCart = async (req, res) => {
       userId: userId,
     }).populate("productId");
 
-    const newTotalAmount = remainingCartItems.reduce(
-      (total, item) => total + item.productId.salePrice * item.quantity,
-      0
-    );
+    const newTotalAmount = remainingCartItems.reduce((total, item) => {
+      if (item.productId && item.productId.salePrice) {
+        return total + item.productId.salePrice * item.quantity;
+      }
+      return total;
+    }, 0);
+    
 
     return res.status(200).json({
       success: true,

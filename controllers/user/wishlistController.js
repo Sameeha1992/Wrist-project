@@ -2,7 +2,8 @@
 const User = require("../../models/userSchema");
 const Wishlist = require("../../models/wishlistSchema");
 const Cart = require("../../models/cartSchema")
-const Product = require("../../models/productSchema")
+const Product = require("../../models/productSchema");
+const {addToCart} = require("../user/cartController")
 const mongoose = require("mongoose");
 
 const getWishlistPage = async(req,res)=>{
@@ -16,11 +17,14 @@ const getWishlistPage = async(req,res)=>{
         if(!userData){
             return res.status(404).render("404",{message:"User not found"})
         }
+const wishListData = await Wishlist.findOne({ userId: userData._id })
+    .populate({
+        path: "items.productId",
+        model: "Product",
+        select: "productName productImage salePrice colorStock", 
+    });
 
-        const wishListData = await Wishlist .findOne({userId:userData._id})
-        .populate({path: "items.productId",model:"Product",
-            select:"productName productImage salePrice colorStock brand status"
-        });
+console.log(wishListData, "wishlist dataaaaaaaa"); 
 
 
         if(!wishListData){
@@ -35,8 +39,9 @@ const getWishlistPage = async(req,res)=>{
             return !item.productId.isBlocked;
         })
         wishListData.items=filteredItems;
+       
 
-        res.render("wishlist",{user:userData, wishlist:wishListData})
+        res.render("wishlist",{user:userData,wishlist:wishListData})
         
 
        
@@ -53,21 +58,16 @@ const addToWishlist = async (req, res) => {
         const userId = req.session.user; 
         const { productId, color } = req.body;
 
-
         
-
        
         let wishlist = await Wishlist.findOne({ userId });
 
-       
-
-       
         if (!wishlist) {
             wishlist = new Wishlist({ userId, items: [] });
         }
 
         
-        const productExists = wishlist.items.some(item => item.productId.toString() === productId && item.color === color);
+        const productExists = wishlist.items.some(item => item.productId.toString() === productId);
         if (productExists) {
             return res.status(400).json({ success: false, message: "Product already exists in the wishlist" });
         }
@@ -169,122 +169,10 @@ const removeFromWishlist = async(req,res)=>{
 
 
 
-const addToCartFromWishlist = async (req, res) => {
-    try {
-        if (!req.session.user) {
-            return res.status(401).json({
-                success: false,
-                message: "Please login to add items to cart"
-            });
-        }
-
-        const userId = req.session.user;
-        const { productId, colorStockId } = req.body;
-        const quantity = 1; // Default quantity when adding from wishlist
-        const maxLimit = 5;
-
-        // Find the product
-        const product = await Product.findById(productId);
-        if (!product || product.isBlocked) {
-            return res.status(404).json({
-                success: false,
-                message: "Product is unavailable"
-            });
-        }
-
-        // Verify color stock
-        const colorStock = product.colorStock.id(colorStockId);
-        if (!colorStock) {
-            return res.status(404).json({
-                success: false,
-                message: "Color variant not found"
-            });
-        }
-
-        // Check stock availability
-        if (quantity > colorStock.quantity) {
-            return res.status(400).json({
-                success: false,
-                message: `Only ${colorStock.quantity} items available in this color`
-            });
-        }
-
-        // Check if item already exists in cart
-        const existingCartItem = await Cart.findOne({
-            userId,
-            productId,
-            colorStockId
-        });
-
-        let cartResult;
-        if (existingCartItem) {
-            const newQuantity = existingCartItem.quantity + quantity;
-
-            // Check quantity limits
-            if (newQuantity > maxLimit) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Maximum limit of ${maxLimit} items exceeded`
-                });
-            }
-
-            if (newQuantity > colorStock.quantity) {
-                return res.status(400).json({
-                    success: false,
-                    message: `Cannot add more items. Only ${colorStock.quantity} available in this color`
-                });
-            }
-
-            // Update existing cart item
-            cartResult = await Cart.updateOne(
-                { _id: existingCartItem._id },
-                { $set: { quantity: newQuantity } }
-            );
-        } else {
-            // Create new cart item
-            const newCartItem = new Cart({
-                userId,
-                productId,
-                categoryId: product.category,
-                colorStockId,
-                quantity
-            });
-            cartResult = await newCartItem.save();
-        }
-
-        // Remove item from wishlist
-        await Wishlist.updateOne(
-            { userId },
-            { $pull: { items: { productId: productId } } }
-        );
-
-        // Get updated cart count
-        const cartItemCount = await Cart.countDocuments({ userId });
-
-        return res.status(200).json({
-            success: true,
-            message: "Product moved to cart successfully!",
-            cartItemCount
-        });
-
-    } catch (error) {
-        console.error("Error moving item from wishlist to cart:", error);
-        return res.status(500).json({
-            success: false,
-            message: "Internal server error",
-            errorDetails: error.message
-        });
-    }
-};
-
-
-
-
-
 
 module.exports={
     getWishlistPage,                                                           
     addToWishlist,
     removeFromWishlist,
-    addToCartFromWishlist,
+    
 }

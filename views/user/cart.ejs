@@ -96,13 +96,16 @@
               </tr>
             </thead>
             <tbody>
-              <% if (cart && cart.length > 0) { %> <% cart.forEach((item) => {
+              <% if (cart && cart.length > 0){ %>
+                <% let hasUnavailableProduct = false; %>
+                <% cart.forEach((item) => { %>
               %> <% if (item.error) { %>
               <tr>
                 <td colspan="6" class="text-danger text-center">
                   <%= item.error %>
                 </td>
               </tr>
+              <% hasUnavailableProduct = true; %>
               <% } else { %>
               <tr
                 class="product-container"

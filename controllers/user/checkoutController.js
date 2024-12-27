@@ -94,7 +94,7 @@ const placeOrder = async (req, res) => {
             );
 
             if (!colorStock) {
-                throw new Error(`Color variant not found for product ${product.productName}`);
+                throw new Error(`Product not found ${product.productName}`);
             }
 
            
@@ -142,8 +142,6 @@ const placeOrder = async (req, res) => {
             return res.status(400).json({message:'Invalid total amount'})
         }
 
-
-        
         
         const newOrder = new Order({
             userId,

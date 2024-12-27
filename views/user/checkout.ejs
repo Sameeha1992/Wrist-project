@@ -373,18 +373,22 @@
 
                 const data = await response.json();
                 
-                if (data.success) {
+                if (response.ok) {
                     Swal.fire({
                         icon: 'success',
-                        title: 'Order Placed Successfully!',
-                        text: data.message,
+                        title: 'Order Placed',
+                        text: 'Yor order placed successfully',
                         timer: 3000,
                         showConfirmButton: false
                     }).then(() => {
                         window.location.href = '/orderSuccess';
                     });
                 } else {
-                    throw new Error(data.message);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Something went wrong. Please try again.',
+                    });
                 }
             } catch (error) {
                 Swal.fire({

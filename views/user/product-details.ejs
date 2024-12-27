@@ -507,6 +507,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const quantity = parseInt(quantityInput.value || 1);
         const colorStockId = selectedColor.id;
 
+        console.log(colorStockId,"clorstockid")
+
         // AJAX request to add to cart
         $.ajax({
          url: '/addcart',

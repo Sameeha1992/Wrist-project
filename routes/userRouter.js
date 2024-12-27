@@ -90,7 +90,7 @@ user_router.delete("/deleteaddress",userAuth,profileController.deleteAddress)
 user_router.get("/getWishlist",userAuth,wishlistController.getWishlistPage);
 user_router.post("/addToWishlist",userAuth,wishlistController.addToWishlist);
 user_router.post("/remove-from-wishlist",userAuth,wishlistController.removeFromWishlist);
-user_router.post("/move-to-cart",userAuth,wishlistController.addToCartFromWishlist)
+
 
 
 user_router.get("/auth/google",
