@@ -109,9 +109,7 @@
                         <th>REMOVE</th>
                         <th>IMAGES</th>
                         <th>PRODUCT</th>
-                        <th>COLOR</th>
                         <th>UNIT PRICE</th>
-                        <th>STOCK STATUS</th>
                         <th>ADD TO CART</th>
                     </tr>
                 </thead>
@@ -139,21 +137,17 @@
                                 
                                 <div><%= item.productId.productName %></div>
                             </td>
-                            <td>
-                                <span class="color-span"><%= item.color %></span>                             </td>
+                           
                             <td>₹<%= item.productId.salePrice %></td>
 
-                            <td>
-                                <span class="<%= isOutOfStock ? 'out-of-stock' : '' %>">
-                                    <%= currentColorStock.status %>
-                                </span>
-                            </td>
+                           
                             
                             <td>
-                                <button class="add-to-cart-btn" data-product-id="<%= item.productId._id %>" data-color-stock-id="<%= currentColorStock._id%>" data-quantity="1"
-                                onclick="addToCartFromWishlist(this)"
-                                <%= currentColorStock.status === 'Out_of_Stock' ? 'disabled' : '' %>>
-                                    ADD TO CART
+                                <button 
+                                   class="btn btn-primary" 
+                                   onclick="window.location.href='/productDetails?id=<%= item.productId._id %>'"
+>
+                                     View Product
                                 </button>
                             </td>
                         </tr>

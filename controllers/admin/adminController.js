@@ -64,14 +64,14 @@ const loadDashboard = async (req,res)=>{
 
 const logout=async(req,res)=>{
   try {
-    req.session.destroy(err=>{
-      if(err){
-        return res.redirect("/pageerror")
-        
-      }
+    
+    if(req.session.admin_id) {
+      delete req.session.admin_id
+
+    }
+     
       res.redirect("/admin/login")
-      console.log("logout aakum");
-    })
+          
   
   } catch (error) {
     console.log("unexpected error during logout");

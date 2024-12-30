@@ -21,12 +21,19 @@ const LoadCheckout = async(req,res)=>{
         .populate('categoryId')
         .populate('colorStockId')
       
+        const blockedProducts = cartDetails.filter(cartItem => cartItem.productId.isBlocked)
+        const filteredCartDetails = cartDetails.filter(cartItem => !cartItem.productId.isBlocked);
+
+        if(blockedProducts.length > 0){
+            return res.redirect("/cart")
+        }
 
 
         res.render("checkout",{
-            cart: cartDetails,
+            cart: filteredCartDetails,
             address:user.address,
-            user:user
+            user:user,
+            blockedProducts: blockedProducts || [] 
         })
         
     } catch (error) {
@@ -47,7 +54,7 @@ const placeOrder = async (req, res) => {
         const cartItems = await Cart.find({ userId: userId })
             .populate({
                 path: 'productId',
-                select: 'productName salePrice productImage colorStock'
+                select: 'productName salePrice productImage colorStock isBlocked'
             })
             .populate({
                 path: 'colorStockId',
@@ -66,9 +73,20 @@ const placeOrder = async (req, res) => {
             return res.status(400).json({ message: 'Cart is empty' });
         }
 
+
+        const blockedProducts = cartItems.filter(item => item.productId.isBlocked);
+
+        if(blockedProducts.length >0){
+            return res.status(400).json({message: "Some products in your cart are blocked by admin and cannot be purchased"})
+        }
+
        
         
         const currentUser = await User.findById(userId);
+
+        if(! currentUser){
+            return res.status(404).json({message: 'User not found'})
+        }
         const shippingAddress = currentUser.address.find(
             addr => addr._id.toString() === selectedAddress
         );
@@ -127,7 +145,7 @@ const placeOrder = async (req, res) => {
                 color: colorStock.color, 
                 price: cartItem.productId.salePrice,
                 totalPrice: cartItem.productId.salePrice * cartItem.quantity,
-                colorStockId: cartItem.colorStockId._id // Adding this to ensure all required fields are present
+                colorStockId: cartItem.colorStockId._id 
             };
 
           

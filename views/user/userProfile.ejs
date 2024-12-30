@@ -1,4 +1,5 @@
 <%- include("../partials/user/profileHead") %>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
 
 <style>
 :root {
@@ -190,12 +191,43 @@ body {
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <script>
+
+
+function showToast(message, color) {
+    Toastify({
+      text: message,
+      duration: 3000,
+      gravity: "top", 
+      position: "center", 
+      backgroundColor: color,
+      stopOnFocus: true, 
+    }).showToast();
+  }
+
+
+
+
+
   function submitProfileForm(event) {
     event.preventDefault();
 
     const formData = new FormData(document.getElementById('editProfileForm'));
     const data = Object.fromEntries(formData.entries());
+
+    if(!data.name.trim()) {
+      showToast("Name cannot be empty. Please enter a valid name.", "red");
+      return;
+    }
+
+    if (
+  data.phone.trim() && 
+  (!/^[1-9][0-9]{9}$/.test(data.phone)) // Ensure the phone starts with a non-zero digit and has exactly 10 digits
+) {
+  showToast("Invalid phone number. Please enter a valid 10-digit number starting with a non-zero digit.", "orange");
+  return;
+}
 
     $.ajax({
       url: '/update-profile',
@@ -203,20 +235,23 @@ body {
       contentType: 'application/json',
       data: JSON.stringify(data),
       success: function(response) {
+        console.log("AJAX success:", response);
         if (response.success) {
-          alert('Profile updated successfully!');
+          showToast('Profile updated successfully!', 'green');
           $('#editProfileModal').modal('hide');
           location.reload();
         } else {
-          alert('Error updating profile.');
+          showToast('Error updating profile.', 'orange');
         }
       },
       error: function(error) {
         console.error('Error:', error);
-        alert('An error occurred while updating the profile.');
+        showToast('An error occurred while updating the profile.', 'red');
       }
     });
   }
+
+  
 </script>
 
 <%- include("../partials/mainfooter") %>

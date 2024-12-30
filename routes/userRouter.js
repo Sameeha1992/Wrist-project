@@ -1,6 +1,7 @@
 const usermiddleware = require("../middlewares/auth");
 
 const {userAuth,adminAuth} = require("../middlewares/auth");
+const {isLogout} =require("../middlewares/auth")
 
 
 
@@ -17,30 +18,30 @@ const passport = require("passport");
 
 //Homepage
 user_router.get("/",userAuth,userController.loadLandingPage);
-user_router.get("/home",userController.loadHomepage);
-user_router.get("/shop",userController.loadShoppingPage)
+user_router.get("/home",userAuth,userController.loadHomepage);
+user_router.get("/shop",userAuth,userController.loadShoppingPage)
 
 
 
 user_router.get("/signup",userController.loadSignup);
 user_router.post("/signup", userController.signup);
 
-user_router.get("/login",userController.loadLogin)
+user_router.get("/login",isLogout,userController.loadLogin)
 user_router.post("/login",userController.login)
 user_router.get("/logout",userController.logout);
-user_router.get("/verify-otp", userController.getotp);
-user_router.post("/verify-otp", userController.verifyOtp);
-user_router.post("/resend-otp", userController.resendOtp);
+user_router.get("/verify-otp",isLogout, userController.getotp);
+user_router.post("/verify-otp",isLogout, userController.verifyOtp);
+user_router.post("/resend-otp",isLogout, userController.resendOtp);
 
-user_router.get("/productDetails",userController.loadProductDetail);
+user_router.get("/productDetails",userAuth,userController.loadProductDetail);
 
 
 
 //Profile Management
-user_router.get("/forget-password",profileController. getForgetPassPage);
+user_router.get("/forget-password",isLogout,profileController. getForgetPassPage);
 user_router.post("/forgot-email-valid",profileController.forgotEmailValid);
 user_router.post('/verify-passForgot-otp',profileController.verifyForgotPassOtp);
-user_router.get("/reset-password",profileController.getResetPassPage);
+user_router.get("/reset-password",isLogout,profileController.getResetPassPage);
 user_router.post("/resend-forgot-otp",profileController.resendOtp)
 user_router.post("/reset-password",profileController. postNewPassword)
 

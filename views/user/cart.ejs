@@ -77,6 +77,16 @@
   .btn-black:hover {
     background-color: #333;
   }
+
+  .btn-black:disabled {
+    background-color: #666 !important;
+    cursor: not-allowed;
+    opacity: 0.7;
+  }
+  
+  .btn-black:disabled:hover {
+    background-color: #666 !important;
+  }
 </style>
 
 <div class="untree_co-section before-footer-section">
@@ -97,15 +107,15 @@
             </thead>
             <tbody>
               <% if (cart && cart.length > 0){ %>
-                <% let hasUnavailableProduct = false; %>
+                
                 <% cart.forEach((item) => { %>
               %> <% if (item.error) { %>
               <tr>
                 <td colspan="6" class="text-danger text-center">
-                  <%= item.error %>
+                  <strong><%= item.productId.productName %></strong> - <%= item.error %>
                 </td>
               </tr>
-              <% hasUnavailableProduct = true; %>
+             
               <% } else { %>
               <tr
                 class="product-container"
@@ -227,9 +237,19 @@
                   class="btn btn-black btn-lg py-3 btn-block"
                   style="background-color: black; color: white"
                   onclick="window.location='/checkout'"
+
+                  <% if (!hasAvailableProducts || cart.some(item => item.error)) { %>
+                    disabled
+                    style="background-color: #666; color: white; cursor: not-allowed"
+                  <% } %>
                 >
                   Proceed To Checkout
                 </button>
+                <% if (!hasAvailableProducts || cart.some(item => item.error)) { %>
+                  <p class="text-danger text-center mt-2">
+                    <%= !cart.length ? "Your cart is empty" : "Some items in your cart are unavailable. Please remove them to proceed." %>
+                  </p>
+                <% } %>
               </div>
             </div>
             <% } else { %>
@@ -266,7 +286,7 @@
       const increaseBtn = container.find(".increase");
       const quantityInput = container.find(".quantity-amount");
       const cartItemId = container.data("cart-item-id");
-      const totalCell = container.find("td:nth-child(5)"); // Total price cell
+      const totalCell = container.find("td:nth-child(5)");
       const initialPrice = parseFloat(
         container.find("td:nth-child(3)").text().replace("₹", "")
       );

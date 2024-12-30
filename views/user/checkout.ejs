@@ -227,6 +227,20 @@
         </div>
         <div class="order-summary">
             <h2>Order Summary</h2>
+            <% if (blockedProducts.length > 0) { %>
+                <div class="alert alert-warning">
+                    Some products in your cart are blocked by the admin and cannot be purchased.
+                </div>
+                <ul class="list-group">
+                    <% blockedProducts.forEach(item => { %>
+                        <li class="list-group-item">
+                            <strong><%= item.productId.productName %></strong>
+                            <p>Blocked by admin</p>
+                        </li>
+                    <% }) %>
+                </ul>
+            <% } else { %>
+
             <% let totalAmount=0; %>
             <% cart.forEach(item => {%>
             <div class="product-details">
@@ -304,6 +318,8 @@
             >
                 Place Order
             </button>
+
+            <% } %>
         </div>
     </div>
 
@@ -322,6 +338,7 @@
         
         document.addEventListener('DOMContentLoaded', () => {
     const placeOrderBtn = document.getElementById('placeOrderBtn');
+    
 
     placeOrderBtn.addEventListener('click', async () => {
         const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');

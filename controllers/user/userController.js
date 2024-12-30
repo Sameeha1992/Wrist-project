@@ -242,35 +242,92 @@ const securePassword = async (password) => {
 
 
 
+
+
 const verifyOtp = async (req, res) => {
   try {
     const { otp } = req.body;
-    if (otp === req.session.userOtp.otp) {
-    console.log("userOtp otp", req.session.userOtp.otp);
-
-      const user = req.session.userData;
-      const passwordHash = await securePassword(user.password);
-      const saveUserData = new User({
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        password: passwordHash,
-      });
-      await saveUserData.save();
-      req.session.user = saveUserData._id;
-      console.log(req.session.user);
-
-      res.json({ success: true });
-    } else {
-      res
-        .status(400)
-        .json({ success: false, message: "Invalid OTP,Please try again" });
+    
+    // Get OTP and expiration from session
+    const { userOtp } = req.session;
+    if (!userOtp) {
+      return res.status(400).json({ success: false, message: "OTP not generated. Please request OTP again." });
     }
+
+    const { otp: savedOtp, expiresAt } = userOtp;
+
+    // Check if OTP is expired
+    if (Date.now() > expiresAt) {
+      return res.status(400).json({ success: false, message: "OTP expired. Please request a new OTP." });
+    }
+
+    // Validate OTP
+    if (savedOtp !== otp) {
+      return res.status(400).json({ success: false, message: "Invalid OTP. Please try again." });
+    }
+
+    // OTP is valid, proceed with user registration
+    const user = req.session.userData;
+    const passwordHash = await securePassword(user.password);
+    const newUser = new User({
+      name: user.name,
+      email: user.email,
+      phone: user.phone,
+      password: passwordHash,
+    });
+    await newUser.save();
+
+    // Save the user in the session
+    req.session.user = newUser._id;
+
+    // Clear OTP session data after successful verification
+    delete req.session.userOtp;
+    delete req.session.userData;
+
+    console.log("User registered successfully:", req.session.user);
+    res.json({ success: true, message: "Signup successful! You can now log in." });
   } catch (error) {
-    console.error("Error Verifying OTP", error);
-    res.status(500).json({ success: false, message: "An error occured" });
+    console.error("Error verifying OTP:", error);
+    res.status(500).json({ success: false, message: "An error occurred" });
   }
 };
+
+
+
+
+
+// const verifyOtp = async (req, res) => {
+//   try {
+//     const { otp } = req.body;
+//     if (otp === req.session.userOtp.otp) {
+//     console.log("userOtp otp", req.session.userOtp.otp);
+
+//       const user = req.session.userData;
+//       const passwordHash = await securePassword(user.password);
+//       const saveUserData = new User({
+//         name: user.name,
+//         email: user.email,
+//         phone: user.phone,
+//         password: passwordHash,
+//       });
+//       await saveUserData.save();
+//       req.session.user = saveUserData._id;
+//       console.log(req.session.user);
+
+//       res.json({ success: true });
+//     } else {
+//       res
+//         .status(400)
+//         .json({ success: false, message: "Invalid OTP,Please try again" });
+//     }
+//   } catch (error) {
+//     console.error("Error Verifying OTP", error);
+//     res.status(500).json({ success: false, message: "An error occured" });
+//   }
+// };
+
+
+
 
 //Resend OTP
 
@@ -457,7 +514,7 @@ const logout = async (req, res) => {
           query.category = category;
         }
         if(search) {
-          query.productName = {$regex:search,$options:"i"}
+          query.productName = { $regex: `^${search}`, $options: "i" }; 
         }
         const totalProducts = await Product.countDocuments(query);
 
@@ -467,16 +524,16 @@ const logout = async (req, res) => {
         if(sort){
           switch (sort) {
             case "price-low-high":
-              sortCriteria.salePrice = 1; // Ascending
+               sortCriteria = { salePrice: 1 }; 
               break;
             case "price-high-low":
-              sortCriteria.salePrice = -1; // Descending
+              sortCriteria={salePrice :-1}; 
               break;
             case "name-az":
-              sortCriteria.productName = 1; // Ascending
+              sortCriteria={productName : 1}; 
               break;
             case "name-za":
-              sortCriteria.productName = -1; // Descending
+              sortCriteria={productName: -1}; 
               break;
           }
         }  else{
@@ -488,7 +545,7 @@ const logout = async (req, res) => {
         .skip(skip)
         .limit(limit);
        
-       
+       console.log('hoooooooooooo',productData,"product data")
         
         const categories = await Category.find({isListed:true});
         const totalPages = Math.ceil(totalProducts/limit);

@@ -171,6 +171,9 @@
             <p>Enter the OTP sent to your email</p>
             <form onsubmit="return validateOtpForm()" id="otpForm">
                 <div class="form-group">
+
+                    <p hidden id="email">Your registered email: <%= email %></p>
+
                     <label for="otp">Enter OTP:</label>
                     <input type="text" id="otp" name="otp" required aria-describedby="otpHelp">
                     <p class="help-text" id="otpHelp">Enter the 6-digit code sent to your email</p>
@@ -205,8 +208,16 @@
 
 document.getElementById("otp").focus();
 
-let timer = 60;
+let timer = localStorage.getItem('otpTimer') ? parseInt(localStorage.getItem('otpTimer')) : 60; 
 let otpTimerInterval;
+
+
+if(localStorage.getItem('otpTimer')) {
+    timer = parseInt(localStorage.getItem('otpTimer'));
+} else {
+
+    localStorage.setItem('otpTimer',timer)
+}
 
 function updateTimerColor(percentage){
     const timerElement = document.getElementById('timer');
@@ -221,30 +232,51 @@ function updateTimerColor(percentage){
 
 function startOtpTimer(){
     const timerElement = document.getElementById('timer');
+    const resendButton = document.getElementById('resendBtn');
+
+    resendButton.disabled = true;
+    resendButton.classList.add('resend-btn-disabled');
+
     otpTimerInterval = setInterval(function(){
         const minutes = Math.floor(timer/60);
         const seconds = timer % 60;
         timerElement.textContent = `${minutes}: ${seconds <10 ?'0' :''}${seconds}`;
         updateTimerColor((timer/60) * 100);
-        if(--timer<0){
+        timer--;
+
+        localStorage.setItem('otpTimer',timer);
+
+        if(timer<0){
             clearInterval(otpTimerInterval);
             timerElement.textContent = 'Expired'
             timerElement.style.backgroundColor='red';
+            resendButton.disabled = false;
+            resendButton.classList.remove('resend-btn:disabled');
+            localStorage.removeItem('otpTimer')
         }
     },1000)
 }
 
-initializeOtpTimer();
+
 
 function initializeOtpTimer() {
 
     clearInterval(otpTimerInterval);
-    timer=60;
-    startOtpTimer();
+    if(timer>0){
+        startOtpTimer();
+    } else {
+        timer=60;
+        localStorage.setItem('otpTimer',timer)
+        startOtpTimer();
+
+    }
+   
      
 
 }
 
+
+initializeOtpTimer();
 function validateOtpForm(){
     const otpInput = document.getElementById("otp").value;
     
@@ -254,6 +286,9 @@ function validateOtpForm(){
         data:{otp:otpInput},
         success:function(response){
            if(response.success){
+
+            localStorage.removeItem('otpTimer');
+            clearInterval(otpTimerInterval)
             Swal.fire({
                 icon:"success",
                 title:"OTP Verified Successfully",
@@ -288,6 +323,7 @@ function resendOTP(){
 
     clearInterval(otpTimerInterval);
     timer =60;
+    localStorage.setItem('otpTimer',timer)
     startOtpTimer();
     
     

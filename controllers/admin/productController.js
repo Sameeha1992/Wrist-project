@@ -206,10 +206,10 @@ const getEditProduct = async (req,res)=>{
 
 const editProduct = async (req, res) => {
     try {
-        // Convert the product ID to a valid Mongoose ObjectId
+       
         const id = new mongoose.Types.ObjectId(req.params.id);
 
-        // Find the existing product with all populated references
+       
         const product = await Product.findById(id);
 
         if (!product) {
@@ -217,7 +217,7 @@ const editProduct = async (req, res) => {
             return res.redirect('/admin/product');
         }
 
-        // Destructure form data
+       
         const {
             productName,
             brand,
@@ -228,7 +228,7 @@ const editProduct = async (req, res) => {
             colorStock
         } = req.body;
 
-        // Check if product name already exists (excluding current product)
+        
         const existingProduct = await Product.findOne({
             productName,
             _id: { $ne: product._id }
@@ -239,7 +239,7 @@ const editProduct = async (req, res) => {
             return res.redirect(`/admin/editProduct/${id}`);
         }
 
-        // Process images
+        
         let images = product.productImage || [];
         if (req.files && req.files.length > 0) {
             const newImages = [];
@@ -247,7 +247,7 @@ const editProduct = async (req, res) => {
                 const originalImagePath = file.path;
                 const resizedImagePath = path.join('public','uploads','product-images',file.filename);
 
-                // Resize image
+               
                 await sharp(originalImagePath)
                     .resize({ width: 440, height: 440 })
                     .toFile(resizedImagePath);
@@ -257,7 +257,7 @@ const editProduct = async (req, res) => {
             images = [...images, ...newImages];
         }
 
-        // Update product details
+        
         product.productName = productName;
         product.brand = brand; 
         product.category = category; 

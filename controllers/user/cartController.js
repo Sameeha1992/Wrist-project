@@ -28,35 +28,71 @@ const loadCart = async (req, res) => {
         select: "name",
       });
 
+
+      console.log(cartDetails,"cartdetails of the cart")
+      
      
 
-    const processedCartDetails = cartDetails.map((item) => {
-      const cartItem = item.toObject();
+    // const processedCartDetails = cartDetails.map((item) => {
+    //   const cartItem = item.toObject();
 
     
 
-      if (!cartItem.productId || cartItem.productId.isBlocked) {
-        cartItem.error = "Product is unavailable";
-        return cartItem;
+    //   if (!cartItem.productId || cartItem.productId.isBlocked) {
+    //     cartItem.error = "Product is unavailable";
+    //     return cartItem;
+    //   }
+
+    //   cartItem.quantity = Math.min(cartItem.quantity,5);
+
+    //   return cartItem;
+    // });
+
+
+    const processedCartDetails = await Promise.all(
+      cartDetails.map(async (item)=>{
+        const cartItem = item.toObject();
+
+        console.log(cartItem,"cartItem of the cart")
+      
+      if(cartItem.productId ?.isBlocked){
+        cartItem.error = "This product is unavailable";
+
+        await Cart.findByIdAndDelete(cartItem._id);
+        return cartItem
       }
 
-      cartItem.quantity = Math.min(cartItem.quantity,5);
+      return cartItem
+      
+      })
+    )
 
-      return cartItem;
-    });
 
+    console.log(processedCartDetails,"Processed cart details of the cart");
+
+    const filteredCartDetails = processedCartDetails.filter((item)=>!item.error)
+
+
+    const totalAmount = filteredCartDetails.reduce((total, item)=>{
+      return item.productId
+      ? total +item.productId.salePrice * item.quantity: total;
+    },0)
+
+
+    const hasAvailableProducts = filteredCartDetails.some((item) => item.productId)
 
     
-    const totalAmount = processedCartDetails.reduce((total, item) => {
-      return item.productId && !item.productId.isBlocked
-        ? total + item.productId.salePrice * item.quantity
-        : total;
-    }, 0);
+    // const totalAmount = processedCartDetails.reduce((total, item) => {
+    //   return item.productId && !item.productId.isBlocked
+    //     ? total + item.productId.salePrice * item.quantity
+    //     : total;
+    // }, 0);
 
     res.render("cart", {
       cart: processedCartDetails,
       user: userDetails,
       totalAmount: totalAmount.toFixed(2),
+      hasAvailableProducts
     });
   } catch (error) {
     console.error("Error loading cart:", error);
@@ -142,35 +178,7 @@ const addToCart = async (req, res) => {
       );
 
 
-      console.log(origin,'porgingnngn')
-      if(origin==="wishlist"){
-        const userObjectId = new mongoose.Types.ObjectId(userId);
-                const productObjectId = new mongoose.Types.ObjectId(productId);
-            console.log(userObjectId,'userObjectId')
-            console.log(productObjectId,'productObjectId')
-
-                const result = await Wishlist.updateOne(
-                  {userId:userObjectId},
-                  {
-                      $pull: {
-                          items:{
-                              productId:productObjectId,
-                            
-                          }
-                      }
-                  }
-              )
-              
-        console.log('whislliss update after cart update',result)
-        const updatedWishlist = await Wishlist.findOne({userId:userObjectId});
-
-
-        console.log(updatedWishlist,"updated wishlist")
-        const wishlistCount = updatedWishlist ? updatedWishlist.items.length :0;
-
-        console.log(wishlistCount,"My wishlist count")
-
-      }
+      
       const cartItemCount = await Cart.countDocuments({ userId });
       
       return res.status(200).json({
@@ -198,34 +206,7 @@ const addToCart = async (req, res) => {
       await newCartItem.save();
 
      
-      if(origin==="wishlist"){
-        const userObjectId = new mongoose.Types.ObjectId(userId);
-        const productObjectId = new mongoose.Types.ObjectId(productId);
-        console.log(userObjectId,'userObjectId')
-console.log(productObjectId,'productObjectId')
-
-                const result = await Wishlist.updateOne(
-                  {userId:userObjectId},
-                  {
-                      $pull: {
-                          items:{
-                              productId:productObjectId,
-                            
-                          }
-                      }
-                  },{new:true}
-              )
-              
-        console.log('whislliss update after cart update',result)
-        const updatedWishlist = await Wishlist.findOne({userId:userObjectId});
-
-
-        console.log(updatedWishlist,"updated wishlist")
-        const wishlistCount = updatedWishlist ? updatedWishlist.items.length :0;
-
-        console.log(wishlistCount,"My wishlist count")
-
-      }
+      
       const cartItemCount = await Cart.countDocuments({ userId });
 
       return res.status(200).json({
@@ -262,7 +243,6 @@ const updateCartQuantity = async(req,res)=>{
 
 
     
-    // const cartWithAvailableStock = cartItem
   
 
     if(!cartItem || !cartItem.productId){
@@ -283,7 +263,7 @@ const updateCartQuantity = async(req,res)=>{
       return res.status(400).json({ success: false, message: "Quantity must be between 1 and 5" });
   }
 
-  if(!colorStock || colorStock.status !="Available"){
+  if(!colorStock){
     return res.status(400).json({success:false,message:"Selected color is not available"})
   }
 
@@ -368,7 +348,7 @@ const deleteCart = async (req, res) => {
     }).populate("productId");
 
     const newTotalAmount = remainingCartItems.reduce((total, item) => {
-      if (item.productId && item.productId.salePrice) {
+      if (item.productId && !item.productId.isBlocked && item.productId.salePrice) {
         return total + item.productId.salePrice * item.quantity;
       }
       return total;

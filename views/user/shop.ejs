@@ -105,7 +105,7 @@
                                                 <span class="price-sale">₹<%= product.salePrice %></span>
                                             </p>
                                         <% } else { %>
-                                            <p class="price"><span>₹<%= product.regularPrice %></span></p>
+                                            <p class="price"><span>₹<%= product.salePrice %></span></p>
                                         <% } %>
                                     </div>
                                     <% if (product.status === "Available") { %>
@@ -134,7 +134,7 @@
                         <h2 class="heading">Search</h2>
                         <form action="/shop" method="GET" class="colorlib-form-2">
                             <!-- Preserve existing filters -->
-                            <% if (category !== 'All Categories') { %>
+                            <% if (category == 'All Categories') { %>
                                 <input type="hidden" name="category" value="<%= category %>">
                             <% } %>
                             <% if (sort) { %>

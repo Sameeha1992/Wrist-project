@@ -78,76 +78,130 @@ const getForgetPassPage = async(req,res)=>{
 }
 
 
-const forgotEmailValid = async(req,res)=>{
+
+// for checkingg
+const forgotEmailValid = async (req, res) => {
   try {
-    const {email} = req.body;
+      const { email } = req.body;
+      const user = await User.findOne({ email });
 
-    console.log("Received email for OTP generation:", email);
+      if (user) {
+         
+          const currentTime = Date.now();
+          if (req.session.userOtp && req.session.userOtp.expiresAt > currentTime) {
+             
+              console.log("Using existing OTP:", req.session.userOtp.otp);
+              return res.render('forgetPass-Otp', {
+                  email: req.session.email,
+                  message: null,
+              });
+          }
 
-    const user = await User.findOne({email:email});
-    console.log("User  found:", user); // Debugging line
+          
+          const otp = generateOtp();
+          const otpExpiryTime = Date.now() + 1 * 60 * 1000; 
+          req.session.userOtp = { otp, expiresAt: otpExpiryTime };
+          req.session.email = email;
 
-    if(user){
-      const otp = generateOtp();
-      console.log("Generated OTP:", otp); // Debugging line
+         
+          const emailSent = await sendVerificationEmail(email, otp);
 
-      const emailSent = await sendVerificationEmail(email,otp);
-      console.log("Email sent status:", emailSent); // Debugging line
-
-      if(emailSent){ 
-        const otpExpiryTime = Date.now() + 1 *   60 * 1000;
-        req.session.userOtp = { otp, expiresAt: otpExpiryTime };  
-        req.session.email = email;
-        console.log("Session after setting email:", req.session); // Log the entire session
-
-        console.log("Session data after setting OTP:", req.session.userOtp); // Debugging line
-
-        res.render('forgetPass-Otp',{
-          email,message:null});
-        console.log("OTP:",otp);
-      }else{
-        res.json({success:false,message:"Failed to sent OTP,Please try again"})
-  
-      } 
-    }else{
-      console.warn("No user found with the provided email."); // Debugging line
-      res.render("forget-password",{
-       message:"User with this email does not exist"
-      })
-    }
-    
+          if (emailSent) {
+              console.log("Generated and sent new OTP:", otp);
+              return res.render('forgetPass-Otp', {
+                  email: req.session.email,
+                  message: null,
+              });
+          } else {
+              return res.json({
+                  success: false,
+                  message: "Failed to send OTP, please try again.",
+              });
+          }
+      } else {
+          res.render("forget-password", {
+              message: "User with this email does not exist",
+          });
+      }
   } catch (error) {
-    console.error('Error in forgotEmailValid:', error); // Log the error
-
-    res.redirect("/pageNotFound")
-    
+      console.error('Error in forgotEmailValid:', error);
+      res.redirect("/pageNotFound");
   }
-}
+};
+
+
+//  Main one:---
+
+// const forgotEmailValid = async(req,res)=>{
+//   try {
+//     const {email} = req.body;
+
+//     console.log("Received email for OTP generation:", email);
+
+//     const user = await User.findOne({email:email});
+//     console.log("User  found:", user); // Debugging line
+
+//     if(user){
+//       const otp = generateOtp();
+//       console.log("Generated OTP:", otp); // Debugging line
+
+//       const emailSent = await sendVerificationEmail(email,otp);
+//       console.log("Email sent status:", emailSent); // Debugging line
+
+//       if(emailSent){ 
+//         const otpExpiryTime = Date.now() + 1 *   60 * 1000;
+//         req.session.userOtp = { otp, expiresAt: otpExpiryTime };  
+//         req.session.email = email;
+//         console.log("Session after setting email:", req.session); // Log the entire session
+
+//         console.log("Session data after setting OTP:", req.session.userOtp); // Debugging line
+
+//         res.render('forgetPass-Otp',{
+//           email:req.session.email,message:null});
+//         console.log("OTP:",otp);
+//       }else{
+//         res.json({success:false,message:"Failed to sent OTP,Please try again"})
+  
+//       } 
+//     }else{
+//       console.warn("No user found with the provided email."); // Debugging line
+//       res.render("forget-password",{
+//        message:"User with this email does not exist"
+//       })
+//     }
+    
+//   } catch (error) {
+//     console.error('Error in forgotEmailValid:', error); // Log the error
+
+//     res.redirect("/pageNotFound")
+    
+//   }
+// }
 
 
 const verifyForgotPassOtp= async(req,res)=>{
       try {
         const enteredOtp = req.body.otp;
-        const { otp, expiresAt } = req.session.userOtp || {}; // Get the OTP and expiry time from the session
+        const { otp, expiresAt } = req.session.userOtp || {}; 
 
         console.log(enteredOtp,"ENTEREDOTP")
-        console.log("Stored OTP:", otp); // Log the stored OTP
-        console.log("OTP Expiry Time:", expiresAt); // Log the expiry time
+        console.log("Stored OTP:", otp); 
+        console.log("OTP Expiry Time:", expiresAt); 
         
 
         if (!otp || Date.now() > expiresAt) {
-          console.warn("OTP has expired or does not exist."); // Log warning
+          console.warn("OTP has expired or does not exist."); 
           return res.json({ success: false, message: 'OTP has expired or does not exist' });
       }
 
 
 
         if(enteredOtp ===otp){
-          console.log("OTP verified successfully."); // Log success
+          console.log("OTP verified successfully."); 
         
           res.json({success:true,redirectUrl:"/reset-password"});
         }else{
-          console.warn("OTP does not match."); // Log warning
+          console.warn("OTP does not match."); 
           res.json({success:false,message:'OTP not matching'})
         }
         
@@ -166,6 +220,16 @@ const verifyForgotPassOtp= async(req,res)=>{
 const resendOtp = async (req, res) => {
   try {
     
+
+    const currentTime = Date.now();
+
+    if(req.session.userOtp && currentTime <req.session.expiresAt){
+      const remainingTime = Math.ceil((req.session.userOtp.expiresAt - currentTime)/1000);
+      return res.status(429).json({
+        success:false,
+        message:'Please wait ${remainingTime} seconds before requesting a new OTP'
+      })
+    }
     
     const otp = generateOtp();
     const otpExpiryTime= Date.now() + 1 * 60 * 1000;
@@ -241,8 +305,9 @@ const postNewPassword = async (req, res) => {
               return res.json({success: false, message: 'User not found.'})
           }
 
-          console.log("Password updated successfully.");
-          return res.json({success:false,message:"Password updated successfully"})
+          console.log({ success: true, message: "Password updated successfully", redirectUrl: "/login" });
+         
+          return res.json({success:true,message:"Password updated successfully",redirectUrl:"/login"})
                
       } else {
           console.warn("Passwords do not match."); 

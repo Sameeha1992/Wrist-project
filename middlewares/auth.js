@@ -5,11 +5,17 @@ const User = require("../models/userSchema");
 //User Authentication:-
 const userAuth = async (req, res, next) => {
    try {
+
+
+    res.setHeader("Cache-Control", "no-store, no-cache, must-revalidate, proxy-revalidate");
+    res.setHeader("Pragma", "no-cache");
+    res.setHeader("Expires", "0");
+
     if(!req.session.user){
         return res.redirect("/login")
     }
     const user= await User.findById(req.session.user)
-    res.setHeader("Cache-Control", "no-store"); 
+   
     if(user && ! user.isBlocked){
         return next()
     } else{
