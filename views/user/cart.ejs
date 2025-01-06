@@ -92,6 +92,7 @@
 <div class="untree_co-section before-footer-section">
   <div class="container">
     <div class="row mb-5">
+      <% if (cart && cart.length > 0){ %>
       <form class="col-md-12" method="post">
         <div class="site-blocks-table">
           <table class="table">
@@ -106,7 +107,7 @@
               </tr>
             </thead>
             <tbody>
-              <% if (cart && cart.length > 0){ %>
+              
                 
                 <% cart.forEach((item) => { %>
               %> <% if (item.error) { %>
@@ -185,9 +186,18 @@
         <img 
           src="https://i.pinimg.com/736x/32/00/dd/3200dda6b6bfe5fdb893476e21f1ef04.jpg" 
           alt="Empty Cart" 
-          style="max-width: 300px; margin: 20px auto; display: block;" 
+          style="max-width: 300px; margin: 20px auto;" 
         />
         <p>Your cart is empty</p>
+        <a href="/shop"
+              ><button
+                class="btn btn-outline-black btn-sm btn-block"
+                style="background-color: black; color: white"
+              >
+                Continue Shopping
+              </button></a
+            >
+
       </td>
     </tr>
   <% } %>
@@ -201,14 +211,7 @@
       <div class="col-md-6">
         <div class="row mb-5">
           <div class="col-md-6">
-            <a href="/shop"
-              ><button
-                class="btn btn-outline-black btn-sm btn-block"
-                style="background-color: black; color: white"
-              >
-                Continue Shopping
-              </button></a
-            >
+            
           </div>
         </div>
       </div>

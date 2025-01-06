@@ -57,11 +57,11 @@ const blockBrand = async(req,res)=>{
     try {
         const id = req.query.id;
         await Brand.updateOne({_id:id},{$set:{isBlocked:true}});
-        res.redirect("/admin/brands")
+        res.json({success:true,message:"Brand blocked successfully"})
         
     } catch (error) {
         console.error("Error in blocking brand",error)
-        res.redirect("/pageerror")
+        res.json({success:false,message:"Error in blocking the brand"})
         
     }
 }
@@ -70,11 +70,11 @@ const unBlockBrand = async(req,res)=>{
     try {
         const id = req.query.id;
         await Brand.updateOne({_id:id},{$set:{isBlocked:false}});
-        res.redirect("/admin/brands")
+        res.json({success:true,message:"Brand unblocked successfully"})
         
     } catch (error) {
         console.error("Error in unblocking brand:",error)
-        res.redirect("/pageerror")
+        res.json({success:false,message:"Error in unblocking the brand"})
         
     }
 }
@@ -97,6 +97,9 @@ catch(error){
     res.status(500).redirect("/pageerror")
 }
 }
+
+
+
 
 
 module.exports={

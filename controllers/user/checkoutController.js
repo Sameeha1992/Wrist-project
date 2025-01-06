@@ -3,6 +3,16 @@ const User = require("../../models/userSchema");
 const Cart = require("../../models/cartSchema");
 const Order = require("../../models/orderSchema");
 const mongoose = require('mongoose')
+const Razorpay = require('razorpay');
+require("dotenv").config();
+const crypto = require("crypto");
+
+const razorpay = new Razorpay({
+    key_id:process.env.RAZORPAY_KEYID,
+    key_secret:process.env.RAZORPAY_KEYSECRET
+})
+
+
 
 const LoadCheckout = async(req,res)=>{
     try {
@@ -46,11 +56,8 @@ const LoadCheckout = async(req,res)=>{
 const placeOrder = async (req, res) => {
     try {
         const userId = req.session.user; 
-        const { orderItem,selectedAddress, paymentMethod } = req.body;
-
-       
-
-       
+        const { orderItem,selectedAddress, paymentMethod,razorpay_order_id,razorpay_payment_id,razorpay_signature } = req.body;
+   
         const cartItems = await Cart.find({ userId: userId })
             .populate({
                 path: 'productId',
@@ -160,6 +167,33 @@ const placeOrder = async (req, res) => {
             return res.status(400).json({message:'Invalid total amount'})
         }
 
+
+        if(paymentMethod === 'Razorpay'){
+
+            if(!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+                return res.status(400).json({message: "Missing razorpay payment details"})
+            }
+
+            const secretKey = process.env.RAZORPAY_KEYSECRET;
+            console.log("secret key",secretKey)
+
+            const generate_signature = crypto
+            .createHmac('sha256',secretKey)
+            .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+            .digest('hex');
+
+            if(generate_signature !==razorpay_signature){
+                return res.json({success:false,message: "Payment verification failed"})
+            } 
+           
+
+
+        }
+
+        if(paymentMethod === "COD"){
+            console.log("Processing cash on delivery order")
+        }
+
         
         const newOrder = new Order({
             userId,
@@ -168,7 +202,7 @@ const placeOrder = async (req, res) => {
             zip: shippingAddress.pincode,
             country: 'India', 
             phone: currentUser.phone || 'Not Provided',
-            paymentMethod: paymentMethod || 'COD', 
+            paymentMethod: paymentMethod,
             orderStatus: 'Processing', 
             totalAmount
         });

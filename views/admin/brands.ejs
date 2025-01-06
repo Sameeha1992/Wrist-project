@@ -267,6 +267,7 @@
                 <tr>
                   <th>Brand</th>
                   <th>Logo</th>
+                  <th>Offer</th>
                   <th>Status</th>
                   <th>Block/Unblock</th>
                 </tr>
@@ -293,6 +294,10 @@
                       />
                     </div>
                   </td>
+
+                 
+
+
                   <td class="text-start">
                     <% if (brand.isBlocked===true) {%>
                     <span
@@ -312,13 +317,15 @@
                   
                   <td class="text-start">
                     <%if(brand.isBlocked===false){%>
-                    <button class="btn btn-danger" style="width: 90px" onclick="confirmBlock('<%= brand._id%>')">
-                      <a href="/admin/blockBrand?id=<%=brand._id%>" class="text-white">Block</a>
+                    <button class="btn btn-danger" style="width: 90px" onclick="confirmBlock('<%= brand._id%>',event)">
+                      <!-- <a href="/admin/blockBrand?id=<%=brand._id%>" class="text-white">Block</a> -->
+                       Block
                     </button>
                     <%} else {%>
 
-                    <button class="btn btn-success" style="width: 90px" onclick="confirmUnblock('<%= brand._id%>')">
-                      <a href="/admin/unBlockBrand?id=<%=brand._id%>" class="text-white">Unblock</a>
+                    <button class="btn btn-success" style="width: 90px" onclick="confirmUnblock('<%= brand._id%>',event)">
+                      <!-- <a href="/admin/unBlockBrand?id=<%=brand._id%>" class="text-white">Unblock</a> -->
+                       Unblock
                     </button>
                     <% }%>
 
@@ -358,6 +365,7 @@
   </div>
 </section>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
  
 
@@ -370,6 +378,7 @@
 
 
   function confirmBlock(brandId, event) {
+    console.log("Blocking brand with ID:", brandId);
     event.preventDefault();
 
     Swal.fire({
@@ -388,7 +397,10 @@
           data: { id: brandId },
           success: function(response) {
             if (response.success) {
-              Swal.fire('Blocked!', response.message, 'success');
+              Swal.fire('Blocked!', response.message, 'success').then(()=>{
+                location.reload()
+              })
+              
               // Optionally, update the UI to reflect the change (e.g., update button state)
               // Reload the page or dynamically update the list of brands
             } else {
@@ -405,6 +417,7 @@
 
   // Unblock Brand Function with SweetAlert and AJAX
   function confirmUnblock(brandId, event) {
+    console.log("unBlocking brand with ID:", brandId);
     event.preventDefault();
 
     Swal.fire({
@@ -423,7 +436,9 @@
           data: { id: brandId },
           success: function(response) {
             if (response.success) {
-              Swal.fire('Unblocked!', response.message, 'success');
+              Swal.fire('Unblocked!', response.message, 'success').then(()=>{
+                location.reload();
+              });
               // Optionally, update the UI to reflect the change (e.g., update button state)
               // Reload the page or dynamically update the list of brands
             } else {
@@ -488,6 +503,9 @@
         Swal.fire({ icon: "error", title: "Oops...", text: "An error occurred while adding the brand." });
       }
     }
+
+
+
 </script>
   
   

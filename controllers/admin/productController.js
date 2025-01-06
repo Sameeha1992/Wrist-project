@@ -16,7 +16,8 @@ const getProductAddPage = async (req,res)=>{
         const brand = await Brand.find({isBlocked:false});
         res.render("product-add",{
             cat:category,
-            brand:brand
+            brand:brand,
+            // product:{}
         });
        
 
@@ -55,7 +56,7 @@ const addProducts = async (req,res)=>{
 
 
             const categoryId = await Category.findOne({name:products.category});
-            const brandId = await Brand.findOne({brandName:products.brand})
+            const brandId = await Brand.findOne({brandName:products.brand});
 
             if(!categoryId){
                 return res.status(400).json("Invalid category name")

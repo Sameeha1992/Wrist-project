@@ -6,7 +6,7 @@ const brandSchema = new Schema({
         type:String,
         required:true,
         unique:true,
-        trim:true
+        
      },
      brandImage:{
         type:[String],
@@ -16,6 +16,7 @@ const brandSchema = new Schema({
         type: Boolean,
         default:false
      },
+    
     
 },{ timestamps: true })
 

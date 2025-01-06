@@ -54,10 +54,7 @@ const productSchema = new Schema({
         required:false,
         
     },
-    productOffer:{
-        type:Number,
-        default:0
-    },
+    
    colorStock:[colorStockSchema],
     
     productImage:{
@@ -70,6 +67,19 @@ const productSchema = new Schema({
         index:true
     },
     
+    productOffer:{
+        type: Number,
+        default:0
+    },
+    categoryOffer:{
+        type:Number,
+        default:0
+    },
+   
+    finalOffer:{
+        type:Number,
+        default:0
+    }
    
 },{timestamps:true});
 

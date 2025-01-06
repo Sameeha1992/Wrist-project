@@ -23,7 +23,7 @@ user_router.get("/shop",userAuth,userController.loadShoppingPage)
 
 
 
-user_router.get("/signup",userController.loadSignup);
+user_router.get("/signup",isLogout,userController.loadSignup);
 user_router.post("/signup", userController.signup);
 
 user_router.get("/login",isLogout,userController.loadLogin)
@@ -91,6 +91,11 @@ user_router.delete("/deleteaddress",userAuth,profileController.deleteAddress)
 user_router.get("/getWishlist",userAuth,wishlistController.getWishlistPage);
 user_router.post("/addToWishlist",userAuth,wishlistController.addToWishlist);
 user_router.post("/remove-from-wishlist",userAuth,wishlistController.removeFromWishlist);
+
+//Payment Integration:-
+
+user_router.post("/create-razorpay-order",userAuth,orderController.paymentOrder);
+user_router.post("/verify-payment",userAuth,checkoutController.placeOrder)
 
 
 

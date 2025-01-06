@@ -5,7 +5,8 @@ const customerController=require("../controllers/admin/customerController")
 const categoryController = require("../controllers/admin/categoryController");
 const brandController = require("../controllers/admin/brandController")
 const productController = require("../controllers/admin/productController");
-const adminOrderController = require("../controllers/admin/adminOrderController")
+const adminOrderController = require("../controllers/admin/adminOrderController");
+const productOfferController = require("../controllers/admin/product/productOfferController.js")
 
 const {userAuth,adminAuth, isAdminLogout} = require("../middlewares/auth");
 const multer = require("multer");
@@ -35,8 +36,6 @@ router.patch("/unblockCustomer",adminAuth,customerController.customerUnblocked)
 
 router.get("/category",adminAuth,categoryController.categoryInfo)
 router.post("/addCategory",categoryController.addCategory);
-router.post("/addCategoryOffer",adminAuth,categoryController.addCategoryOffer);
-router.post("/removeCategoryOffer",adminAuth,categoryController.removeCategoryOffer);
 router.get("/listCategory",adminAuth,categoryController.getListCategory);
 router.get("/unlistCategory",adminAuth,categoryController.getUnlistCategory);
 router.get("/editCategory",adminAuth,categoryController.getEditCategory);
@@ -62,14 +61,21 @@ router.get("/editProduct",adminAuth,productController.getEditProduct);
 router.post("/editProduct/:id",adminAuth,uploads.array("images",4),productController.editProduct);
 router.post("/deleteImage",adminAuth,productController.deleteSingleImage)
 
+//Product offerAdd:
+
+router.post("/addProductOffer/:productId",adminAuth,productOfferController.addOffer);
+router.post("/removeProductOffer/:productId",adminAuth,productOfferController.removeProductOffer);
+router.post("/addCategoryOffer",adminAuth,productOfferController.addCategoryOffer);
+router.post("/removeCategoryOffer",adminAuth,productOfferController.removeCategoryOffer);
+
+
 
 
 //Order Management:-
 
 router.get("/orders",adminAuth,adminOrderController.userOrders);
 router.patch("/update-order-status/:id",adminAuth,adminOrderController.updatedOrderStatus);
-router.get("/orderDetails/:id",adminAuth,adminOrderController.viewUserOrderDetails)
-// router.delete('/orders/:orderId/product/:productId/:color', adminAuth, adminOrderController.deleteOrderListProduct);
+router.get("/orderDetails/:id",adminAuth,adminOrderController.viewUserOrderDetails);
 // router.put('/orders/:orderId/product/:productId/return', adminAuth, adminOrderController.handleReturn);
 
 module.exports=router;

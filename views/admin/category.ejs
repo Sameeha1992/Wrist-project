@@ -493,7 +493,9 @@
             });
 
             const data = await response.json();
-            if(response.ok && data.status===true){
+
+            console.log("Response from the server",data)
+            if(response.ok && data.success===true){
                 Swal.fire(
                     "Offer added",
                     "The offer has been added",
@@ -531,7 +533,7 @@
             })
         })
         const data = await response.json();
-        if(response.ok && data.status ===true){
+        if(response.ok && data.success ===true){
             Swal.fire(
                 "Offer removed",
                 "The offer has been removed",

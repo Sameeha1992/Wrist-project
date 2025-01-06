@@ -165,7 +165,90 @@ const cancelOrder = async(req,res)=>{
 
 
 
+const paymentOrder = async(req,res)=>{
+    
 
+        const {amount,currency = "INR",paymentMethod,shippingAddress} = req.body;
+        console.log(req.body,"razorpay req.body");
+
+        if(!amount || !currency){
+            return res.status(400).json({error: 'Invalid request. Amount and currency are required'})
+        }
+
+        const options = {
+            amount: amount *100,
+            currency:currency,
+            receipt: `receipt_${Math.random().toString(36).substr(2, 9)}`,
+            payment_capture:1
+        };
+
+        try{
+            const response = await razorpay.orders.create(options);
+            
+
+            res.json({
+                order_id:response.id,
+                currency: response.currency,
+                amount:response.amount
+
+            });
+            console.log(response,"response of razorpay")
+
+        } catch (error) {
+        console.error('Error creating razorpay order:',error);
+        res.status(500).json({error:'Failed to create order'});
+        
+    }
+}
+
+
+// const retryPayment = async(req,res)=>{
+//     try {
+
+//         const { orderId,razorpay_order_id,razorpay_payment_id,razorpay_signature} = req.body;
+
+//         if(!orderId || !razorpay_order_id || razorpay_payment_id || razorpay_signature){
+//             return res.status(400).json({message:"Missing payment details"});
+
+//         }
+
+//         const order = await Order.findById(orderId);
+//         if(!order){
+//             return res.status(404).json({message:"Order not found or not eligible for retry"})
+//         }
+
+//         if(order.orderStatus!=='Pending_payment'){
+//             return res.status(400).json({success:false,message:"Order is not eligible for the retry payment"})
+//         }
+
+//         const secretKey = process.env.RAZORPAY_KEYSECRET;
+//         const generatedSignature = crypto
+//         .createHmac('sha256', secretKey)
+//         .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+//         .digest('hex');
+
+//         if(generatedSignature!== razorpay_signature){
+//             return res.status(400).json({message: "Payment verification failed"})
+//         }
+
+//         order.orderStatus = "Processing";
+
+//         await order.save();
+
+//         return res.status(200).json({
+//             success: true,
+//             message:"Payment successful.Order status updated to processing"
+//         })
+        
+        
+//     } catch (error) {
+//         console.error("Error retrying payment",error);
+//         return res.status(400).json({
+//             success: false,
+//             message: error.message || 'Failed to retry payment'
+//         })
+//     }
+// }
 
 
 
@@ -184,5 +267,8 @@ module.exports={
     loadOrderPage,
     viewOrderDetails,
     cancelOrder,
+    paymentOrder,
+    // retryPayment,
+    // verifyPayment,
     
 }
