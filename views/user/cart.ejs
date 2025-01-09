@@ -167,7 +167,11 @@
                   <% } %>
                 </td>
                 <td>
-                  ₹<%= (item.productId.salePrice * item.quantity).toFixed(2) %>
+                  <% if (item.productId.salePrice !== null && item.productId.salePrice !== undefined) { %>
+                    <span>₹<%= item.productId.salePrice.toFixed(2) %></span>
+                  <% } else { %>
+                    <span>₹<%= item.productId.regularPrice.toFixed(2) %></span>
+                  <% } %>
                 </td>
                 <td>
                   <button

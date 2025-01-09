@@ -1,0 +1,322 @@
+<%- include('../partials/admin/header') %>
+<style>
+    body {
+        background-color: #f0f8ff;
+        color: #333;
+        font-family: Arial, sans-serif;
+    }
+    .coupon-add-container {
+        max-width: 800px;
+        margin: 2rem auto;
+        background-color: #ffffff;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    }
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+    .page-title {
+        color: #0056b3;
+        margin: 0;
+    }
+    .back-btn {
+        background-color: #0056b3;
+        color: #ffffff;
+        padding: 0.5rem 1rem;
+        text-decoration: none;
+        border-radius: 4px;
+        transition: background-color 0.3s;
+    }
+    .back-btn:hover {
+        background-color: #003d82;
+    }
+    .coupon-form {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .form-row {
+        display: flex;
+        gap: 1rem;
+    }
+    .form-group {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+    }
+    label {
+        margin-bottom: 0.5rem;
+        color: #0056b3;
+    }
+    input, select, textarea {
+        padding: 0.5rem;
+        border: 1px solid #ccc;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+    input:focus, select:focus, textarea:focus {
+        outline: none;
+        border-color: #0056b3;
+    }
+    .error-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+    .form-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    .reset-btn, .submit-btn {
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+    }
+    .reset-btn {
+        background-color: #6c757d;
+        color: #ffffff;
+    }
+    .reset-btn:hover {
+        background-color: #5a6268;
+    }
+    .submit-btn {
+        background-color: #0056b3;
+        color: #ffffff;
+    }
+    .submit-btn:hover {
+        background-color: #003d82;
+    }
+</style>
+
+<div class="coupon-add-container">
+    <div class="page-header">
+        <h1 class="page-title">Add New Coupon</h1>
+        <a href="/api/v1/admin/coupons" class="back-btn">
+            <i class="fas fa-arrow-left"></i> Back to Coupons
+        </a>
+    </div>
+
+    <div class="coupon-form-container">
+        <form id="coupon-form" class="coupon-form">
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="code">Coupon Code*</label>
+                    <input type="text" id="code" name="code" required>
+                    <span id="code-error" class="error-message"></span>
+                </div>
+
+                <div class="form-group">
+                    <label for="discountType">Discount Type*</label>
+                    <select id="discountType" name="discountType" required>
+                        <option value="">Select Discount Type</option>
+                        <option value="percentage">Percentage</option>
+                        <option value="fixed">Fixed Amount</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="minDiscountValue">Discount Value*</label>
+                    <input type="number" id="minDiscountValue" name="minDiscountValue" min="0" step="0.01" required>
+                    <span id="minDiscount-error" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <label for="maxDiscountValue">Maximum Discount Value*</label>
+                    <input type="number" id="maxDiscountValue" name="maxDiscountValue" min="0" step="0.01" required>
+                    <span id="maxDiscount-error" class="error-message"></span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="expiryDate">Expiry Date*</label>
+                    <input type="date" id="expiryDate" name="expiryDate" required>
+                    <span id="date-error" class="error-message"></span>
+                </div>
+                <div class="form-group">
+                    <label for="usageLimit">Usage Limit</label>
+                    <input type="number" id="usageLimit" name="usageLimit" min="1" value="1">
+                    <span id="limit-error" class="error-message"></span>
+                </div>
+            
+
+            <div class="form-group">
+                <label for="description">Description*</label>
+                <textarea id="description" name="description" required></textarea>
+                <span id="description-error" class="error-message"></span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="conditions">Conditions*</label>
+                    <select id="conditions" name="conditions" required>
+                        <option value="">Select Condition</option>
+                        <option value="minimum_purchase">Minimum Purchase</option>
+                        <option value="first_purchase">First Purchase</option>
+                    </select>
+                </div>
+                <div class="form-group" id="minimumPurchaseGroup" style="display: none;">
+                    <label for="minimumPurchaseAmount">Minimum Purchase Amount*</label>
+                    <input type="number" id="minimumPurchaseAmount" name="minimumPurchaseAmount" min="0" step="0.01">
+                    <span id="minPurchase-error" class="error-message"></span>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="reset" class="reset-btn">Reset</button>
+                <button type="submit" class="submit-btn">Add Coupon</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('coupon-form');
+        const conditionsSelect = document.getElementById('conditions');
+        const minimumPurchaseGroup = document.getElementById('minimumPurchaseGroup');
+        let isValid = true; // Track form validity
+    
+        conditionsSelect.addEventListener('change', function() {
+            if (this.value === 'minimum_purchase') {
+                minimumPurchaseGroup.style.display = 'block';
+                document.getElementById('minimumPurchaseAmount').required = true;
+            } else {
+                minimumPurchaseGroup.style.display = 'none';
+                document.getElementById('minimumPurchaseAmount').required = false;
+            }
+        });
+    
+        form.addEventListener('submit', async function(e) {
+            e.preventDefault();
+            isValid = true; // Reset validation state
+    
+            // Get form values
+            const couponCode = document.getElementById('code').value.trim();
+            const minDiscountValue = parseFloat(document.getElementById('minDiscountValue').value);
+            const maxDiscountValue = parseFloat(document.getElementById('maxDiscountValue').value);
+            const expiryDate = document.getElementById('expiryDate').value;
+            const usageLimit = parseInt(document.getElementById('usageLimit').value, 10);
+            const description = document.getElementById('description').value.trim();
+            const minimumPurchaseAmount = document.getElementById('minimumPurchaseAmount').value;
+    
+            // Coupon Code Validation
+            if (!couponCode) {
+                displayErrorMessage('code-error', 'Coupon code is required.');
+                isValid = false;
+            } else if (!/^[A-Za-z0-9\-]+$/.test(couponCode)) {
+                displayErrorMessage('code-error', 'Coupon code can only contain letters, numbers, and hyphens.');
+                isValid = false;
+            } else if (couponCode.length < 5 || couponCode.length > 10) {
+                displayErrorMessage('code-error', 'Coupon code must be between 5 and 10 characters.');
+                isValid = false;
+            }
+    
+            // Discount Value Validation
+            if (isNaN(minDiscountValue) || minDiscountValue <= 0) {
+                displayErrorMessage('minDiscount-error', 'Minimum discount value must be a valid positive number.');
+                isValid = false;
+            }
+            if (isNaN(maxDiscountValue) || maxDiscountValue <= 0) {
+                displayErrorMessage('maxDiscount-error', 'Maximum discount value must be a valid positive number.');
+                isValid = false;
+            }
+            if (maxDiscountValue < minDiscountValue) {
+                displayErrorMessage('maxDiscount-error', 'Maximum discount value cannot be less than minimum discount value.');
+                isValid = false;
+            }
+    
+            // Expiry Date Validation
+            if (!expiryDate) {
+                displayErrorMessage('date-error', 'Expiration date is required.');
+                isValid = false;
+            } else if (new Date(expiryDate) <= new Date()) {
+                displayErrorMessage('date-error', 'Expiration date must be in the future.');
+                isValid = false;
+            }
+    
+            // Usage Limit Validation
+            if (isNaN(usageLimit) || usageLimit < 1) {
+                displayErrorMessage('limit-error', 'Usage limit must be a positive integer.');
+                isValid = false;
+            }
+    
+            // Description Validation
+            if (description && !/^[^\s][A-Za-z0-9\s.,'()\-]+$/.test(description)) {
+                displayErrorMessage('description-error', 'Description should not start with a space and can only contain letters, numbers, spaces, periods, commas, apostrophes, parentheses, and hyphens.');
+                isValid = false;
+            }
+    
+            // Minimum Purchase Amount Validation (If applicable)
+            if (conditionsSelect.value === 'minimum_purchase' && !minimumPurchaseAmount) {
+                displayErrorMessage('minimumPurchaseAmount-error', 'Minimum purchase amount is required.');
+                isValid = false;
+            } else if (minimumPurchaseAmount && isNaN(minimumPurchaseAmount)) {
+                displayErrorMessage('minimumPurchaseAmount-error', 'Minimum purchase amount must be a valid number.');
+                isValid = false;
+            }
+    
+            // If validation fails, stop form submission
+            if (!isValid) return;
+    
+            // Collect form data
+            const formData = new FormData(form);
+            const couponData = Object.fromEntries(formData.entries());
+            // couponData.isActive = form.isActive.checked;
+    
+            // Remove minimumPurchaseAmount if not selected
+            if (couponData.conditions !== 'minimum_purchase') {
+                delete couponData.minimumPurchaseAmount;
+            }
+    
+            try {
+                const response = await fetch('/admin/addcoupen', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(couponData )
+                });
+    
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.message || 'An error occurred adding coupon!');
+                }
+    
+                Swal.fire({
+                    icon: 'success',
+                    title: 'Success!',
+                    text: 'Coupon added successfully.',
+                    confirmButtonColor: '#48bb78',
+                }).then(() => {
+                    window.location.href = '/admin/coupens';
+                });
+    
+            } catch (error) {
+                console.error('An error occurred while adding new coupon', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Oops!',
+                    text: error.message,
+                    confirmButtonColor: '#e53e3e',
+                });
+            }
+        });
+    });
+    
+    function displayErrorMessage(elementId, message) {
+        const errorElement = document.getElementById(elementId);
+        errorElement.textContent = message;
+        errorElement.style.display = 'block';
+    }
+    
+
+</script>
+<%- include('../partials/admin/footer') %>

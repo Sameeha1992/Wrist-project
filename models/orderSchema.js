@@ -39,7 +39,23 @@ const orderSchema=new Schema({
                 type: String,
                 enum: ['Processing', 'Delivered', 'Cancelled', 'Shipped'],
                 default: 'Processing'
-            }
+            },
+            returnRequest:{
+                type:String,
+                enum:['Pending','Approved','Rejected'],
+                default:'Pending',
+            },
+            returnStatus: {
+                type: Boolean,
+                default: false
+
+            },
+            returnReason:{
+                type: String,
+            },
+            returnComments:{
+                type: String
+            },
         }
     ],
     shippingAddress:{
@@ -61,7 +77,7 @@ const orderSchema=new Schema({
     },
     orderStatus:{
         type: String,
-        enum:['Processing','Delivered','Cancelled','Shipped','Pending_payment'],
+        enum:['Processing','Delivered','Cancelled','Shipped'],
         default:'Processing',
         required: true
 
@@ -75,17 +91,18 @@ const orderSchema=new Schema({
         type: Number,
         
     },
-    couponDiscount : {
-        type : Number
+    paymentStatus:{
+         type:String,
+         enum:['Pending','Completed','Failed'],
+         default:'Pending'
     },
-    discount : {
-        type : Number,
-    },
-    coupon : {
+    appliedCouponCode : {
         type : String,
+        required:false
     },
-    backupTotalAmount : {
-        type : Number,
+    cancelReason:{
+        type:String,
+        required:false
     }
 
 

@@ -65,15 +65,31 @@ const addProducts = async (req,res)=>{
                 return res.status(400).json("Invalid brand name")
             }
 
+            const categoryOffer = categoryId.categoryOffer || 0;
+            const productOffer = parseFloat(products.productOffer) || 0;
+            
+
+            const finalOffer = Math.max(categoryOffer,productOffer);
+
+            const regularPrice = parseFloat(products.regularPrice);
+            const calculatedSalePrice = finalOffer > 0 ? Math.round(regularPrice *(1-finalOffer /100))
+            :regularPrice;
+
             const newProduct = new Product({
                 productName:products.productName,
                 description:products.description,
                 brand:brandId._id,
                 category:categoryId._id,
-                regularPrice:products.regularPrice,
-                salePrice:products.salePrice,
-                productOffer:products.productOffer,
-               colorStock:products.colorStock,
+                regularPrice:regularPrice,
+                salePrice:calculatedSalePrice,
+                productOffer:productOffer,
+                categoryOffer:categoryOffer,
+                finalOffer:finalOffer,
+                colorStock: products.colorStock.map(stock => ({
+                    color: stock.color,
+                    quantity: parseInt(stock.quantity),
+                    status: stock.status
+                })),
                 productImage:images,
                
 
@@ -209,6 +225,7 @@ const editProduct = async (req, res) => {
     try {
        
         const id = new mongoose.Types.ObjectId(req.params.id);
+       
 
        
         const product = await Product.findById(id);
@@ -226,8 +243,11 @@ const editProduct = async (req, res) => {
             descriptionData,
             regularPrice,
             salePrice,
-            colorStock
+            colorStock,
+            productOffer
         } = req.body;
+
+        console.log(req.body,"req.bodyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy")
 
         
         const existingProduct = await Product.findOne({
@@ -239,6 +259,23 @@ const editProduct = async (req, res) => {
             req.flash('error', 'Product with this name already exists');
             return res.redirect(`/admin/editProduct/${id}`);
         }
+
+        const categoryId = await Category.findById(category);
+
+        if(!categoryId){
+
+            return res.json({message:"Invalid category name"})
+        }
+
+        const categoryOffer = categoryId.categoryOffer || 0;
+        const productOfferValue = parseFloat(productOffer) || 0;
+       const finalOffer = Math.max(categoryOffer,productOfferValue);
+       
+
+       const calculatedSalePrice = finalOffer > 0 
+       ? Math.round(parseFloat(regularPrice) * (1 - finalOffer / 100))
+       : parseFloat(regularPrice);
+
 
         
         let images = product.productImage || [];
@@ -258,27 +295,38 @@ const editProduct = async (req, res) => {
             images = [...images, ...newImages];
         }
 
-        
-        product.productName = productName;
-        product.brand = brand; 
-        product.category = category; 
-        product.description = descriptionData;
-        product.regularPrice = parseFloat(regularPrice);
-        product.salePrice = parseFloat(salePrice);
-        product.productImage = images;
+        const updatedProduct = await Product.findByIdAndUpdate(
+            id,
+            {
+                $set: {
+                    productName,
+                    brand,
+                    category,
+                    description: descriptionData,
+                    regularPrice: parseFloat(regularPrice),
+                    salePrice: calculatedSalePrice,
+                    productImage: images,
+                    productOffer: productOfferValue,
+                    colorStock: colorStock.map(stock => ({
+                        color: stock.color,
+                        quantity: parseInt(stock.quantity),
+                        status: stock.status
+                    })),
+                    lastUpdated: new Date()  // Add this to track updates
+                }
+            },
+            { new: true }  // Return updated document
+        );
+       
 
-        // Update color stock
-        product.colorStock = colorStock.map(stock => ({
-            color: stock.color,
-            quantity: parseInt(stock.quantity),
-            status: stock.status
-        }));
+        if (!updatedProduct) {
+            req.flash('error', 'Error updating product');
+            return res.redirect('/admin/product');
+        }
 
-        // Save updated product
-        await product.save();
 
-        req.flash('success', 'Product updated successfully');
-        res.redirect('/admin/product');
+       req.flash("Product updated successfully");
+       res.redirect('/admin/product');
 
     } catch (error) {
         console.error('Edit Product Error:', error);

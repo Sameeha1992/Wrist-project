@@ -6,7 +6,8 @@ const categoryController = require("../controllers/admin/categoryController");
 const brandController = require("../controllers/admin/brandController")
 const productController = require("../controllers/admin/productController");
 const adminOrderController = require("../controllers/admin/adminOrderController");
-const productOfferController = require("../controllers/admin/product/productOfferController.js")
+const productOfferController = require("../controllers/admin/product/productOfferController.js");
+const coupenController = require("../controllers/admin/coupenController.js")
 
 const {userAuth,adminAuth, isAdminLogout} = require("../middlewares/auth");
 const multer = require("multer");
@@ -77,5 +78,13 @@ router.get("/orders",adminAuth,adminOrderController.userOrders);
 router.patch("/update-order-status/:id",adminAuth,adminOrderController.updatedOrderStatus);
 router.get("/orderDetails/:id",adminAuth,adminOrderController.viewUserOrderDetails);
 // router.put('/orders/:orderId/product/:productId/return', adminAuth, adminOrderController.handleReturn);
+
+//Coupen management:-
+
+router.get("/coupens",adminAuth,coupenController.showCoupen);
+router.get("/addcoupen",adminAuth,coupenController.getAddCoupen);
+router.post("/addcoupen",adminAuth,coupenController.addCoupen);
+router.delete("/deleteCoupen/:id",adminAuth,coupenController.deleteCoupen)
+
 
 module.exports=router;

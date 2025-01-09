@@ -116,11 +116,11 @@ const userOrders = async(req,res)=>{
         const allowedTransitions = {
           Processing: ['Shipped', 'Delivered','Cancelled'],
           Shipped: ['Delivered'],
-          Delivered: [], // No changes allowed from Delivered
-          Cancelled: [], // No changes allowed from Cancelled
+          Delivered: [], 
+          Cancelled: [], 
         };
 
-        // Check if the new status is valid for the current status
+        
     if (!allowedTransitions[currentStatus]?.includes(newStatus)) {
       return res.status(400).json({
         success: false,
@@ -131,20 +131,20 @@ const userOrders = async(req,res)=>{
 
     let cancelledItemDetails;
       
-        // Update stock if item is cancelled
+       
         if (newStatus === 'Cancelled') {
           const product = await Product.findById(productId);
           if (product) {
-              // Find the specific color in colorStock array
+              
               const colorStockIndex = product.colorStock.findIndex(
                   colorStock => colorStock.color === color
               );
 
               if (colorStockIndex !== -1) {
-                  // Update the quantity in colorStock
+                  
                   product.colorStock[colorStockIndex].quantity += itemToUpdate.quantity;
                   
-                  // Update status if necessary
+                  
                   if (product.colorStock[colorStockIndex].quantity > 0) {
                       product.colorStock[colorStockIndex].status = "Available";
                   }
@@ -161,10 +161,10 @@ const userOrders = async(req,res)=>{
           }
       }
   
-      // Update the item's status
+      
       itemToUpdate.itemStatus = newStatus;
 
-      // Check if all items have the same status
+      
       const allItemsHaveSameStatus = order.orderItem.every(
           item => item.itemStatus === newStatus
       );

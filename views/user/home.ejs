@@ -129,7 +129,14 @@
 							</div>
 							<h3><%= products[i].productName %></h3>
 							<div class="pricing">
-							  <p class="price"><span><%= products[i].salePrice %></span></p>
+							  <p class="price">
+								<span>
+									<% if (products[i].salePrice !== null && products[i].salePrice !== undefined) { %>
+										₹<%= products[i].salePrice.toFixed(2) %> 
+									<% } else { %>
+										₹<%= products[i].regularPrice.toFixed(2) %> 
+									<% } %>
+								</span></p>
 							  <div class="product-action-1">
 							
 							  </div>

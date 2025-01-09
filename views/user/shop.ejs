@@ -87,7 +87,7 @@
                                 <a href="/productDetails?id=<%= product._id %>" class="img-prod">
                                     <img class="img-fluid" src="/uploads/re-image/<%= product.productImage[0] %>" alt="<%= product.productName %>">
                                     <% if (product.productOffer > 0) { %>
-                                        <span class="status"><%=product.productOffer%></span>
+                                        <span class="status"><%=product.finalOffer%></span>
                                     <% } %>
                                     <div class="overlay"></div>
                                 </a>
@@ -99,7 +99,7 @@
                                     </div>
                                     <h3><%= product.productName %></h3>
                                     <div class="pricing">
-                                        <% if (product.productOffer > 0) { %>
+                                        <% if (product.finalOffer > 0) { %>
                                             <p class="price">
                                                 <span class="mr-2 price-dc">₹<%= product.regularPrice %></span>
                                                 <span class="price-sale">₹<%= product.salePrice %></span>

@@ -21,7 +21,7 @@ const loadCart = async (req, res) => {
     const cartDetails = await Cart.find({ userId })
       .populate({
         path: "productId",
-        select: "productName salePrice productImage colorStock isBlocked",
+        select: "productName regularPrice salePrice productImage colorStock isBlocked",
       })
       .populate({
         path: "categoryId",

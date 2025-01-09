@@ -1,0 +1,301 @@
+<%- include('../partials/admin/header') %>
+
+<div class="coupon-list-container">
+    <div class="page-header">
+        <h1 class="page-title">Coupon Management</h1>
+        <div class="search-bar">
+            <input type="text" placeholder="Search Coupons..." id="search-input" value="<%= searchQuery %>">
+            <button class="search-button" id="search-btn">
+                <span class="material-icons">search</span>
+            </button>
+        </div>
+        <a href="/admin/addcoupen" class="add-coupon-btn">
+            <i class="fas fa-plus"></i> Add New Coupon
+        </a>
+    </div>
+
+    <div class="coupon-table-container">
+        <table class="coupon-table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Description</th>
+                    <th>Discount</th>
+                    
+                    <th>Expiry Date</th>
+                    <th>UsedCount</th>
+                    <th>UseLimit</th>
+                    <th>Applicable</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% coupons.forEach(coupon => { %>
+                <tr>
+                    <td><%= coupon.code %></td>
+                    <td><%= coupon.description %></td>
+                    <% if(coupon.discountType === 'percentage') {%>
+                    <td><%= coupon. minDiscountValue %>%</td>
+                    <% }else{ %>
+                        <td><%= coupon. minDiscountValue %></td>
+                        <% } %>
+                   
+                    <td><%= coupon.expiryDate.getFullYear() + '-' + String(coupon.expiryDate.getMonth() + 1).padStart(2, '0') + '-' + String(coupon.expiryDate.getDate()).padStart(2, '0') %></td>
+                    <td><%= coupon.usedCount %></td>
+                    <td><%= coupon.usageLimit %></td>
+                    <td><%= coupon.conditions %>
+                        <% if(coupon.conditions === 'minimum_purchase') {%>
+                         <br> ₹<%=coupon.minPurchaseAmount%>
+                         <% } %>
+                        </td>
+                    <% if(coupon.isActive) {%>
+                    <td><span class="status-badge active">Active</span></td>
+                    <%}else{%>
+                        <td><span class="status-badge inactive">Inactive</span></td>
+                        <%}%>
+                    <td class="action-buttons">
+                       
+
+                        
+                        <button class="action-btn offer-btn" onclick="deleteCoupon('<%= coupon._id%>')">Delete</button>
+                    </td>
+                </tr>
+                <% }) %>
+                <!-- More rows as needed -->
+            </tbody>
+        </table>
+    </div>
+    <% if(coupons.length === 0) {%>
+        <p>No orders found!</p>
+        <%} else if(coupons.length> 1){%>
+
+    <div class="pagination">
+        <a href="?page=<%= currentPage - 1 %>" class="pagination-btn" id="prev-btn" 
+            <%= currentPage === 1 ? 'disabled' : '' %> >
+            <span class="material-icons">chevron_left</span>
+        </a>
+        <span class="page-number">Page <span id="current-page"><%= currentPage %></span> of <span id="total-pages"><%= totalPages %></span></span>
+        <a href="?page=<%= currentPage + 1 %>" class="pagination-btn" id="next-btn" 
+            <%= currentPage === totalPages ? 'disabled' : '' %> >
+            <span class="material-icons">chevron_right</span>
+        </a>
+    </div>
+    <% } %>
+
+</div>
+
+<style> -->
+    .coupon-list-container {
+        padding: 20px;
+        background-color: #e5e8eb;
+        color: rgb(10, 9, 9);
+        min-height: 100vh;
+    }
+
+    .page-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+
+    .page-title {
+        font-size: 24px;
+        color: rgb(15, 14, 14);
+    }
+
+    .add-coupon-btn {
+        display: inline-flex;
+        align-items: center;
+        padding: 8px 16px;
+        background-color: #787f8a;
+        color: rgb(8, 8, 8);
+        text-decoration: none;
+        border-radius: 4px;
+        font-weight: 500;
+        transition: background-color 0.2s;
+    }
+
+    .add-coupon-btn:hover {
+        background-color: #4B5563;
+    }
+
+    .add-coupon-btn i {
+        margin-right: 8px;
+    }
+
+    .coupon-table-container {
+        background-color: #111827;
+        border-radius: 8px;
+        overflow: hidden;
+    }
+
+    .coupon-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .coupon-table th {
+        background-color: #f3f4f6;
+        color: rgb(120, 117, 117);
+        padding: 12px 16px;
+        text-align: left;
+        font-weight: 500;
+    }
+
+    .coupon-table td {
+        padding: 12px 16px;
+        border-bottom: 1px solid #374151;
+        color: #E5E7EB;
+    }
+
+    .status-badge {
+        padding: 4px 8px;
+        border-radius: 4px;
+        font-size: 12px;
+        font-weight: 500;
+    }
+
+    .status-badge.active {
+        background-color: #059669;
+        color: white;
+    }
+
+    .status-badge.inactive {
+        background-color: #e12121;
+        color: white;
+    }
+
+    .status-badge.inactive {
+        background-color: #DC2626;
+        color: white;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .action-btn {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        font-weight: 500;
+        transition: opacity 0.2s;
+    }
+
+    .action-btn:hover {
+        opacity: 0.9;
+    }
+
+    .list-btn {
+        background-color: #4CAF50;
+        color: white;
+    }
+    .unlist-btn{
+        background-color: #d82d2d;
+        color: white;
+
+    }
+
+    .edit-btn {
+        background-color: #3B82F6;
+        color: white;
+    }
+
+    .offer-btn {
+        background-color: #f91616;
+        color: white;
+    }
+    .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 10px;
+    }
+    .pagination-btn {
+        background-color: #4a5568;
+        color: #ffffff;
+        border: none;
+        padding: 5px 10px;
+        border-radius: 4px;
+        cursor: pointer;
+    }
+    .pagination-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    .page-number {
+        font-size: 14px;
+    }
+</style>
+
+<script>
+
+    document.addEventListener('DOMContentLoaded', function(){
+         const editButton = document.querySelectorAll('.edit-btn');
+         const listButton = document.querySelectorAll('.list-btn');
+
+         const searchButton = document.getElementById('search-btn')
+         const searchInput = document.getElementById('search-input')
+
+         searchButton.addEventListener('click', function(){
+            const inputValue = searchInput.value.trim();
+
+            if(inputValue){
+                window.location.href =`/admin/coupens?search=${inputValue}`
+            } else {
+
+                Toastify({
+                    text: "Enter any input here!",
+                    duration: 3000,
+                    close: true, 
+                    gravity: "top", 
+                    position: "right", 
+                    backgroundColor: "#FF5733", 
+                    stopOnFocus: true, 
+                }).showToast();
+            }
+         })
+    })
+
+
+    async function deleteCoupon(coupenId){
+        if(!coupenId){
+            alert("Invalid coupenId");
+            return;
+        }
+
+        const confirmDelete = confirm("Are you sure you want to delete this coupen")
+
+        if(!confirmDelete) return;
+
+        try {
+
+            const response = await fetch(`/admin/deleteCoupen/${coupenId}`,{
+                method: "DELETE"
+            });
+
+            if(response.ok){
+                alert("Coupen deleted successfully");
+                location.reload();
+            } else{
+                const errorData = await response.json();
+                alert(`Failed to delete coupen: ${errorData.error || "Unknown error"}`)
+            }
+            
+        } catch (error) {
+            console.error("Error deleting coupen",error);
+            alert("An error occured while deleting the coupen")
+            
+        }
+    }
+
+
+    
+
+
+</script>
