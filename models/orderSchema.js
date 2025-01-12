@@ -14,6 +14,7 @@ const orderSchema=new Schema({
         required:true
     },
     orderItem:[
+        
         {
             productId : {
                 type : mongoose.Types.ObjectId,
@@ -77,7 +78,7 @@ const orderSchema=new Schema({
     },
     orderStatus:{
         type: String,
-        enum:['Processing','Delivered','Cancelled','Shipped'],
+        enum:['Processing','Delivered','Cancelled','Shipped','Failed','Full Order Returned'],
         default:'Processing',
         required: true
 
@@ -95,6 +96,12 @@ const orderSchema=new Schema({
          type:String,
          enum:['Pending','Completed','Failed'],
          default:'Pending'
+    },
+    totalDiscount:{
+       type: Number
+    },
+    couponDiscount:{
+        type:Number,
     },
     appliedCouponCode : {
         type : String,

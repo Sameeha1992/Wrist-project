@@ -4,6 +4,7 @@ const Cart = require("../../models/cartSchema");
 const Order = require("../../models/orderSchema");
 const mongoose = require('mongoose');
 const Razorpay = require('razorpay');
+const Wallet = require("../../models/walletSchema")
 require("dotenv").config();
 const crypto = require("crypto");
 
@@ -94,6 +95,8 @@ const viewOrderDetails = async (req,res)=>{
             items 
         };
 
+        console.log(orderData,"order data in the ordersss")
+
         res.render("orderDetails", { order: orderData });
 
     } catch (error) {
@@ -134,6 +137,51 @@ const cancelOrder = async(req,res)=>{
         }
 
        itemToCancel.itemStatus  ='Cancelled';
+
+       const refundAmount = itemToCancel.totalPrice;
+       const useridForWallet = order.userId;
+
+
+        if(order.paymentMethod === 'Razorpay'){
+            
+
+            const wallet = await Wallet.findOneAndUpdate(
+                {userId: useridForWallet},
+                {$inc: { walletBalance: refundAmount}},
+                {new: true,upsert:true}
+            )
+
+            wallet.transactions = wallet.transactions || [];
+            wallet.transactions.push({
+                transactionType:'credit',
+                transactionAmount: refundAmount,
+                transactionDescription: 'Order amount refunded',
+                transactionId: `TXN-${Date.now()}`
+            });
+
+            await wallet.save();
+        } else if(order.paymentMethod==='Wallet'){
+
+            
+            const wallet = await Wallet.findByIdAndUpdate(
+                {userId},
+                {$inc:{walletBalance:refundAmount}},
+                {new: true, upsert: true}
+
+            )
+
+            wallet.transactions = wallet.transactions || [];
+            wallet.transactions.push({
+                transactionType:'credit',
+                transactionAmount:refundAmount,
+                transactionDescription:'Order cancel amount refunded',
+                transactionId:`TXN-${Date.now()}`
+            });
+            await wallet.save();
+        }
+
+
+        
       
             const product = await Product.findById(itemToCancel.productId);
             if (product) {

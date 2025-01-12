@@ -10,7 +10,7 @@ const showCoupen = async(req,res)=>{
         const skip = (page-1) *limit;
 
         let searchQuery = req.query.search || '';
-        console.log(searchQuery,"searchQuery")
+        
 
         let filter = {};
         if(searchQuery) {
@@ -55,8 +55,9 @@ const getAddCoupen = async(req,res)=>{
 const addCoupen = async(req,res)=>{
     try {
 
-        const {code,description,discountType,minDiscountValue, maxDiscountValue, expiryDate, usageLimit, conditions, minimumPurchaseAmount} = req.body;
-        console.log(req.body,"req.bodyyyyyyyyyyyyyyyy coupennnnnn")
+        const {code,description,discountType,minDiscountValue, expiryDate, usageLimit, conditions, minimumPurchaseAmount} = req.body;
+        
+        console.log(req.body,"apply coupon,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,")
 
         const existCode = await Coupen.findOne({code})
 
@@ -68,9 +69,9 @@ const addCoupen = async(req,res)=>{
             code,
             description,
             minDiscountValue,
-            maxDiscountValue,
             expiryDate,
             usageLimit,
+            isActive: true,
             conditions,
             discountType,
             minPurchaseAmount:minimumPurchaseAmount

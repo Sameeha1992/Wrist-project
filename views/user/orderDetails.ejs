@@ -124,13 +124,32 @@
                             <p class="mb-0">₹<%= item.price.toFixed(2) %></p>
                         </div>
 
-                        <% if(['Processing','Shipped'].includes(item.itemStatus)) { %>
+                        <% if(['Processing'].includes(item.itemStatus)) { %>
                             <div class="col-12 mt-2">
                                 <button class="btn btn-sm btn-danger" onclick="cancelIndividualItem('<%= order._id %>', '<%= item._id %>')">
                                     Cancel Item
                                 </button>
                             </div>
+                             <!--Retry payment displaying-->
+
+                            <% } else if(['Failed'].includes(item.itemStatus)){ %>
+
+                                <div class="col-12 mt-2">
+                                    <button class="btn btn-sm btn-primary" onclick="retryPayment('<%= order._id %>')">
+                                        Retry Payment
+                                    </button>
+                                    <button class="btn btn-sm btn-danger" onclick="cancelIndividualItem('<%= order._id %>')">
+                                        Cancel Payment
+                                    </button>
+                                </div>
+                            <% } else if(['Delivered'].includes(item.itemStatus)){ %>
+                                <div class="col-12 mt-2">
+                                    <button class="btn btn-sm btn-warning" onclick="returnDeliveredItem('<%= order._id %>', '<%= item._id %>')">
+                                        Return Item
+                                    </button>
+                                </div>
                             <% } %>
+                           
 
                     </div>
                 <% }); %>

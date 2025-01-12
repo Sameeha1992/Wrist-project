@@ -35,7 +35,7 @@ const coupenSchema = new mongoose.Schema({
     },
     isActive: {
         type: Boolean,
-        default: false
+        default: true,
     },
     conditions: {
         type: String,

@@ -14,6 +14,8 @@ const checkoutController = require("../controllers/user/checkoutController")
 const orderController = require("../controllers/user/orderController");
 const wishlistController = require("../controllers/user/wishlistController")
 const passport = require("passport");
+const walletController = require("../controllers/user/walletController");
+const userCouponController = require("../controllers/user/usercoupenController")
 
 
 //Homepage
@@ -91,6 +93,22 @@ user_router.delete("/deleteaddress",userAuth,profileController.deleteAddress)
 user_router.get("/getWishlist",userAuth,wishlistController.getWishlistPage);
 user_router.post("/addToWishlist",userAuth,wishlistController.addToWishlist);
 user_router.post("/remove-from-wishlist",userAuth,wishlistController.removeFromWishlist);
+
+
+
+// Wallet management:-
+
+user_router.get("/getWallet",userAuth,walletController. getWallet);
+
+
+//Coupon Management:-
+
+user_router.post('/apply-coupon',userAuth,userCouponController.coupenApply);
+user_router.post("/removeCoupons",userAuth,userCouponController.removeCoupon)
+
+
+
+
 
 //Payment Integration:-
 

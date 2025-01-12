@@ -1,35 +1,360 @@
+<%- include('../partials/user/profileHead') %>  
+<style>
+      
+   /* Main Layout */
+.wallet-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
 
-            <!-- Wallet History -->
-            <div class="tab-pane fade" id="wallet-history" role="tabpanel" aria-labelledby="orders-tab">
-                <div class="card">
-                  <div class="card-header">
-                    <h5 class="mb-0">Wallet History</h5>
-                  </div>
-                  <div class="card-body">
-                    <div class="table-responsive">
-                      <table class="table">
-                        <thead>
-                          <tr>
-                            <th>Date</th>
-                            <th>Status</th>
-                            <th>Amount</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          <% const dates = ['2023-05-01', '2023-05-15', '2023-06-01'];
-                             const statuses = ['Credit', 'Debit', 'Credit'];
-                             const amounts = [100, 50, 200];
-                             for(let i=0; i<3; i++) { %>
-                            <tr>
-                              <td><%= dates[i] %></td>
-                              <td><%= statuses[i] %></td>
-                              <td>$<%= amounts[i] %>.00</td>
-                            </tr>
-                          <% } %>
-                        </tbody>
-                      </table>
+/* Header Styling */
+.wallet-header {
+    background-color: #f8fafc;
+    border-radius: 0.5rem;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.wallet-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 1rem;
+}
+
+.wallet-balance {
+    font-size: 2.25rem;
+    font-weight: 700;
+    color: #047857;
+}
+
+/* Transaction Section */
+.transactions-section {
+    background-color: white;
+    border-radius: 0.5rem;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    padding: 1.5rem;
+}
+
+.transactions-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 1.5rem;
+}
+
+/* Transaction Table */
+.transaction-table {
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 0;
+    margin-bottom: 1.5rem;
+}
+
+.transaction-table th {
+    background-color: #f8fafc;
+    font-weight: 600;
+    color: #475569;
+    text-align: left;
+    padding: 1rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.transaction-table td {
+    padding: 1rem;
+    border-bottom: 1px solid #e2e8f0;
+    color: #334155;
+}
+
+.transaction-table tbody tr:hover {
+    background-color: #f8fafc;
+}
+
+.transaction-id {
+    font-family: 'JetBrains Mono', monospace;
+    color: #6b7280;
+    font-size: 0.875rem;
+}
+
+.transaction-type {
+    text-transform: capitalize;
+}
+
+.transaction-amount {
+    font-weight: 600;
+}
+
+.transaction-amount.credit {
+    color: #059669;
+}
+
+.transaction-amount.debit {
+    color: #dc2626;
+}
+
+/* Pagination */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 2rem;
+}
+
+.pagination-button {
+    padding: 0.5rem 1rem;
+    border-radius: 0.375rem;
+    background-color: #f8fafc;
+    color: #1e293b;
+    border: 1px solid #e2e8f0;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.pagination-button:hover {
+    background-color: #e2e8f0;
+}
+
+.pagination-button.active {
+    background-color: #2563eb;
+    color: white;
+    border-color: #2563eb;
+}
+
+/* Empty State */
+.no-transactions {
+    text-align: center;
+    padding: 3rem;
+    color: #6b7280;
+    font-size: 1.125rem;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .wallet-container {
+        padding: 1rem;
+    }
+
+    .wallet-header {
+        padding: 1.5rem;
+    }
+
+    .wallet-balance {
+        font-size: 1.875rem;
+    }
+
+    .transaction-table {
+        display: block;
+        overflow-x: auto;
+    }
+
+    .transaction-table th,
+    .transaction-table td {
+        padding: 0.75rem;
+        white-space: nowrap;
+    }
+
+    .transaction-id {
+        max-width: 120px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+}
+/* Back Button */
+.back-button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    margin-bottom: 1.5rem;
+    background-color: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 0.375rem;
+    color: #1e293b;
+    font-weight: 500;
+    text-decoration: none;
+    transition: all 0.2s ease;
+}
+
+.back-button:hover {
+    background-color: #e2e8f0;
+    color: #1e293b;
+    text-decoration: none;
+}
+
+.back-button svg {
+    width: 1.25rem;
+    height: 1.25rem;
+    stroke-width: 2;
+}
+
+/* Breadcrumbs */
+.breadcrumb-nav {
+    background-color: transparent;
+    padding: 1rem 0;
+    margin-bottom: 2rem;
+}
+
+.breadcrumb {
+    display: flex;
+    flex-wrap: wrap;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+    align-items: center;
+}
+
+.breadcrumb-item {
+    display: flex;
+    align-items: center;
+    color: #64748b;
+    font-size: 0.875rem;
+}
+
+.breadcrumb-item a {
+    color: #64748b;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.breadcrumb-item a:hover {
+    color: #2563eb;
+}
+
+.breadcrumb-item + .breadcrumb-item {
+    padding-left: 0.75rem;
+}
+
+.breadcrumb-item + .breadcrumb-item::before {
+    content: "/";
+    padding-right: 0.75rem;
+    color: #94a3b8;
+}
+
+.breadcrumb-item.active {
+    color: #1e293b;
+    font-weight: 500;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .breadcrumb {
+        font-size: 0.8125rem;
+    }
+
+    .back-button {
+        padding: 0.625rem 1rem;
+    }
+}
+
+</style>
+
+<main class="main">
+    <div class="page-header text-center" style="background-image: url('assets/images/page-header-bg.jpg')">
+        <div class="container">
+            <h1 class="page-title">My<span></span></h1>
+        </div><!-- End .container -->
+    </div><!-- End .page-header -->
+    <nav aria-label="breadcrumb" class="breadcrumb-nav mb-3">
+        <div class="container">
+            <ol class="breadcrumb">
+                <li class="breadcrumb-item"><a href="/home">Home</a></li>
+                <li class="breadcrumb-item"><a href="/userProfile">My account</a></li>
+                <li class="breadcrumb-item active" aria-current="page">My Wallet</li>
+            </ol>
+        </div><!-- End .container -->
+    </nav><!-- End .breadcrumb-nav -->
+
+    <div class="page-content">
+        <div class="dashboard">
+            <div class="container">
+                <div class="row">
+                    <a href="/beats/userProfile" class="back-button">← Back to Account</a>
+
+                    <div class="wallet-content">
+                        <div class="wallet-header">
+                            <h5><strong>My Wallet</strong></h5>
+                            <div class="wallet-balance">₹<%= walletBalance %></div>
+                        </div>
+                    
+                        <!-- <div class="btn-group">
+                            <button class="btn">Add Funds</button>
+                        </div> -->
+                    
+                        <h4>Transaction History</h4>
+                        <table class="transaction-table">
+                            <thead>
+                                <tr>
+                                    <th>Transaction ID</th>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Type</th>
+                                    <th>Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <% if (transactions.length === 0) { %>
+                                    <li>No transactions available.</li>
+                                    <% } else { %>
+                                        <% transactions.forEach(transaction => { %>
+                                <tr>
+                                    <% 
+                                    // Create a new Date object and format it
+                                    var date = new Date(transaction.transactionDate);
+                                    var formattedDate = (date.getMonth() + 1) + '/' + date.getDate() + '/' + date.getFullYear();
+
+                                    var transactionSymbol = transaction.transactionType === 'credit' ? '+' : '-';
+                                    var transactionColor = transaction.transactionType === 'credit' ? 'green' : 'red';
+                                
+                                %>
+                                    <td class="transaction-id"><%= transaction.transactionId %></td>
+                                    <td class="transaction-date"><%= formattedDate %></td>
+                                    <td><%= transaction.transactionDescription %></td>
+                                    <td><%= transaction.transactionType %></td>
+                                    <td class="transaction-amount" style="color: <%= transactionColor %>;">
+                                        <%= transactionSymbol %><%= transaction.transactionAmount %>
+                                    </td>
+                                </tr>
+                                <% }) %>
+                                <% } %>
+                               
+                            </tbody>
+                        </table>
+                        
+                        <div class="pagination">
+                            <% for (let i = 1; i <= totalPage; i++) { %>
+                                <a href="?page=<%= i %>&limit=<%= limit %>" class="pagination-button <%= page === i ? 'active' : '' %>"><%= i %></a>
+                            <% } %>
+                        </div>
+                        
+                        
                     </div>
-                  </div>
+                    
+                    <script>
+                      
+                    </script>
+
                 </div>
-              </div>
-  
+            </div>
+        </div>
+    </div>
+</main>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<%- include('../partials/mainfooter') %>  

@@ -36,12 +36,16 @@ const walletSchema = new mongoose.Schema({
         },
         transactionId:{
             type:String,
-            required: true
         },
-        transactionDescription:{
+        transactionStatus: {
             type: String,
-            required: false
-        }
+            enum: ["pending", "completed", "failed"],
+            required:false
+          },
+        // transactionDescription:{
+        //     type: String,
+        //     required: false
+        // }
     }]
 },{timestamps:true});
 

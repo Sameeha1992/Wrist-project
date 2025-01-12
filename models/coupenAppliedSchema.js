@@ -1,7 +1,7 @@
 const mongoose = require('mongoose');
 
 const usedCoupenSchema = new mongoose.Schema({
-    coupenId:{
+    couponId:{
         type: mongoose.Schema.Types.ObjectId,
         ref:'Coupen',
         required: true
@@ -22,4 +22,5 @@ const usedCoupenSchema = new mongoose.Schema({
     }
 },{timestamps: true});
 
-module.exports = mongoose.model('UseCoupen',usedCoupenSchema)
+const AppliedCoupen = mongoose.model('UseCoupen',usedCoupenSchema);
+module.exports=AppliedCoupen;

@@ -444,6 +444,281 @@ document.getElementById('addColorStock').addEventListener('click', function () {
             addedImagesContainer.appendChild(thumbnail);
         }
     }
+
+
+
+
+
+
+        
+    document.addEventListener('DOMContentLoaded', () => {
+    const placeOrderBtn = document.getElementById('placeOrderBtn');
+    
+
+    placeOrderBtn.addEventListener('click', async () => {
+        const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+        const paymentAddress = selectedAddress.value
+        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+        const paymentMethod = selectedPaymentMethod.value;
+        const couponInput = document.getElementById('coupon-code');
+        const appliedCoupon = couponInput.value
+        const subtotalElement = document.getElementById('total');
+        const grandTotalElement = document.getElementById('grand-total');
+        const walletBalance = parseFloat(document.getElementById('wallet-balance').value)
+        const userId = '<%- userId %>'
+        const discountAmount = document.getElementById('discount').value;
+       
+        console.log(paymentAddress,paymentMethod,couponInput,appliedCoupon,subtotalElement,grandTotalElement,walletBalance,userId,discountAmount)
+
+        
+console.log(subtotalElement,"total")
+        console.log("Selected Address:", paymentAddress);
+console.log("Payment Method:", paymentMethod);
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+
+
+        // Validate selections
+        if (!paymentAddress) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Oops...',
+                text: 'Please select a shipping address',
+            });
+            return;
+        }
+
+        if (!selectedPaymentMethod) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Oops...',
+                text: 'Please select a payment method',
+            });
+            return;
+        }
+
+
+      
+
+        // Show confirmation dialog
+        const result = await Swal.fire({
+            title: 'Confirm Order',
+            text: 'Are you sure you want to place this order?',
+            icon: 'question',
+            showCancelButton: true,
+            confirmButtonText: 'Yes, Place Order',
+            cancelButtonText: 'No, Cancel',
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33'
+        });
+
+        if(!result.isConfirmed){
+            Swal.fire('Cancelled', 'Your order could not be placed');
+            return
+        }
+
+        if (paymentMethod === 'COD') {
+            try {
+                const response = await fetch("/place-order", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        paymentAddress:paymentAddress,
+                        paymentMethod: paymentMethod,
+                        appliedCoupon:appliedCoupon
+                        
+                    })
+                });
+
+                const data = await response.json();
+                
+                if (response.ok) {
+                    Swal.fire({
+                        icon: 'success',
+                        title: 'Order Placed',
+                        text: 'Yor order placed successfully',
+                        timer: 3000,
+                        showConfirmButton: false
+                    }).then(() => {
+                        window.location.href = '/orderSuccess';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: data.message || 'Something went wrong. Please try again.',
+                    });
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Order Failed',
+                    text: error.message || 'Something went wrong while placing the order.',
+                });
+            } 
+        } else if(paymentMethod==='Razorpay'){
+
+            
+            try {
+                const response = await fetch("/create-razorpay-order",{
+                    method: 'POST',
+                    headers: {
+                        'Content-type': 'application/json'
+                    },
+                    body:JSON.stringify({
+                        amount: totalValue,
+                        currency: 'INR',
+                        paymentAddress:paymentAddress
+                       
+                    })
+                })
+
+                const data = await response.json();
+
+                if(!response.ok) {
+                    throw new Error(data.message || "Failed to create order")
+                }
+
+                if(data.order_id){
+                    const razorpayOptions = {
+                        key:data.RAZORPAY_KEYID,
+                        amount:data.amount,
+                        currency: data.currency,
+                        name:"WristStyle",
+                        description:"Order Payment",
+                        order_id: data.order_id,
+                        handler:async function(response){
+                            try {
+                                const verifyResponse = await fetch("/verify-payment",{
+                                    method: "POST",
+                                    headers: {
+                                        'Content-Type': 'application/json'
+                                    },
+                                    body: JSON.stringify({
+                                        razorpay_order_id: response.razorpay_order_id,
+                                        razorpay_payment_id: response.razorpay_payment_id,
+                                        razorpay_signature: response.razorpay_signature,
+                                        paymentAddress:paymentAddress,
+                                        paymentMethod
+                                    })
+                                });
+
+                                const verifyData = await verifyResponse.json();
+
+                                if (!verifyResponse.ok) {
+                                    throw new Error(verifyData.message || 'Payment verification failed');
+                                }
+
+                                
+                                await Swal.fire({
+                                    icon: 'success',
+                                    title: 'Payment Successful',
+                                    text: 'Your payment has been verified successfully',
+                                    timer: 3000,
+                                    showConfirmButton: false
+                                });
+
+                                window.location.href = "/orderSuccess";
+                            } catch (error) {
+                                Swal.fire({
+                                    icon: 'error',
+                                    title: 'Verification Error',
+                                    text: error.message || 'Something went wrong while verifying payment'
+                                });
+                            }
+                        },
+                        prefill: {
+                            name: data.customerName,    // Add customer details from backend
+                            email: data.customerEmail,
+                            contact: data.customerPhone
+                        },
+                        theme: {
+                            color: "#3399cc"
+                        }
+                    };
+
+                    const rzp = new Razorpay(razorpayOptions);
+                    rzp.open();
+                }
+            } catch (error) {
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Order Failed',
+                    text: error.message || 'Something went wrong while placing the order'
+                });
+            }
+        } else if(paymentMethod === 'Wallet'){
+             try {
+                const response = await fetch("/place-order",{
+                    method:"POST",
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        paymentAddress:paymentAddress,
+                        paymentMethod: paymentMethod,
+
+                    })
+                });
+                const data = await response.json();
+
+                if(response.ok){
+                    Swal.fire({
+                        icon:'success',
+                        title:'Order Placed',
+                        text:'Your order has been successfully placed',
+                        timer: 3000,
+                        showConfirmButton: false
+                    }).then(()=>{
+                        window.location.href ='/orderSuccess'
+                    })
+                } else {
+                    Swal.fire({
+                      icon:'error',
+                      title:'Payment Error',
+                      text:data.message || 'Insufficient wallet balance or something went wrong.Please try again '
+
+                    })
+                }
+                
+             } catch (error) {
+                Swal.fire({
+                   
+                    icon:'error',
+                    title:'Order failed',
+                    text:error.message || 'Something went wrong'
+                })
+                
+             }
+        }
+    });
+});
+
+
+
+
+
+
+
+
+
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
 </script>
 
     
