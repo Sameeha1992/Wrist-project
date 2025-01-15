@@ -57,9 +57,13 @@ const addCoupen = async(req,res)=>{
 
         const {code,description,discountType,minDiscountValue, expiryDate, usageLimit, conditions, minimumPurchaseAmount} = req.body;
         
-        console.log(req.body,"apply coupon,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,")
+        
 
-        const existCode = await Coupen.findOne({code})
+        const existCode = await Coupen.findOne({code});
+
+        if(minDiscountValue > minimumPurchaseAmount){
+            return res.status(400).json({message:"Discount amont cannot be greater than the minimum amount"})
+        }
 
         if(existCode){
             return res.status(409).json({message:'Coupen code already exists..!'})

@@ -7,7 +7,9 @@ const brandController = require("../controllers/admin/brandController")
 const productController = require("../controllers/admin/productController");
 const adminOrderController = require("../controllers/admin/adminOrderController");
 const productOfferController = require("../controllers/admin/product/productOfferController.js");
-const coupenController = require("../controllers/admin/coupenController.js")
+const coupenController = require("../controllers/admin/coupenController.js");
+const returnOrderController = require("../controllers/admin/returnOrderController");
+const salesReportController = require("../controllers/admin/salesReportController.js")
 
 const {userAuth,adminAuth, isAdminLogout} = require("../middlewares/auth");
 const multer = require("multer");
@@ -79,12 +81,22 @@ router.patch("/update-order-status/:id",adminAuth,adminOrderController.updatedOr
 router.get("/orderDetails/:id",adminAuth,adminOrderController.viewUserOrderDetails);
 // router.put('/orders/:orderId/product/:productId/return', adminAuth, adminOrderController.handleReturn);
 
-//Coupen management:-
+
+router.get('/returns', returnOrderController.getReturnsPage);
+router.post('/returnUpdateStatus', returnOrderController.updateReturnStatus);
+// //Coupen management:-
 
 router.get("/coupens",adminAuth,coupenController.showCoupen);
 router.get("/addcoupen",adminAuth,coupenController.getAddCoupen);
 router.post("/addcoupen",adminAuth,coupenController.addCoupen);
 router.delete("/deleteCoupen/:id",adminAuth,coupenController.deleteCoupen)
 
+
+//salesReport:-
+
+router.get('/renderSalesReportPage',adminAuth,salesReportController.renderSalesReportPage);
+router.get('/saleReportFetch',adminAuth,salesReportController.fetchSalesReport);
+router.get("/reportDownloadPdf",adminAuth,salesReportController.downloadSalesReportPdf);
+router.get('/reportDownloadExcel',adminAuth,salesReportController.downloadSalesReportExel)
 
 module.exports=router;

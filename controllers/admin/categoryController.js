@@ -8,7 +8,7 @@ const Product = require("../../models/productSchema")
 
 
 const categoryInfo = async(req,res)=>{
-    console.log("I am working")
+  
 
     try {
 

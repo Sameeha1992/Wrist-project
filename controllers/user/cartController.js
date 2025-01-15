@@ -29,7 +29,7 @@ const loadCart = async (req, res) => {
       });
 
 
-      console.log(cartDetails,"cartdetails of the cart")
+      
       
      
 
@@ -118,7 +118,7 @@ const addToCart = async (req, res) => {
 
     const userId = req.session.user;
     const { productId, quantity, colorStockId,origin,wishlistId} = req.body;
-    console.log(req.body,'req bodydyy')
+    
     const maxLimit = 5;
 
     const product = await Product.findById(productId);

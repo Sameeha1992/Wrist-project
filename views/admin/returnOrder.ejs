@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Return Requests</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50">
+    <div class="container mx-auto px-4 py-8">
+
+        <div class="mb-4">
+            <button 
+                onclick="window.history.back()" 
+                class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded-md text-sm font-medium"
+            >
+                Go Back
+            </button>
+        </div>
+
+        <h2 class="text-2xl font-semibold text-gray-800 mb-6">Return Requests</h2>
+
+        <!-- Filter Section -->
+        <div class="bg-white rounded-lg shadow-sm p-4 mb-6">
+            <div class="flex flex-col md:flex-row gap-4 items-start md:items-center">
+                <select 
+                    id="statusFilter" 
+                    onchange="applyFilter()"
+                    class="w-full md:w-48 px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                >
+                    <option value="all">All Returns</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Approved">Approved</option>
+                    <option value="Rejected">Rejected</option>
+                </select>
+            </div>
+        </div>
+
+        <!-- Table Section -->
+        <div class="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Return Reason</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        <% if (orders && orders.length > 0) { %>
+                        <% orders.forEach(function(order) { %>
+                            <% order.orderItem.forEach(function(item) { %>
+                               
+                                    <tr>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= order._id %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <div class="text-sm text-gray-900"><%= item.productId.productName %></div>
+                                            <div class="text-sm text-gray-500">
+                                                Quantity: <%= item.quantity %><br>
+                                                Status: <%= item.itemStatus %>
+                                            
+                                            </div>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= order.userId.name %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= item.returnReason || 'Not specified' %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <% if (item.returnRequest === 'Pending') { %>
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">
+                                                    Pending
+                                                </span>
+                                            <% } else if (item.returnRequest === 'Approved') { %>
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                                    Approved
+                                                </span>
+                                            <% } else { %>
+                                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                                    Rejected
+                                                </span>
+                                            <% } %>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                                            <% if (item.returnRequest === 'Pending') { %>
+                                                <button 
+                                                    onclick="updateStatus(
+                                                        '<%= order._id %>', 
+                                                        '<%= item._id %>', 
+                                                        '<%= item.productId._id %>', 
+                                                        'Approved'
+                                                    )"
+                                                    class="mr-2 bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm transition-colors duration-200"
+                                                >
+                                                    Approve
+                                                </button>
+                                                <button 
+                                                    onclick="updateStatus(
+                                                        '<%= order._id %>', 
+                                                        '<%= item._id %>', 
+                                                        '<%= item.productId._id %>', 
+                                                        'Rejected'
+                                                    )"
+                                                    class="bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-md text-sm transition-colors duration-200"
+                                                >
+                                                    Reject
+                                                </button>
+                                            <% } %>
+                                        </td>
+                                    </tr>
+                                    <% }); %>
+                                    <% }); %>
+                                <% } else { %>
+                                    <tr>
+                                        <td colspan="6" class="px-6 py-4 text-center text-gray-500">No return requests found</td>
+                                    </tr>
+                                <% } %>
+                            </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pagination -->
+        <% if (totalPages > 1) { %>
+            <div class="flex justify-center mt-6">
+                <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                    <% for(let i = 1; i <= totalPages; i++) { %>
+                        <a 
+                            href="?page=<%= i %>"
+                            class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium
+                            <%= currentPage == i 
+                                ? 'z-10 bg-blue-50 border-blue-500 text-blue-600' 
+                                : 'bg-white text-gray-500 hover:bg-gray-50' %>"
+                        >
+                            <%= i %>
+                        </a>
+                    <% } %>
+                </nav>
+            </div>
+        <% } %>
+    </div>
+
+    <script>
+
+       
+        function applyFilter() {
+            const status = document.getElementById('statusFilter').value;
+            window.location.href = `/admin/returns?status=${status}`;
+        }
+
+
+        
+        async function updateStatus(orderId, itemId,productId, status) {
+
+            console.log("hellooooo");
+            try {
+                const response = await fetch('/admin/returnUpdateStatus', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ orderId, itemId, status,productId })
+                });
+
+                const data = await response.json();
+                
+                if (data.success) {
+                    window.location.reload();
+                } else {
+                    alert(data.message || 'Failed to update status');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while updating status');
+            }
+        }
+    </script>
+</body>
+</html>

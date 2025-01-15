@@ -520,6 +520,15 @@
         </div>
         <div class="order-summary">
             <h2>Order Summary</h2>
+
+            <h2>Order Summary</h2>
+            <% if (cart.length === 0) { %>
+                <div class="alert alert-info">
+                    Your checkout page is empty. Please add items to your cart to proceed.
+                </div>
+
+                <% } else { %>
+
             <% if (blockedProducts.length > 0) { %>
                 <div class="alert alert-warning">
                     Some products in your cart are blocked by the admin and cannot be purchased.
@@ -706,6 +715,10 @@
 
             <% } %>
         </div>
+
+        <% } %>
+   
+
     </div>
 
     <!-- Bootstrap JS -->

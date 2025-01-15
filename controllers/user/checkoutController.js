@@ -53,7 +53,7 @@ const LoadCheckout = async(req,res)=>{
       
         const usedCouponIds =usedCoupons.map(uc=> uc.couponId.toString());
 
-        console.log("used coupons id",usedCouponIds)
+       
         
         
 
@@ -96,7 +96,7 @@ const LoadCheckout = async(req,res)=>{
             return !isExpired && !isUsageLimitReached && !isAlreadyUsed
         })
 
-        console.log(availableCoupons,"available couponss")
+     
         if(blockedProducts.length > 0){
             return res.redirect("/cart")
         }
@@ -133,12 +133,23 @@ const LoadCheckout = async(req,res)=>{
 
 const placeOrder = async (req, res) => {
     try {
-        const userId = req.session.user; 
+        let userId = req.session.user; 
+
+        if(!mongoose.Types.ObjectId.isValid(userId)){
+            console.log("Invalid user id format");
+            return res.status(400).json({message: "Invalid user id"})
+            
+            
+        }
+
+        userId = new mongoose.Types.ObjectId(userId)
+
+      
         const { orderItem,selectedAddress, paymentMethod,razorpay_order_id,razorpay_payment_id,razorpay_signature,couponInput} = req.body;
 
-        console.log(couponInput,"couponIddd")
+       
    
-        console.log(paymentMethod,'payment method')
+       
         const cartItems = await Cart.find({ userId: userId })
             .populate({
                 path: 'productId',
@@ -154,7 +165,7 @@ const placeOrder = async (req, res) => {
             });
 
 
-        console.log(cartItems,'cartitemss')
+        
            
           
        
@@ -251,32 +262,33 @@ const placeOrder = async (req, res) => {
 
         //Coupon Updating:-
 
+        let coupon = null;
+        let discount =0;
+
         
+        if (couponInput) {
+            coupon = await Coupon.findOne({code: couponInput, isActive: true});
+            
+            if (!coupon) {
+                return res.status(400).json({message: "Invalid or inactive coupon code"});
+            }
 
-        const coupon = await Coupon.findOne({code:couponInput, isActive: true})
+            if (coupon.expiryDate < new Date()) {
+                return res.status(400).json({message: "This coupon has expired"});
+            }
 
-        if(!coupon){
-             return res.status(400).json({success: false, message:"Invalid or Inactive coupon"})
-        }
-        
-        let discount = 0;
+            const existingCoupon = await AppliedCoupen.findOne({
+                userId: userId,
+                couponId: coupon._id
+            });
 
-        if(coupon) {
+            if (existingCoupon) {
+                return res.status(400).json({message: "This coupon has already been used"});
+            }
+
             discount = coupon.minDiscountValue;
-
             totalAmount = totalAmount - discount;
-
         }
-
-        if(coupon.expiryDate < new Date()) {
-
-            return {success: false,message:"This coupon is expired"}
-        
-        }
-
-        console.log("TOTAL Amount",totalAmount)
-
-        
 
 
         if(paymentMethod === 'Razorpay'){
@@ -300,14 +312,14 @@ const placeOrder = async (req, res) => {
 
 
         }
-        console.log(orderItems,"o")
+       
 
 
       
 
         if(paymentMethod==='Wallet'){
             const wallet=await Wallet.findOne({userId});
-            console.log(wallet,"Wallet")
+            
 
             if(!wallet){
                 return res.status(400).json({message:"Wallet not found for the user"});
@@ -319,7 +331,7 @@ const placeOrder = async (req, res) => {
             }
 
             wallet.walletBalance -= totalAmount;
-            console.log(wallet.walletBalance,"wallet balance")
+            
 
             wallet.transactions.push({
                 transactionType:'debit',
@@ -348,15 +360,18 @@ const placeOrder = async (req, res) => {
             phone: currentUser.phone || 'Not Provided',
             paymentMethod: paymentMethod,
             orderStatus: 'Processing', 
-            totalAmount
+            totalAmount,
+            couponDiscount: discount
         });
 
         
        
-        const savedOrder = await newOrder.save();
+        const savedOrder = await newOrder.save()
         
        
-        console.log(savedOrder,"saved order ")
+        console.log(savedOrder,"saved order ");
+
+        
 
         
         for (let item of orderItems) {
@@ -381,7 +396,24 @@ const placeOrder = async (req, res) => {
         );
 
        
+
         await Cart.deleteMany({ userId: userId });
+
+        if(couponInput){
+            const appliedCoupon = new AppliedCoupen({
+                userId,
+                couponId:coupon._id,
+                orderId:savedOrder._id,
+                redeemedAt:new Date()
+
+            });
+
+            await appliedCoupon.save();
+            
+        }
+
+
+
 
         return res.status(200).json({
             success: true,
@@ -399,6 +431,7 @@ const placeOrder = async (req, res) => {
         
     }
 };
+
 
 const successOrder = async(req,res)=>{
     try {

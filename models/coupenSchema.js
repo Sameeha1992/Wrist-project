@@ -42,6 +42,16 @@ const coupenSchema = new mongoose.Schema({
         enum: ['minimum_purchase','first_purchase','no_condition'],
         
     },
+    expiryDate:{
+        type: Date,
+        required: true
+
+    },
+
+    isApplied:{
+        type:Boolean,
+        default:false
+    },
     minPurchaseAmount:{
         type: Number,
         default: 0

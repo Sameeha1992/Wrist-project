@@ -67,7 +67,7 @@ const userOrders = async(req,res)=>{
       try {
         const { productId, itemId, color, newStatus } = req.body;
 
-        console.log(req.body,"Req.body of the orderss")
+        
         const orderId = req.params.id;
     
         if (!orderId || !newStatus) {
@@ -111,7 +111,7 @@ const userOrders = async(req,res)=>{
     
         
         const currentStatus = itemToUpdate.itemStatus;
-        console.log("Current Status:", currentStatus);
+      
 
         const allowedTransitions = {
           Processing: ['Shipped', 'Delivered','Cancelled'],
@@ -173,7 +173,7 @@ const userOrders = async(req,res)=>{
           order.orderStatus = newStatus;
       }
   
-      console.log("New status", newStatus);
+    
       await order.save();
   
       return res.status(200).json({

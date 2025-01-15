@@ -233,5 +233,93 @@
         }
     
 
+
+
+
+        function returnDeliveredItem(orderId, itemId) {
+    Swal.fire({
+        title: 'Return Item',
+        html: `
+            <div class="form-group">
+                <label for="return-reason" class="mb-2">Please provide a reason for return:</label>
+                <select id="return-reason" class="form-control">
+                    <option value="">Select a reason</option>
+                    <option value="damaged">Product Damaged/Defective</option>
+                    <option value="wrong_item">Wrong Item Received</option>
+                    <option value="not_as_described">Product Not As Described</option>
+                    <option value="size_issue">Size/Fit Issue</option>
+                    <option value="quality_issue">Quality Not Satisfactory</option>
+                    <option value="other">Other</option>
+                </select>
+                <textarea id="additional-comments" 
+                    class="form-control mt-3" 
+                    placeholder="Additional comments (optional)"
+                    rows="3"
+                ></textarea>
+            </div>
+        `,
+        showCancelButton: true,
+        confirmButtonText: 'Submit Return Request',
+        cancelButtonText: 'Cancel',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        preConfirm: () => {
+            const reason = document.getElementById('return-reason').value;
+            const comments = document.getElementById('additional-comments').value;          
+            
+            if (!reason) {
+                Swal.showValidationMessage('Please select a reason for return');
+                return false;
+            }
+            
+            return { reason, comments };
+        }
+    }).then((result) => {
+        if (result.isConfirmed) {
+            // Make API call to process the return
+            fetch('/returnOrder', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    orderId: orderId,
+                    itemId: itemId,
+                    reason: result.value.reason,
+                    comments: result.value.comments
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    Swal.fire(
+                        'Return Requested!',
+                        'Your return request has been submitted successfully.',
+                        'success'
+                    ).then(() => {
+                        
+                        
+                        window.location.reload();
+                    });
+                } else {
+                    Swal.fire(
+                        'Error!',
+                        data.message || 'Failed to process return request.',
+                        'error'
+                    );
+                }
+            })
+            .catch(error => {
+                Swal.fire(
+                    'Error!',
+                    'There was a problem submitting your return request.',
+                    'error'
+                );
+                console.error('Error:', error);
+            });
+        }
+    });
+}
+
     </script>
 <%include("../partials/mainfooter")%>

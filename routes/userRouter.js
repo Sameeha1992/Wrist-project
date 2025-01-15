@@ -15,7 +15,8 @@ const orderController = require("../controllers/user/orderController");
 const wishlistController = require("../controllers/user/wishlistController")
 const passport = require("passport");
 const walletController = require("../controllers/user/walletController");
-const userCouponController = require("../controllers/user/usercoupenController")
+const userCouponController = require("../controllers/user/usercoupenController");
+const orderItemReturnController = require("../controllers/user/orderItemReturnController");
 
 
 //Homepage
@@ -78,6 +79,10 @@ user_router.get("/orderSuccess",userAuth,checkoutController.successOrder)
 user_router.get("/orders",userAuth,orderController.loadOrderPage);
 user_router.get("/view-order/:id",userAuth,orderController.viewOrderDetails);
 user_router.post("/cancel-order/:orderId/:itemId",userAuth,orderController.cancelOrder);
+
+//return order:-
+
+user_router.post("/returnOrder",userAuth,orderItemReturnController.itemReturnRequest)
 
 
 

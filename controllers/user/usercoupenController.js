@@ -7,6 +7,7 @@ const Order = require("../../models/orderSchema");
 const coupenApply = async(req,res)=>{
    
     const {couponCode,subTotal,userId} = req.body;
+    console.log(couponCode,subTotal,userId)
 
   
 
@@ -35,6 +36,13 @@ const coupenApply = async(req,res)=>{
         }
 
 
+
+        if(coupon.isApplied){
+
+            return res.status(400).json({message: "Coupon is already applied"})
+        }
+
+
         if(coupon.usedCount >= coupon.usageLimit){
             return res.status(400).json({message:"Coupon usage limit exceeded"})
         }
@@ -44,6 +52,8 @@ const coupenApply = async(req,res)=>{
             discountAmount = coupon.minDiscountValue;
             console.log(discountAmount,"discountAmounttt")
         }
+
+
     
         
     
@@ -52,6 +62,7 @@ const coupenApply = async(req,res)=>{
             couponId:coupon._id
         })
 
+        console.log(userCouponUsage,"used couponsss") 
         
 
         if(userCouponUsage){

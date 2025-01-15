@@ -7,6 +7,7 @@ const Razorpay = require('razorpay');
 const Wallet = require("../../models/walletSchema")
 require("dotenv").config();
 const crypto = require("crypto");
+const ObjectId = mongoose.Types.ObjectId;
 
 const razorpay = new Razorpay({
     key_id:process.env.RAZORPAY_KEYID,
@@ -111,7 +112,14 @@ const viewOrderDetails = async (req,res)=>{
 const cancelOrder = async(req,res)=>{
     try {
         const {orderId,itemId} = req.params;
-        const userId = req.session.user;
+        let userId = req.session.user;
+
+        if(!mongoose.Types.ObjectId.isValid(userId)){
+            return res.status(400).json({success: false,message:"Invalid userId"})
+        }
+
+        userId = new mongoose.Types.ObjectId(userId)
+
 
         const order = await Order.findOne({
             _id:orderId,
@@ -163,8 +171,8 @@ const cancelOrder = async(req,res)=>{
         } else if(order.paymentMethod==='Wallet'){
 
             
-            const wallet = await Wallet.findByIdAndUpdate(
-                {userId},
+            const wallet = await Wallet.findOneAndUpdate(
+                {userId: new ObjectId(userId)},
                 {$inc:{walletBalance:refundAmount}},
                 {new: true, upsert: true}
 

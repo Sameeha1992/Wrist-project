@@ -20,7 +20,7 @@ const calculateFinalOffer = async(product)=>{
 
 const addOffer = async (req,res)=>{
 
-    console.log("entering the product offer")
+   
         const {productId} = req.params;
         const {offer} = req.body;
 
@@ -76,10 +76,10 @@ const removeProductOffer = async(req,res)=>{
 const addCategoryOffer = async (req,res)=>{
 
     const percentage = parseInt(req.body.percentage);
-        console.log(percentage,"percentage")
+        
        
         const categoryId = req.body.categoryId;
-        console.log(categoryId,"category id");
+       
 
 
         if(!percentage || percentage<0 || percentage > 100){
@@ -91,7 +91,7 @@ const addCategoryOffer = async (req,res)=>{
         
 
         const category = await Category.findById(categoryId);
-        console.log(category,"category")
+       
         if(!category){
             return res.status(404).json({status:false,message:"Category not found"})
         }
@@ -141,10 +141,10 @@ const addCategoryOffer = async (req,res)=>{
         const percentage = parseInt(req.body.percentage);
 
         const categoryId = req.body.categoryId;
-        console.log(categoryId,"categoryId");
+        
 
         const category = await Category.findById(categoryId);
-        console.log(category,"category");
+       
 
         if(!category) {
             return res.status(404).json({success:false,message:"Category not found"})

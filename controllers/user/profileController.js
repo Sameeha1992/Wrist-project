@@ -44,7 +44,7 @@ const sendVerificationEmail = async (email,otp)=>{
     }
 
     const info = await transporter.sendMail(mailOptions);
-    console.log("Email sent:",info.messageId);
+    
     return true;
     
   } catch (error) {
@@ -130,53 +130,6 @@ const forgotEmailValid = async (req, res) => {
 };
 
 
-//  Main one:---
-
-// const forgotEmailValid = async(req,res)=>{
-//   try {
-//     const {email} = req.body;
-
-//     console.log("Received email for OTP generation:", email);
-
-//     const user = await User.findOne({email:email});
-//     console.log("User  found:", user); // Debugging line
-
-//     if(user){
-//       const otp = generateOtp();
-//       console.log("Generated OTP:", otp); // Debugging line
-
-//       const emailSent = await sendVerificationEmail(email,otp);
-//       console.log("Email sent status:", emailSent); // Debugging line
-
-//       if(emailSent){ 
-//         const otpExpiryTime = Date.now() + 1 *   60 * 1000;
-//         req.session.userOtp = { otp, expiresAt: otpExpiryTime };  
-//         req.session.email = email;
-//         console.log("Session after setting email:", req.session); // Log the entire session
-
-//         console.log("Session data after setting OTP:", req.session.userOtp); // Debugging line
-
-//         res.render('forgetPass-Otp',{
-//           email:req.session.email,message:null});
-//         console.log("OTP:",otp);
-//       }else{
-//         res.json({success:false,message:"Failed to sent OTP,Please try again"})
-  
-//       } 
-//     }else{
-//       console.warn("No user found with the provided email."); // Debugging line
-//       res.render("forget-password",{
-//        message:"User with this email does not exist"
-//       })
-//     }
-    
-//   } catch (error) {
-//     console.error('Error in forgotEmailValid:', error); // Log the error
-
-//     res.redirect("/pageNotFound")
-    
-//   }
-// }
 
 
 const verifyForgotPassOtp= async(req,res)=>{

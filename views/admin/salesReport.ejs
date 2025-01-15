@@ -1,0 +1,339 @@
+<%- include('../partials/admin/header') %>
+
+<style>
+    .sales-report-container {
+        padding: 20px;
+        background-color: #ffffff;
+        color: #333333;
+        min-height: 100vh;
+    }
+
+    .page-title {
+        font-size: 24px;
+        color: #1a73e8;
+        margin-bottom: 20px;
+    }
+
+    .report-filters {
+        background-color: #f1f3f4;
+        border-radius: 8px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .form-group {
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 5px;
+        color: #333333;
+    }
+
+    .form-group select,
+    .form-group input[type="date"] {
+        width: 100%;
+        padding: 8px;
+        border-radius: 4px;
+        border: 1px solid #d2d6dc;
+        background-color: #ffffff;
+        color: #333333;
+    }
+
+    .btn {
+        padding: 8px 16px;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        font-size: 14px;
+        transition: background-color 0.2s;
+    }
+
+    .btn-primary {
+        background-color: #1a73e8;
+        color: white;
+    }
+
+    .btn-secondary {
+        background-color: #5f6368;
+        color: white;
+    }
+
+    .report-summary {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 20px;
+    }
+
+    .summary-item {
+        background-color: #e8f0fe;
+        border-radius: 8px;
+        padding: 15px;
+        flex: 1;
+        margin-right: 10px;
+    }
+
+    .summary-item:last-child {
+        margin-right: 0;
+    }
+
+    .summary-item h3 {
+        font-size: 16px;
+        margin-bottom: 10px;
+        color: #1a73e8;
+    }
+
+    .summary-item p {
+        font-size: 24px;
+        font-weight: bold;
+        color: #1a73e8;
+    }
+
+    .report-table-container {
+        background-color: #ffffff;
+        border-radius: 8px;
+        overflow: hidden;
+        margin-bottom: 20px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .report-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .report-table th,
+    .report-table td {
+        padding: 12px;
+        text-align: left;
+        border-bottom: 1px solid #e0e0e0;
+        color: #333333;
+    }
+
+    .report-table th {
+        background-color: #f1f3f4;
+        color: #1a73e8;
+        font-weight: 600;
+    }
+
+    .report-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+    }
+
+    @media (max-width: 768px) {
+        .report-summary {
+            flex-direction: column;
+        }
+
+        .summary-item {
+            margin-right: 0;
+            margin-bottom: 10px;
+        }
+
+        .report-table {
+            font-size: 14px;
+        }
+
+        .report-table th,
+        .report-table td {
+            padding: 8px;
+        }
+
+        .report-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    }
+</style>
+
+<div class="sales-report-container">
+    <h1 class="page-title">Sales Report</h1>
+
+    <div class="report-filters">
+        <form id="report-filter-form">
+            <div class="form-group">
+                <label for="date-range">Date Range:</label>
+                <select id="date-range" name="dateRange">
+                    <option value="daily">Daily</option>
+                    <option value="weekly">Weekly</option>
+                    <option value="monthly">Monthly</option>
+                    <option value="yearly">Yearly</option>
+                    <option value="custom">Custom Date Range</option>
+                </select>
+            </div>
+            <div id="custom-date-range" style="display: none;">
+                <div class="form-group">
+                    <label for="start-date">Start Date:</label>
+                    <input type="date" id="start-date" name="startDate">
+                </div>
+                <div class="form-group">
+                    <label for="end-date">End Date:</label>
+                    <input type="date" id="end-date" name="endDate">
+                </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Generate Report</button>
+        </form>
+    </div>
+
+    <div class="report-summary">
+        <div class="summary-item">
+            <h3>Overall Sales Count</h3>
+            <p id="sales-count">0</p>
+        </div>
+        <div class="summary-item">
+            <h3>Overall Order Amount</h3>
+            <p id="order-amount">₹0.00</p>
+        </div>
+        <div class="summary-item">
+            <h3>Overall Discount</h3>
+            <p id="total-discount">₹0.00</p>
+        </div>
+    </div>
+
+    <div class="report-table-container">
+        <table class="report-table">
+            <thead>
+                <tr>
+                    <th>Date</th>
+                    <th>Order Id</th>
+                    <th>Total order</th>
+                    <th>Discount total</th>
+                    <th>Coupon discount</th>
+                    <th>Total discount</th>
+                    <th>Total revenue</th>
+                </tr>
+            </thead>
+            <tbody id="report-data">
+                
+                 <!-- Report data will be inserted here -->
+            </tbody>
+        </table>
+    </div>
+
+    <div class="report-actions">
+        <button id="download-pdf" class="btn btn-secondary">Download PDF</button>
+        <button id="download-excel" class="btn btn-secondary">Download Excel</button>
+    </div>
+</div>
+
+<script>
+
+
+console.log("hellooo sale report")
+
+document.addEventListener('DOMContentLoaded', function () {
+    console.log("DOM fully loaded and parsed");
+
+
+    const dateRangeSelect = document.getElementById('date-range');
+    const customDateRange = document.getElementById('custom-date-range');
+    const reportFilterForm = document.getElementById('report-filter-form');
+    const tbody = document.getElementById('report-data');
+    const salesCountElement = document.getElementById('sales-count');
+    const orderAmountElement = document.getElementById('order-amount');
+    const totalDiscountElement = document.getElementById('total-discount');
+  
+
+   
+
+
+    
+    dateRangeSelect.addEventListener('change', function () {
+        customDateRange.style.display = this.value === 'custom' ? 'block' : 'none';
+    });
+
+
+    function applyFilter() {
+        type = dateRangeSelect.value;
+        startDate = document.getElementById('start-date').value;
+        endDate = document.getElementById('end-date').value;
+        console.log("sdate",startDate);
+        console.log("type",type);
+        console.log("enddate",endDate)
+
+        fetchReport(type, startDate, endDate);
+       
+    }
+
+    
+    async function fetchReport(type, startDate, endDate) {
+        try {
+            
+            const response = await fetch(`/admin/saleReportFetch?type=${type}&startDate=${startDate}&endDate=${endDate}`);
+
+           
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            const data = await response.json();
+            console.log('Fetched data:', data); // Debugging log
+
+
+            // Update table data
+            tbody.innerHTML = data.report
+                .map(row => `
+                    <tr>
+                        <td>${row._id}</td>
+                        <td>${row.orderIds.join(',<br>')}</td>
+                        <td>${row.totalOrders}</td> 
+                        <td>${row.totalDiscount}</td>
+                        <td>${row.totalCouponDiscount}</td>
+                        <td>${row.totalDiscount + row.totalCouponDiscount}</td>
+                        <td>${row.totalRevanue}</td>
+                    </tr>
+                `).join('');
+
+            // Update summary data
+            salesCountElement.textContent = data.summary.salesCount;
+            orderAmountElement.textContent = `₹${data.summary.orderAmount}`;
+            totalDiscountElement.textContent = `₹${data.summary.totalDiscount}`;
+        } catch (error) {
+            console.error('Error fetching report:', error);
+        }
+    }
+
+
+    // Event Listener: Handle form submission
+    reportFilterForm.addEventListener('submit', function (event) {
+        event.preventDefault();
+        applyFilter();
+    });
+});
+
+
+
+
+
+
+document.getElementById('download-pdf').addEventListener('click', () => {
+            if (type || startDate || endDate) {
+                window.open(`/admin/reportDownloadPdf?type=${type}&startDate=${startDate}&endDate=${endDate}`, '_blank');
+            } else {
+                alert('Please apply filters before downloading the report.');
+            }
+        });
+
+
+         // Event listener for Excel download
+         document.getElementById('download-excel').addEventListener('click', () => {
+            if (type || startDate || endDate) {
+                window.open(`/admin/reportDownloadExcel?type=${type}&startDate=${startDate}&endDate=${endDate}`, '_blank');
+            } else {
+                alert('Please apply filters before downloading the report.');
+            }
+        });
+
+   
+
+</script>
+
+<%- include('../partials/admin/footer') %>
+
