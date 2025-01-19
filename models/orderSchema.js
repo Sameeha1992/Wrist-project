@@ -91,6 +91,7 @@ const orderSchema=new Schema({
     totalAmount:{
         type: Number,
         
+        
     },
     paymentStatus:{
          type:String,
@@ -98,7 +99,8 @@ const orderSchema=new Schema({
          default:'Pending'
     },
     totalDiscount:{
-       type: Number
+       type: Number,
+       default:0
     },
     couponDiscount:{
         type:Number,

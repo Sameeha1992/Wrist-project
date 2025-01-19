@@ -73,12 +73,12 @@
     <div class="pagination">
         <a href="?page=<%= currentPage - 1 %>" class="pagination-btn" id="prev-btn" 
             <%= currentPage === 1 ? 'disabled' : '' %> >
-            <span class="material-icons">chevron_left</span>
+            <span class="material-icons"></span>
         </a>
         <span class="page-number">Page <span id="current-page"><%= currentPage %></span> of <span id="total-pages"><%= totalPages %></span></span>
         <a href="?page=<%= currentPage + 1 %>" class="pagination-btn" id="next-btn" 
             <%= currentPage === totalPages ? 'disabled' : '' %> >
-            <span class="material-icons">chevron_right</span>
+            <span class="material-icons"></span>
         </a>
     </div>
     <% } %>

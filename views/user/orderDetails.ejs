@@ -135,9 +135,7 @@
                             <% } else if(['Failed'].includes(item.itemStatus)){ %>
 
                                 <div class="col-12 mt-2">
-                                    <button class="btn btn-sm btn-primary" onclick="retryPayment('<%= order._id %>')">
-                                        Retry Payment
-                                    </button>
+                                   
                                     <button class="btn btn-sm btn-danger" onclick="cancelIndividualItem('<%= order._id %>')">
                                         Cancel Payment
                                     </button>
@@ -147,6 +145,8 @@
                                     <button class="btn btn-sm btn-warning" onclick="returnDeliveredItem('<%= order._id %>', '<%= item._id %>')">
                                         Return Item
                                     </button>
+
+                                    <button id="downloadInvoice" class="btn btn-info" onclick="downloadInvoice('<%= order._id %>','<%= item._id %>')">Download invoice</button>
                                 </div>
                             <% } %>
                            
@@ -175,6 +175,8 @@
             </div>
         </div>
     </div>
+
+    
     
     
 </div>
@@ -320,6 +322,17 @@
         }
     });
 }
+
+
+
+
+function downloadInvoice(orderId, itemId){
+
+    window.location.href = `/invoiceDownload/${orderId}/${itemId}`;
+}
+
+
+
 
     </script>
 <%include("../partials/mainfooter")%>

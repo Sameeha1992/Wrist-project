@@ -1,7 +1,9 @@
 const usermiddleware = require("../middlewares/auth");
 
 const {userAuth,adminAuth} = require("../middlewares/auth");
-const {isLogout} =require("../middlewares/auth")
+const {isLogout} =require("../middlewares/auth");
+const Order = require("../models/orderSchema");
+const Razorpay = require('razorpay')
 
 
 
@@ -17,6 +19,7 @@ const passport = require("passport");
 const walletController = require("../controllers/user/walletController");
 const userCouponController = require("../controllers/user/usercoupenController");
 const orderItemReturnController = require("../controllers/user/orderItemReturnController");
+const invoiceDownloadController = require("../controllers/user/invoiceDownloadController")
 
 
 //Homepage
@@ -119,6 +122,7 @@ user_router.post("/removeCoupons",userAuth,userCouponController.removeCoupon)
 
 user_router.post("/create-razorpay-order",userAuth,orderController.paymentOrder);
 user_router.post("/verify-payment",userAuth,checkoutController.placeOrder)
+user_router.post("/failedOrder",userAuth,checkoutController.razorpayFailedPayment)
 
 
 
@@ -138,6 +142,63 @@ user_router.get(
 );
 
 
+
+user_router.post('/retry-payment',async (req,res)=>{
+
+  const {pendingOrderId} = req.body;
+  console.log(pendingOrderId,"pending order")
+
+  try {
+
+     const pendingOrder = await Order.findById(pendingOrderId).populate('orderItem.productId');
+     console.log(pendingOrder,"pendingg orderIddddd");
+
+     if(!pendingOrder || pendingOrder.orderStatus !== 'Failed') {
+
+      return res.status(400).json({error: 'Order not found or not eligible for retry'})
+     }
+
+
+     // recreation of razorpay ordersss:-
+
+     const razorpay = new Razorpay({
+
+      key_id:process.env.RAZORPAY_KEYID,
+      key_secret:process.env.RAZORPAY_KEYSECRET
+
+     })
+
+     const options ={
+
+      amount: pendingOrder.totalAmount *100,
+      currency: 'INR',
+      receipt: pendingOrder._id.toString(),
+      
+     };
+
+     const razorpayOrder = await razorpay.orders.create(options);
+
+     pendingOrder.razorpayOrderId = razorpayOrder._id;
+     await pendingOrder.save();
+
+     return res.status(200).json({
+      status: 'ok',
+      razorpayOrderId: razorpayOrder.id,
+      key: process.env.RAZORPAY_KEYID,
+      amount: options.amount,
+      currency: options.currency,
+      orderId: pendingOrder._id
+     })
+    
+  } catch (error) {
+    res.status(400).send('Not able to create order. Please try again!')
+    
+  }
+})
+
+
+
+user_router.get("/invoiceDownload/:orderId/:itemId", invoiceDownloadController.downloadInvoice);
 
 
 module.exports = user_router;

@@ -53,7 +53,7 @@ const loadCart = async (req, res) => {
       cartDetails.map(async (item)=>{
         const cartItem = item.toObject();
 
-        console.log(cartItem,"cartItem of the cart")
+        // console.log(cartItem,"cartItem of the cart")
       
       if(cartItem.productId ?.isBlocked){
         cartItem.error = "This product is unavailable";
@@ -68,7 +68,7 @@ const loadCart = async (req, res) => {
     )
 
 
-    console.log(processedCartDetails,"Processed cart details of the cart");
+    // console.log(processedCartDetails,"Processed cart details of the cart");
 
     const filteredCartDetails = processedCartDetails.filter((item)=>!item.error)
 

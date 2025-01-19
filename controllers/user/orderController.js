@@ -30,6 +30,8 @@ const loadOrderPage = async(req,res)=>{
         .select('orderId orderStatus totalAmount createdAt')
         .sort({createdAt:-1});
 
+
+        const user = await User.findById(userId).select('name email phone')
       
 
 
@@ -39,6 +41,7 @@ const loadOrderPage = async(req,res)=>{
 
         res.render("orders",{
             orders,
+            user,
             newDate,
             
             
@@ -224,15 +227,16 @@ const cancelOrder = async(req,res)=>{
 const paymentOrder = async(req,res)=>{
     
 
-        const {amount,currency = "INR",paymentMethod,shippingAddress} = req.body;
-        console.log(req.body,"razorpay req.body");
+        const {amount,currency = "INR",paymentMethod,shippingAddress,couponInput,discountAmount,grandTotal} = req.body;
+        // console.log(req.body,"razorpay req.body");
 
         if(!amount || !currency){
             return res.status(400).json({error: 'Invalid request. Amount and currency are required'})
         }
+        let totalAmount=amount-discountAmount;
 
         const options = {
-            amount: amount *100,
+            amount: totalAmount *100,
             currency:currency,
             receipt: `receipt_${Math.random().toString(36).substr(2, 9)}`,
             payment_capture:1
@@ -248,7 +252,7 @@ const paymentOrder = async(req,res)=>{
                 amount:response.amount
 
             });
-            console.log(response,"response of razorpay")
+            // console.log(response,"response of razorpay")
 
         } catch (error) {
         console.error('Error creating razorpay order:',error);

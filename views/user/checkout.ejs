@@ -590,7 +590,16 @@
                                 required
                                 placeholder="Enter coupon code"
                             />
+
+                             <input 
+                type="hidden" 
+                id="coupon-id" 
+                name="couponId" 
+                value=""
+            />
+                            
                             <div class="input-group-append">
+                                
                                 <button
                                     id="applyCoupon"
                                     class="btn btn-outline-primary-2"
@@ -1007,6 +1016,39 @@ removeButton .addEventListener('click',async()=>{
         const couponInput = document.getElementById("coupon-code").value
         const userId = '<%= userId %>'; 
         alert(selectedPaymentMethod)
+
+
+
+
+        // const userId = document.getElementById('user-id').value;
+        // const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
+        // const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
+        // const couponCode = document.getElementById("coupon-code").value;
+        // const couponId = sessionStorage.getItem('appliedCouponId');
+        // const couponDiscount = parseFloat(document.getElementById('applied-coupon-discount').value) || 0;
+        // const savings = parseFloat(document.getElementById('discount').innerText.replace('₹ -', '').trim()) || 0;
+
+        // Gather cart items
+      
+
+        // // Debugger function to check values
+        // function debugValues() {
+        //     console.log("Debugging Order Values:");
+        //     console.log("User  ID:", userId || "Not provided");
+        //     console.log("Selected Address:", selectedAddress ? selectedAddress.value : "No address selected");
+        //     console.log("Selected Payment Method:", selectedPaymentMethod ? selectedPaymentMethod.value : "No payment method selected");
+        //     console.log("Coupon Code:", couponCode || "Not provided");
+        //     console.log("Coupon ID:", couponId || "Not applied");
+        //     console.log("Coupon Discount:", couponDiscount || "Not applicable");
+        //     console.log("Savings:", savings || "No savings");
+        //     console.log("Cart Items:", cartItems.length > 0 ? cartItems : "No items in cart");
+        // }
+
+        // // Call the debugger function
+        // debugValues();
+
+
+
          
         // Validate selections
         if (!selectedAddress) {
@@ -1029,6 +1071,18 @@ removeButton .addEventListener('click',async()=>{
 
 
         const paymentMethod = selectedPaymentMethod.value;
+
+        const cartItems = [];
+        <% cart.forEach((item) => { %>
+            cartItems.push({
+                productId: "<%= item.productId._id %>",
+                quantity: <%= item.quantity %>,
+                price: <%= item.productId.salePrice %>,
+                color: "<%= item.productId.colorStock[0].color %>"
+            });
+        <% }) %>
+
+        console.log(cartItems,"this isthe cart items in the orderssssssss")
 
         // Show confirmation dialog
         const result = await Swal.fire({
@@ -1059,7 +1113,8 @@ removeButton .addEventListener('click',async()=>{
                         paymentMethod: paymentMethod,
                         couponInput:couponInput,
                         userId:userId,
-                        amount:totalValue
+                        amount:totalValue,
+                        
                         
                     })
                 });
@@ -1094,6 +1149,15 @@ removeButton .addEventListener('click',async()=>{
 
             
             try {
+
+               
+                const grandTotal = document.getElementById('grand-total').innerText.replace('₹', '').trim();
+                const discountAmount = document.getElementById('discount').innerText.replace('₹ -', '').trim() || 0;
+               
+                
+
+                console.log(grandTotal,discountAmount,"this is the discount amount and the grand total in the razorpay")
+
                 const response = await fetch("/create-razorpay-order",{
                     method: 'POST',
                     headers: {
@@ -1104,6 +1168,10 @@ removeButton .addEventListener('click',async()=>{
                         currency: 'INR',
                         selectedAddress:selectedAddress.value,
                         couponInput:couponInput,
+                        discountAmount: parseFloat(discountAmount),
+                        grandTotal,
+                        cartItems,
+
 
                        
                     })
@@ -1136,13 +1204,16 @@ removeButton .addEventListener('click',async()=>{
                                         razorpay_signature: response.razorpay_signature,
                                         selectedAddress:selectedAddress.value,
                                         paymentMethod:paymentMethod,
-                                        amount: totalValue,
+                                        amount: parseFloat(grandTotal),
+                                        discountAmount:parseFloat(discountAmount),
+                                        
                                     })
                                 });
-
+                              
                                 const verifyData = await verifyResponse.json();
 
                                 if (!verifyResponse.ok) {
+                                    alert('failer paym')
                                     throw new Error(verifyData.message || 'Payment verification failed');
                                 }
 
@@ -1176,8 +1247,96 @@ removeButton .addEventListener('click',async()=>{
 
                     const rzp = new Razorpay(razorpayOptions);
                     rzp.open();
+
+
+
+                    // for failure:-
+
+
+                    rzp.on('payment.failed', function(response){
+
+                        console.error('Payment faild..!', response.error)
+                            Swal.fire({
+                                icon: 'error',
+                                 title: 'Payment Failed',
+                                text: `Reason: ${response.error.description}`,
+                                 footer: 'Please try again or choose a different payment method.'
+                            })
+
+                            const paymentId = response.error?.metadata?.payment_id || "Missing Payment ID";
+                            const orderId = response.error?.metadata?.order_id || "Missing Order ID";
+                            const signature = response.error?.metadata?.signature || "Missing razor pay signature";
+
+                        
+                        fetch('/failedOrder',{
+                            method:'POST',
+                            headers:{
+                                'Content-Type': 'application/json'
+                            },
+
+                            body: JSON.stringify({
+
+                                razorpay_order_id: response?.razorpay_order_id || '',
+                                razorpay_payment_id: response?.razorpay_payment_id || '',
+                                razorpay_signature: response?.razorpay_signature || '',
+                                selectedAddress:selectedAddress.value,
+                                paymentMethod:paymentMethod,
+                                amount:totalValue,
+                                cartItems:cartItems,
+                                discountAmount:parseFloat(discountAmount)||0,
+                                couponInput: couponInput,
+                                grandTotal:parseFloat(grandTotal)
+
+
+
+                            })
+                        })
+                        .then(res=>res.json())
+                        .then(saveResponse=>{
+
+                            if(saveResponse.status === "ok") {
+                                Swal.fire({
+                                    icon:'info',
+                                    title: 'Payment Failed',
+                                    text:'Order saved with failed payment status. Please try again',
+                                    confirmButtonText: 'OK'
+                                }).then((result)=>{
+                                    if(result.isConfirmed){
+                                        window.location.replace('/placeOrder')
+                                    }
+                                })
+                            } else {
+                                Swal.fire({
+                                            icon: 'error',
+                                            title: 'Order Save Failed',
+                                            text: saveResponse.error
+                                        });
+                            }
+                        })
+                        .catch(error =>{
+                            console.error('Error saving failed order:',error);
+                            Swal.fire({
+                                        icon: 'error',
+                                        title: 'Error',
+                                        text: 'Could not save order details. Please contact support.'
+                                    });
+                        })
+                    })
+
+
+                    
+                } else{
+
+                    Swal.fire({
+                            icon: 'error',
+                            title: 'Order Creation Failed',
+                            text: data.error
+                        })
+
                 }
             } catch (error) {
+                console.error('Error creating Razorpay order:', error);
+
                 Swal.fire({
                     icon: 'error',
                     title: 'Order Failed',

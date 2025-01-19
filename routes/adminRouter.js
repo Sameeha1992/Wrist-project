@@ -25,7 +25,8 @@ router.get("/login",isAdminLogout,adminController.loadLogin);
 
 router.post("/login",adminController.login);
 
-router.get("/",adminAuth,adminController.loadDashboard)
+router.get("/",adminAuth,adminController.loadDashboard);
+router.get("/dashBoardReport",adminAuth,adminController.loadDashboardData)
 
 router.get("/logout",adminController.logout);
 

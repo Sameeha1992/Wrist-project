@@ -1,14 +1,338 @@
 
-
-
-
 <%-include("../partials/admin/header")%>
 
-<main class="content">
-    <h2>Dashboard</h2>
-    <!-- Add your dashboard content here -->
-</main>
+
+<style>
+    .admin-dashboard {
+        padding: 20px;
+        color: #1a202c;
+        background-color: #f0f5ff;
+    }
+    
+    .dashboard-title {
+        font-size: 24px;
+        margin-bottom: 20px;
+        color: #2b6cb0;
+    }
+    
+    .dashboard-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .stat-card {
+        background-color: #ffffff;
+        padding: 1rem;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .stat-title {
+        color: #4a5568;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stat-value {
+        font-size: 1.5rem;
+        font-weight: bold;
+        margin-bottom: 0.5rem;
+        color: #2b6cb0;
+    }
+    
+    .stat-change {
+        font-size: 0.875rem;
+    }
+    
+    .stat-change.positive {
+        color: #38a169;
+    }
+    
+    .stat-change.negative {
+        color: #e53e3e;
+    }
+    
+    .chart-container {
+        background-color: #ffffff;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .chart-title {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        color: #2b6cb0;
+    }
+    
+    .chart-placeholder {
+        height: 300px;
+        background-color: rgba(43, 108, 176, 0.1);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 4px;
+    }
+    
+    .top-sellers-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+        gap: 1rem;
+    }
+    
+    .top-sellers-section {
+        background-color: #ffffff;
+        padding: 1rem;
+        border-radius: 4px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+        color: #2b6cb0;
+    }
+    
+    .top-sellers-list {
+        list-style-type: none;
+        padding: 0;
+    }
+    
+    .top-sellers-list li {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e2e8f0;
+    }
+    
+    .top-sellers-list li:last-child {
+        border-bottom: none;
+    }
+    
+    .top-sellers-list .item-name {
+        color: #4a5568;
+    }
+    
+    .top-sellers-list .item-value {
+        color: #2b6cb0;
+        font-weight: bold;
+    }
+    
+    @media (max-width: 768px) {
+        .top-sellers-container {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    .time-range-buttons {
+        display: flex;
+        margin-bottom: 1rem;
+    }
+
+    .time-button {
+        background-color: #e2e8f0;
+        color: #4a5568;
+        border: none;
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+
+    .time-button:first-child {
+        border-top-left-radius: 4px;
+        border-bottom-left-radius: 4px;
+    }
+
+    .time-button:last-child {
+        border-top-right-radius: 4px;
+        border-bottom-right-radius: 4px;
+    }
+
+    .time-button.active {
+        background-color: #2b6cb0;
+        color: #ffffff;
+    }
+
+    .time-button:hover:not(.active) {
+        background-color: #cbd5e0;
+    }
+</style>
+
+<div class="admin-dashboard">
+    <h1 class="dashboard-title">Dashboard</h1>
+
+    <!-- Summary Section -->
+    <div class="dashboard-stats">
+        <div class="stat-card">
+            <div class="stat-title">Total Delivered Orders</div>
+            <div class="stat-value" id="totalDeliveredOrders">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Total Cancelled Orders</div>
+            <div class="stat-value" id="totalCancelledOrders">0</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Total Discounts</div>
+            <div class="stat-value" id="totalDiscounts">₹0.00</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-title">Total Revenue</div>
+            <div class="stat-value" id="totalRevanue">₹0.00</div>
+        </div>
+    </div>
+
+    <!-- Chart Section -->
+    <div class="chart-container">
+        <div class="time-range-buttons">
+            <button class="time-button active" data-filter="week">Week</button>
+            <button class="time-button" data-filter="month">Month</button>
+            <button class="time-button" data-filter="year">Year</button>
+        </div>
+        <h2 class="chart-title">Sales Overview</h2>
+        <canvas id="salesChart"></canvas>
+    </div>
+
+    <!-- Top Sellers Section -->
+    <div class="top-sellers-container">
+        <div class="top-sellers-section">
+            <h2 class="section-title">Top 10 Selling Categories</h2>
+            <ul id="topCategories" class="top-sellers-list"></ul>
+        </div>
+        <div class="top-sellers-section">
+            <h2 class="section-title">Top 10 Selling Brands</h2>
+            <ul id="topBrands" class="top-sellers-list"></ul>
+        </div>
+        <div class="top-sellers-section">
+            <h2 class="section-title">Top 10 Selling Products</h2>
+            <ul id="topProducts" class="top-sellers-list"></ul>
+        </div>
+    </div>
 </div>
-</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    let salesChart;
+
+    document.addEventListener('DOMContentLoaded',()=>{
+
+        initializeDashboard();
+
+        document.querySelectorAll('.time-button').forEach(button =>{
+            button.addEventListener('click', function(){
+                document.querySelector('.time-button.active')?.classList.remove('active');
+                this.classList.add('active');
+                const filter = this.getAttribute('data-filter');
+                fetchDashboardData(filter);
+            });
+        });
+
+
+    });
+
+    function initializeDashboard() {
+        fetchDashboardData('week');
+    }
+
+    async function fetchDashboardData(filter) {
+
+        try {
+            const response = await fetch(`/admin/dashBoardReport?filter=${filter}`);
+            if(!response.ok) throw new Error(`Failed to fetch data (Status: ${response.status})`);
+
+            const data = await response.json();
+            console.log(data,"data in the dashboard")
+
+            updateDashboard(data,filter);
+
+            console.log("updateDashboard having issue")
+            
+        } catch (error) {
+            console.error('Error fetching dashboard data:',error);
+            alert('Failed to load dashboard data.Please try again.')
+            
+        }
+    }
+
+
+    function updateDashboard(data, filter) {
+    document.getElementById('totalDeliveredOrders').textContent = data.summary.totalDeliveredOrders || 0;
+    document.getElementById('totalCancelledOrders').textContent = data.summary.totalCancelledOrders || 0;
+    document.getElementById('totalDiscounts').textContent = `₹${data.summary.totalDiscounts || 0}`; // Corrected ID
+    document.getElementById('totalRevanue').textContent = `₹${data.summary.totalRevenue || 0}`;
+
+    populateTopSellersList('topCategories', data.topCategories);
+    populateTopSellersList('topBrands', data.topBrands);
+    populateTopSellersList('topProducts', data.topProducts);
+
+    updateChart(data.chartData, filter);
+}
+
+
+    function populateTopSellersList(elementId,data) {
+
+        const list = document.getElementById(elementId);
+        list.innerHTML ='';
+        data.forEach(item=>{
+            const li = document.createElement('li');
+            li.innerHTML = `
+             <span class="item-name">${item._id || 'Unknown'}</span>
+             <span class="item-value">${item.totalSales || 0}</span>
+            `;
+            list.appendChild(li);
+        })
+    }
+
+
+    //Update Chart:-
+
+    function updateChart(charData, filter){
+
+        const ctx = document.getElementById('salesChart').getContext('2d');
+
+        if(salesChart) salesChart.destroy();
+
+        const labels = filter ==='month'
+        ? charData.map(item => new Date(`${item._id}-01`).toLocaleString('default', { month: 'long'}))
+        : charData.map(item => item._id);
+
+        salesChart = new Chart(ctx,{
+            type: 'bar',
+            data: {
+                labels,
+                datasets: [
+                    {
+                        label: 'Delivered Orders',
+                        data: charData.map(item => item.deliveredOrders || 0),
+                        backgroundColor: 'green',
+                    },
+                    {
+                        label: 'Cancelled Orders',
+                        data: charData.map(item=>item.cancelledOrders || 0),
+                        backgroundColor: 'orange',
+                    },
+                    {
+                        label: 'Total Revenue',
+                        data: charData.map(item =>item.totalRevenue || 0),
+                        backgroundColor: 'blue'
+                    },
+                ],
+            },
+
+            options: {
+                responsive: true,
+                scales: {
+                    y: {beginAtZero: true}
+                }
+            }
+        })
+    }
+
+</script>
+
 
 <%-include("../partials/admin/footer")%>

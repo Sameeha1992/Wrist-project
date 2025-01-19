@@ -6,7 +6,8 @@ const Coupon = require("../../models/coupenSchema")
 const mongoose = require('mongoose')
 const Razorpay = require('razorpay');
 const Wallet = require("../../models/walletSchema");
-const AppliedCoupen = require("../../models/coupenAppliedSchema")
+const AppliedCoupen = require("../../models/coupenAppliedSchema");
+const generateOrderId = require("../../utils/generateOrderId")
 require("dotenv").config();
 const crypto = require("crypto");
 
@@ -142,12 +143,62 @@ const placeOrder = async (req, res) => {
             
         }
 
-        userId = new mongoose.Types.ObjectId(userId)
+        userId = new mongoose.Types.ObjectId(userId);
+
 
       
-        const { orderItem,selectedAddress, paymentMethod,razorpay_order_id,razorpay_payment_id,razorpay_signature,couponInput} = req.body;
+        const { orderItem,selectedAddress, paymentMethod,razorpay_order_id,razorpay_payment_id,razorpay_signature,couponInput,pendingOrderId} = req.body;
 
        
+        if(pendingOrderId && paymentMethod==='Razorpay'){
+            const existingOrder = await Order.findById(pendingOrderId);
+
+            if(!existingOrder){
+                return res.status(404).json({message:'Pending order not found'});
+            }
+
+            if(existingOrder.userId.toString() !== userId.toString()){
+                return res.status(403).json({message:"Unauthorized access to order"})
+            }
+
+
+             // Verify Razorpay signature
+             if(!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
+                return res.status(400).json({message: "Missing razorpay payment details"})
+            }
+
+            const secretKey = process.env.RAZORPAY_KEYSECRET;
+            const generate_signature = crypto
+                .createHmac('sha256', secretKey)
+                .update(`${razorpay_order_id}|${razorpay_payment_id}`)
+                .digest('hex');
+
+            if(generate_signature !== razorpay_signature){
+                return res.json({success: false, message: "Payment verification failed"})
+            }
+
+            // Update the pending order
+            const updatedOrder = await Order.findOneAndUpdate(
+                { _id: pendingOrderId },
+                { 
+                    $set: {
+                        orderStatus: 'Processing',
+                        paymentMethod: 'Razorpay',
+                        'paymentDetails.razorpay_order_id': razorpay_order_id,
+                        'paymentDetails.razorpay_payment_id': razorpay_payment_id,
+                        'paymentDetails.razorpay_signature': razorpay_signature
+                    }
+                },
+                { new: true }
+            );
+
+            return res.status(200).json({
+                success: true,
+                message: "Your pending order has been successfully processed",
+                order: updatedOrder
+            });
+        }
+        
    
        
         const cartItems = await Cart.find({ userId: userId })
@@ -306,8 +357,11 @@ const placeOrder = async (req, res) => {
             .digest('hex');
 
             if(generate_signature !==razorpay_signature){
+                console.log('retru psymrnt funvtion ')
                 return res.json({success:false,message: "Payment verification failed"})
             } 
+
+
            
 
 
@@ -433,6 +487,116 @@ const placeOrder = async (req, res) => {
 };
 
 
+const razorpayFailedPayment = async(req,res)=>{
+    const {cartItems,selectedAddress,paymentMethod,amount,discountAmount,couponInput,grandTotal,razorpay_payment_id,razorpay_order_id} = req.body;
+
+    console.log(req.body,"this is the req.body of the failed ordersssss")
+   
+   
+    try {
+
+        const userId = req.session.user
+
+        console.log(userId,"userId of the faied orderr")
+    
+    
+        const user = await User.findById(userId);
+        console.log(user,"this is the failed user")
+
+       const addressDetails = user.address.find(addre =>addre._id.toString()===selectedAddress);
+    //    console.log(addressDetails,'addressDetails')
+
+    console.log(cartItems,"cartItemsss")
+
+       if(!addressDetails){
+        return res.status(400).json({status: "error",message:"Invalid address provided..!"})
+       }
+        
+
+       const transformedOrderItems = cartItems.map((item)=>({
+        productId: item.productId,
+        quantity: item.quantity,
+        color: item.color,
+        price: item.price,
+        totalPrice: item.price * item.quantity,
+        itemStatus: "Processing"
+       
+
+       }));
+
+       console.log(transformedOrderItems,'transformedOrderItems')
+
+       const failOrder = await Order.create({
+        userId,
+        orderId: generateOrderId (),
+        orderItem:transformedOrderItems,
+        shippingAddress: addressDetails.street_address,
+        zip: addressDetails.pincode.toString(),
+        country: "India",
+        phone: addressDetails.phone.toString(),
+        orderStatus: 'Failed',
+        paymentMethod:'Razorpay',
+        paymentStatus: 'Failed',
+        totalAmount: parseFloat(amount),
+        totalDiscount: parseFloat(discountAmount) || 0,
+        couponDiscount: parseFloat(discountAmount) || 0,
+        appliedCouponCode: couponInput || null,
+        razorpay: {
+            orderId: razorpay_order_id,
+                paymentId: razorpay_payment_id,
+                failureTimestamp: new Date(),
+                failureDetails: req.body // Store complete failure detail
+        }
+
+       });
+       
+
+      await failOrder.save()
+
+        // Log the failure for monitoring
+        console.log(`Payment failed for order ${failOrder}`, {
+            userId,
+            razorpay_order_id,
+            razorpay_payment_id,
+            amount
+        });
+
+
+      res.status(200).json({
+        status: "success",
+        message: "Failed order has been recorded",
+        orderId: failOrder.orderId,
+
+        failureDetails: {
+            timestamp: new Date(),
+            orderId: failOrder.orderId,
+            paymentId: razorpay_payment_id
+        }
+    });
+        
+    } catch (error) {
+
+        console.error('Error in razorpayFailedPayment:', error);
+        res.status(500).json({
+            status: "error",
+            message: "Failed to save order details",
+            error: error.message
+        });
+
+        return res.status(500).json({
+            status: "error",
+            message: "Failed to save order details",
+            error: error.message
+        });
+
+        
+    }
+}
+
+
+
+
+
 const successOrder = async(req,res)=>{
     try {
        
@@ -459,4 +623,5 @@ module.exports = {
     LoadCheckout,
     placeOrder,
     successOrder,
+    razorpayFailedPayment
 }
