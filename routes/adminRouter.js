@@ -90,6 +90,8 @@ router.post('/returnUpdateStatus', returnOrderController.updateReturnStatus);
 router.get("/coupens",adminAuth,coupenController.showCoupen);
 router.get("/addcoupen",adminAuth,coupenController.getAddCoupen);
 router.post("/addcoupen",adminAuth,coupenController.addCoupen);
+router.get('/editCoupons/:id',adminAuth,coupenController.getEditCoupon)
+router.put('/editCoupons/:id',adminAuth,coupenController.updateCoupon)
 router.delete("/deleteCoupen/:id",adminAuth,coupenController.deleteCoupen)
 
 

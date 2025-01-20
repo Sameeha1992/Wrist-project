@@ -262,9 +262,9 @@ const placeOrder = async (req, res) => {
                 stock => stock._id.toString() === cartItem.colorStockId._id.toString()
             );
 
-            if (!colorStock) {
-                throw new Error(`Product not found ${product.productName}`);
-            }
+            // if (!colorStock) {
+            //     throw new Error(`Product not found ${product.productName}`);
+            // }
 
            
             if (!colorStock || colorStock.quantity < cartItem.quantity) {

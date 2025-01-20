@@ -91,6 +91,73 @@ const addCoupen = async(req,res)=>{
 }
 
 
+const getEditCoupon = async(req,res)=>{
+    const couponId = req.params.id;
+   
+    try {
+
+       const coupon = await Coupen.findById(couponId);
+      
+       
+
+       if(!coupon){
+        return res.status(404).json({message:'Coupon not found'})
+       }
+       
+
+       res.status(200).render("editCoupon", { coupon });
+        
+    } catch (error) {
+        console.error("Something went wrong")
+    }
+}
+
+
+const updateCoupon = async(req,res)=>{
+
+    const couponId = req.params.id;
+    console.log(couponId,"update couponId");
+
+    let {code,description,discountType,minDiscountValue,expiryDate,usageLimit,conditions,minimumPurchaseAmount} = req.body.formData;
+    console.log(req.body.formData,"update coupon req.body")
+    try {
+
+        const existingCouponCode = await Coupen.findOne({code,_id:{ $ne: couponId}});
+
+        if(existingCouponCode){
+            return res.status(400).json({message: 'Coupon code is already exists..!'})
+        }
+
+        if(!minimumPurchaseAmount){
+            minimumPurchaseAmount = 0;
+        }
+
+
+        const updateCoupon = await Coupen.findByIdAndUpdate(couponId,{
+            code,
+            description,
+            minDiscountValue,
+            expiryDate,
+            usageLimit,
+            conditions,
+            minimumPurchaseAmount: Number(minimumPurchaseAmount)
+        },{new: true})
+        
+
+        if(!updateCoupon){
+            return res.status(404).json({message:'Coupon not found...!'})
+        }
+
+        res.status(200).json({message:'Coupon updated Successfully...!'});
+
+
+    } catch (error) {
+        console.error('An error occured while updating the coupon')
+        
+    }
+}
+
+
 
 const deleteCoupen = async (req,res)=>{
    
@@ -125,4 +192,6 @@ module.exports = {
     getAddCoupen,
     addCoupen,
     deleteCoupen,
+    getEditCoupon,
+    updateCoupon,
 }

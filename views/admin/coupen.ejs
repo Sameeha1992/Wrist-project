@@ -21,7 +21,6 @@
                     <th>Code</th>
                     <th>Description</th>
                     <th>Discount</th>
-                    
                     <th>Expiry Date</th>
                     <th>UsedCount</th>
                     <th>UseLimit</th>
@@ -59,6 +58,7 @@
 
                         
                         <button class="action-btn offer-btn" onclick="deleteCoupon('<%= coupon._id%>')">Delete</button>
+                        <button class="action-btn edit-btn" onclick="editCoupon('<%= coupon._id %>')">Edit</button>
                     </td>
                 </tr>
                 <% }) %>
@@ -295,6 +295,10 @@
         }
     }
 
+
+    function editCoupon(couponId){
+        window.location.href =`/admin/editCoupons/${couponId}`;
+    }
 
     
 
