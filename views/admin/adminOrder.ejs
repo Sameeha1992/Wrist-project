@@ -148,7 +148,7 @@
                     <tbody>
                         <% orders.forEach(order =>{ %>
                         <tr>
-                            <td><%= order.orderId %></td>
+                            <td><%= orderId %></td>
                             <td><%= order.userId?.name || 'Deleted User'%></td>
             
                             <td><%= new Date(order.createdAt).toLocaleDateString() %></td>

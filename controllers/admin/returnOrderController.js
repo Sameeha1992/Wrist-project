@@ -167,7 +167,7 @@ const getReturnsPage = async (req, res) => {
             .limit(limit);
 
 
-            console.log("this is the orders in the return controller",orders)
+           
 
             const filteredOrders = orders.map(order => {
                 // Convert to plain object and filter orderItems
@@ -189,7 +189,7 @@ const getReturnsPage = async (req, res) => {
             const totalFilteredOrders = filteredOrders.length;
 
             const invalidOrders = await Order.find({userId: { $exists: false}})
-            console.log("Orders with missing userId:", invalidOrders);
+           
     
             res.render("returnOrder", {
                 orders: filteredOrders,

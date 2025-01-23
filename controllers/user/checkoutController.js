@@ -11,6 +11,7 @@ const generateOrderId = require("../../utils/generateOrderId")
 require("dotenv").config();
 const crypto = require("crypto");
 
+
 const razorpay = new Razorpay({
     key_id:process.env.RAZORPAY_KEYID,
     key_secret:process.env.RAZORPAY_KEYSECRET
@@ -148,7 +149,9 @@ const placeOrder = async (req, res) => {
 
 
       
-        const { orderItem,selectedAddress, paymentMethod,razorpay_order_id,razorpay_payment_id,razorpay_signature,couponInput,pendingOrderId} = req.body;
+        const { orderItem,selectedAddress, paymentMethod,razorpay_order_id,razorpay_payment_id,razorpay_signature,couponInput,selectedCouponId,pendingOrderId,} = req.body;
+
+        console.log('checkingggggg',req.body,"this is the req.body in the place order functioanlity")
 
        
         if(pendingOrderId && paymentMethod==='Razorpay'){
@@ -412,6 +415,7 @@ const placeOrder = async (req, res) => {
         
         const newOrder = new Order({
             userId,
+            orderId:generateOrderId(),
             orderItem: orderItems,
             shippingAddress: `${shippingAddress.address_name}, ${shippingAddress.house_name}, ${shippingAddress.street_address}, ${shippingAddress.city}, ${shippingAddress.state}, ${shippingAddress.pincode}`,
             zip: shippingAddress.pincode,

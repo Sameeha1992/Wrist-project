@@ -80,6 +80,7 @@ const viewOrderDetails = async (req,res)=>{
 
         const items = order.orderItem.map(item =>({
             _id:item._id,
+            orderId:generateOrderId(),
             name:item.productId.productName,
             Image:item.productId.productImage,
             color:item.color,
@@ -92,6 +93,7 @@ const viewOrderDetails = async (req,res)=>{
 
         const orderData = {
             _id: order._id,
+            orderId:order.orderId,
             createdAt: order.createdAt,
             orderStatus: order.orderStatus,
             paymentStatus: order.paymentStatus,
