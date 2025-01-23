@@ -4,6 +4,7 @@ const Cart = require("../../models/cartSchema");
 const Order = require("../../models/orderSchema");
 const mongoose = require('mongoose');
 const { viewOrderDetails } = require("../user/orderController");
+const generateOrderId = require("../../utils/generateOrderId");
 
 
 
@@ -42,6 +43,7 @@ const userOrders = async(req,res)=>{
      const totalOrders = await Order.countDocuments();
       res.render("adminOrder",{
         orders:orders,
+        orderId:generateOrderId(),
         currentPage:page,
         totalPages:Math.ceil(totalOrders/limit),
         totalOrders:totalOrders
@@ -232,7 +234,7 @@ const userOrders = async(req,res)=>{
 
       const orderData ={
         _id:order._id,
-        orderId:orderId,
+        orderId:generateOrderId(),
         createdAt:order.createdAt,
         orderStatus:order.orderStatus,
         shippingAddress:order.shippingAddress,

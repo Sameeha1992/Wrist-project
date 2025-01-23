@@ -85,152 +85,171 @@
 
 </div>
 
-<style> -->
-    .coupon-list-container {
-        padding: 20px;
-        background-color: #e5e8eb;
-        color: rgb(10, 9, 9);
-        min-height: 100vh;
-    }
+<style> 
+   body {
+    font-family: Arial, sans-serif;
+    background-color: #f0f8ff;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
 
-    .page-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 20px;
-    }
+.coupon-list-container {
+    padding: 20px;
+    background-color: #ffffff;
+    min-height: 100vh;
+}
 
-    .page-title {
-        font-size: 24px;
-        color: rgb(15, 14, 14);
-    }
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
 
-    .add-coupon-btn {
-        display: inline-flex;
-        align-items: center;
-        padding: 8px 16px;
-        background-color: #787f8a;
-        color: rgb(8, 8, 8);
-        text-decoration: none;
-        border-radius: 4px;
-        font-weight: 500;
-        transition: background-color 0.2s;
-    }
+.page-title {
+    font-size: 24px;
+    color: #0066cc;
+}
 
-    .add-coupon-btn:hover {
-        background-color: #4B5563;
-    }
+.search-bar {
+    display: flex;
+    align-items: center;
+}
 
-    .add-coupon-btn i {
-        margin-right: 8px;
-    }
+#search-input {
+    padding: 8px;
+    border: 1px solid #0066cc;
+    border-radius: 4px 0 0 4px;
+    font-size: 14px;
+}
 
-    .coupon-table-container {
-        background-color: #111827;
-        border-radius: 8px;
-        overflow: hidden;
-    }
+.search-button {
+    background-color: #0066cc;
+    color: white;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+}
 
-    .coupon-table {
-        width: 100%;
-        border-collapse: collapse;
-    }
+.add-coupon-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 8px 16px;
+    background-color: #0066cc;
+    color: white;
+    text-decoration: none;
+    border-radius: 4px;
+    font-weight: 500;
+    transition: background-color 0.2s;
+}
 
-    .coupon-table th {
-        background-color: #f3f4f6;
-        color: rgb(120, 117, 117);
-        padding: 12px 16px;
-        text-align: left;
-        font-weight: 500;
-    }
+.add-coupon-btn:hover {
+    background-color: #0052a3;
+}
 
-    .coupon-table td {
-        padding: 12px 16px;
-        border-bottom: 1px solid #374151;
-        color: #E5E7EB;
-    }
+.add-coupon-btn i {
+    margin-right: 8px;
+}
 
-    .status-badge {
-        padding: 4px 8px;
-        border-radius: 4px;
-        font-size: 12px;
-        font-weight: 500;
-    }
+.coupon-table-container {
+    background-color: #ffffff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
 
-    .status-badge.active {
-        background-color: #059669;
-        color: white;
-    }
+.coupon-table {
+    width: 100%;
+    border-collapse: collapse;
+}
 
-    .status-badge.inactive {
-        background-color: #e12121;
-        color: white;
-    }
+.coupon-table th {
+    background-color: #e6f2ff;
+    color: #0066cc;
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 500;
+}
 
-    .status-badge.inactive {
-        background-color: #DC2626;
-        color: white;
-    }
+.coupon-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #e6f2ff;
+    color: #333;
+}
 
-    .action-buttons {
-        display: flex;
-        gap: 8px;
-    }
+.status-badge {
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 500;
+}
 
-    .action-btn {
-        padding: 6px 12px;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 14px;
-        font-weight: 500;
-        transition: opacity 0.2s;
-    }
+.status-badge.active {
+    background-color: #4CAF50;
+    color: white;
+}
 
-    .action-btn:hover {
-        opacity: 0.9;
-    }
+.status-badge.inactive {
+    background-color: #f44336;
+    color: white;
+}
 
-    .list-btn {
-        background-color: #4CAF50;
-        color: white;
-    }
-    .unlist-btn{
-        background-color: #d82d2d;
-        color: white;
+.action-buttons {
+    display: flex;
+    gap: 8px;
+}
 
-    }
+.action-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: opacity 0.2s;
+    color: white;
+}
 
-    .edit-btn {
-        background-color: #3B82F6;
-        color: white;
-    }
+.action-btn:hover {
+    opacity: 0.9;
+}
 
-    .offer-btn {
-        background-color: #f91616;
-        color: white;
-    }
-    .pagination {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        gap: 10px;
-    }
-    .pagination-btn {
-        background-color: #4a5568;
-        color: #ffffff;
-        border: none;
-        padding: 5px 10px;
-        border-radius: 4px;
-        cursor: pointer;
-    }
-    .pagination-btn:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-    }
-    .page-number {
-        font-size: 14px;
-    }
+.edit-btn {
+    background-color: #0066cc;
+}
+
+.offer-btn {
+    background-color: #f44336;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.pagination-btn {
+    background-color: #0066cc;
+    color: #ffffff;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.pagination-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.page-number {
+    font-size: 14px;
+    color: #333;
+}
 </style>
 
 <script>

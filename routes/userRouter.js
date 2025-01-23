@@ -146,12 +146,10 @@ user_router.get(
 user_router.post('/retry-payment',async (req,res)=>{
 
   const {pendingOrderId} = req.body;
-  console.log(pendingOrderId,"pending order")
 
   try {
 
      const pendingOrder = await Order.findById(pendingOrderId).populate('orderItem.productId');
-     console.log(pendingOrder,"pendingg orderIddddd");
 
      if(!pendingOrder || pendingOrder.orderStatus !== 'Failed') {
 
@@ -170,12 +168,15 @@ user_router.post('/retry-payment',async (req,res)=>{
 
      const options ={
 
-      amount: pendingOrder.totalAmount *100,
+      // amount: pendingOrder.totalAmount *100,
+      amount:(pendingOrder.totalAmount-pendingOrder.couponDiscount)*100,
       currency: 'INR',
       receipt: pendingOrder._id.toString(),
       
      };
 
+
+     console.log(options,"this is the options in the pending order")
      const razorpayOrder = await razorpay.orders.create(options);
 
      pendingOrder.razorpayOrderId = razorpayOrder._id;

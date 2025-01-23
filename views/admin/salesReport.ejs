@@ -264,41 +264,50 @@ document.addEventListener('DOMContentLoaded', function () {
 
     
     async function fetchReport(type, startDate, endDate) {
-        try {
-            
-            const response = await fetch(`/admin/saleReportFetch?type=${type}&startDate=${startDate}&endDate=${endDate}`);
-
-           
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-            const data = await response.json();
-            console.log('Fetched data:', data); // Debugging log
-
-
-            // Update table data
-            tbody.innerHTML = data.report
-                .map(row => `
-                    <tr>
-                        <td>${row._id}</td>
-                        <td>${row.orderIds.join(',<br>')}</td>
-                        <td>${row.totalOrders}</td> 
-                        <td>${row.totalDiscount}</td>
-                        <td>${row.totalCouponDiscount}</td>
-                        <td>${row.totalDiscount + row.totalCouponDiscount}</td>
-                        <td>${row.totalRevanue}</td>
-                    </tr>
-                `).join('');
-
-            // Update summary data
-            salesCountElement.textContent = data.summary.salesCount;
-            orderAmountElement.textContent = `₹${data.summary.orderAmount}`;
-            totalDiscountElement.textContent = `₹${data.summary.totalDiscount}`;
-        } catch (error) {
-            console.error('Error fetching report:', error);
+    try {
+        const params = new URLSearchParams({
+            type: type
+        });
+        
+        if (type === 'custom') {
+            if (startDate) params.append('startDate', startDate);
+            if (endDate) params.append('endDate', endDate);
         }
+
+        const response = await fetch(`/admin/saleReportFetch?${params}`);
+        
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('Fetched data:', data);
+
+        // Update table data
+        tbody.innerHTML = data.report
+            .map(row => `
+                <tr>
+                    <td>${row._id}</td>
+                    <td>${row.orderIds.join(',<br>')}</td>
+                    <td>${row.totalOrders}</td>
+                    <td>${row.totalDiscount || 0}</td>
+                    <td>${row.totalCouponDiscount || 0}</td>
+                    <td>${(row.totalDiscount || 0) + (row.totalCouponDiscount || 0)}</td>
+                    <td>${row.totalRevenue || 0}</td>
+                </tr>
+            `).join('');
+
+        // Update summary data
+        salesCountElement.textContent = data.summary.salesCount || 0;
+        orderAmountElement.textContent = `₹${data.summary.orderAmount || 0}`;
+        totalDiscountElement.textContent = `₹${data.summary.totalDiscount || 0}`;
+
+    } catch (error) {
+        console.error('Error fetching report:', error);
+        alert('Error fetching report: ' + error.message);
     }
+}
 
 
     // Event Listener: Handle form submission

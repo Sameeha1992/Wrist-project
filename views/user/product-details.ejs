@@ -292,8 +292,12 @@
             <div class="col-md-6">
                 <h1 class="product-title mb-3"><%= product.productName %></h1>
                 <div class="d-flex justify-content-between align-items-center mb-3">
-                    <% if (product.salePrice) { %>
-                        <span class="product-price">now ₹<%= product.salePrice.toFixed(2) %></span>
+                    <% if (product.salePrice  && product.salePrice < product.regularPrice) { %>
+                        <span class="product-price">
+                        <span class="regular-price text-decoration-line-through text-muted">₹<%= product.regularPrice.toFixed(2) %></span>
+                        <span class="sale-price text-danger">now ₹<%= product.salePrice.toFixed(2) %></span>
+
+                  </span>
                     <% } else { %>
                         <span class="product-price">now ₹<%= product.regularPrice.toFixed(2) %></span>
                     <% } %>

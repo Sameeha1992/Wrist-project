@@ -8,6 +8,11 @@ const Product = require("../models/productSchema")
 
 const orderSchema=new Schema({
 
+    orderId: {
+
+        type:String,
+    },
+
     userId:{
         type:mongoose.Schema.Types.ObjectId,
         ref:'User',
@@ -88,6 +93,12 @@ const orderSchema=new Schema({
         enum: ['COD','Card payment','Wallet','UPI','Bank Transfer','Razorpay'],
         required: true
     },
+
+    subTotal:{
+        type: Number,
+
+    },
+    
     totalAmount:{
         type: Number,
         
@@ -95,7 +106,7 @@ const orderSchema=new Schema({
     },
     paymentStatus:{
          type:String,
-         enum:['Pending','Completed','Failed'],
+         enum:['Pending','Completed','Failed','Partially_Completed'],
          default:'Pending'
     },
     totalDiscount:{
@@ -116,6 +127,35 @@ const orderSchema=new Schema({
 
 
 },{timestamps:true});
+
+orderSchema.pre('save', function (next) {
+    if (this.isModified('orderItem')) {
+        const totalItems = this.orderItem.length;
+
+       
+        const deliveredItems = this.orderItem.filter(item => item.itemStatus === 'Delivered').length;
+        const returnedItems = this.orderItem.filter(item => item.itemStatus === 'Returned').length;
+
+      
+        if (deliveredItems === 0 && returnedItems === 0) {
+          
+            this.paymentStatus = 'Pending';
+        } else if (deliveredItems + returnedItems === totalItems) {
+          
+            this.paymentStatus = 'Completed';
+        } else if (deliveredItems > 0 || returnedItems > 0) {
+          
+            this.paymentStatus = 'Partially_Completed';
+        }
+
+        
+        if (this.orderStatus === 'Failed') {
+            this.paymentStatus = 'Failed';
+        }
+    }
+
+    next();
+});
 
 
 const Order = mongoose.model("Order",orderSchema);

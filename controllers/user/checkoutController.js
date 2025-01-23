@@ -84,6 +84,8 @@ const LoadCheckout = async(req,res)=>{
            
         }
 
+
+
         const grandTotal = totalAmount - discountAmount;
 
         const blockedProducts = cart.filter(cartItem => cartItem.productId.isBlocked)
@@ -97,6 +99,8 @@ const LoadCheckout = async(req,res)=>{
             return !isExpired && !isUsageLimitReached && !isAlreadyUsed
         })
 
+
+        console.log(availableCoupons,"this is the available coupons ")
      
         if(blockedProducts.length > 0){
             return res.redirect("/cart")
@@ -104,9 +108,6 @@ const LoadCheckout = async(req,res)=>{
 
 
 
-        
-
-       
 
         res.render("checkout",{
             cart: validCartItems,
@@ -262,9 +263,9 @@ const placeOrder = async (req, res) => {
                 stock => stock._id.toString() === cartItem.colorStockId._id.toString()
             );
 
-            // if (!colorStock) {
-            //     throw new Error(`Product not found ${product.productName}`);
-            // }
+            if (!colorStock) {
+                throw new Error(`Product not found ${product.productName}`);
+            }
 
            
             if (!colorStock || colorStock.quantity < cartItem.quantity) {
@@ -328,10 +329,14 @@ const placeOrder = async (req, res) => {
                 return res.status(400).json({message: "This coupon has expired"});
             }
 
+            
+
             const existingCoupon = await AppliedCoupen.findOne({
                 userId: userId,
                 couponId: coupon._id
             });
+
+            console.log("existingCouponnnnnnnn",existingCoupon)
 
             if (existingCoupon) {
                 return res.status(400).json({message: "This coupon has already been used"});
@@ -418,12 +423,12 @@ const placeOrder = async (req, res) => {
             couponDiscount: discount
         });
 
-        
+        console.log("this is the new order in the checkout controller",newOrder)
        
         const savedOrder = await newOrder.save()
         
        
-        console.log(savedOrder,"saved order ");
+        console.log(savedOrder,"saved order in the checkout controller");
 
         
 

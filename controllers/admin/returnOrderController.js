@@ -166,6 +166,9 @@ const getReturnsPage = async (req, res) => {
             .skip(skip)
             .limit(limit);
 
+
+            console.log("this is the orders in the return controller",orders)
+
             const filteredOrders = orders.map(order => {
                 // Convert to plain object and filter orderItems
                 const orderObj = order.toObject();
@@ -174,10 +177,19 @@ const getReturnsPage = async (req, res) => {
                     item.returnReason && 
                     item.returnReason !== "Not specified"
                 );
-                return orderObj;
-            }).filter(order => order.orderItem.length > 0); // Remove orders with no valid return items
+
+                if(!orderObj.userId) {
+                    orderObj.userId = {name: "Unknown User", email: "N/A"}
+                }
+
+                return orderObj
+                
+            }).filter(order => order.orderItem.length > 0)
     
             const totalFilteredOrders = filteredOrders.length;
+
+            const invalidOrders = await Order.find({userId: { $exists: false}})
+            console.log("Orders with missing userId:", invalidOrders);
     
             res.render("returnOrder", {
                 orders: filteredOrders,

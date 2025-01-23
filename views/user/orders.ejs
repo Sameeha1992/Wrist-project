@@ -82,10 +82,11 @@
                             <tbody>
                                 <% orders.forEach(order => { %>
                                     <tr>
-                                        <td><%= order._id %></td>
+                                        <td><%= order.orderId %></td>
                                         <td><%= order.createdAt.toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' }) %></td>
                                         <td><%= order.totalAmount ? `₹${order.totalAmount.toFixed(2)}` : 'N/A' %></td>
                                         <input type="hidden" id="totalAmount" value="<%= order.totalAmount%>">
+                                        <input type="hidden" id="couponDiscount" value="<%= order.couponDiscount%>">
                                        
                                         <td>
     
@@ -180,13 +181,15 @@
     document.addEventListener('DOMContentLoaded',()=>{
         const retryButtons = document.querySelectorAll(".retry-payment");
          let totalAmount = document.getElementById('totalAmount').value;
+         let couponDiscount = document.getElementById('couponDiscount').value;
+         console.log("couponnnnnn",couponDiscount)
          console.log("value......", totalAmount);
         
 
         retryButtons.forEach(button => {
             button.addEventListener('click',async()=>{
                 const pendingOrderId = button.dataset.orderId;
-                console.log(pendingOrderId,"pending order id");
+               
 
                
                 const result = await Swal.fire({

@@ -160,12 +160,7 @@
         </div>
     </div>
 </div>
-                            <!-- <div class="mb-3">
-                                <label class="form-label">Color</label>
-                                <input name="color" type="text" value="" class="form-control">
-                                <div id="color-error" class="error-message text-danger"></div>
-                            </div> -->
-                            
+                           
 
                                     
 
@@ -345,7 +340,7 @@ document.getElementById("imageInput").addEventListener("change", handleFileSelec
 
 function handleFileSelect(event) {
     const addedImagesContainer = document.getElementById("addedImagesContainer");
-    addedImagesContainer.innerHTML = "";
+    
 
     const files = event.target.files;
     // Limit to 5 images
@@ -373,7 +368,7 @@ function handleFileSelect(event) {
             return;
         }
 
-        selectedImages.push(file);
+       
 
         const thumbnail = document.createElement("div");
         thumbnail.classList.add("thumbnail", "position-relative", "d-inline-block", "me-2", "mb-2");

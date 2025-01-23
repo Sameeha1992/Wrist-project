@@ -65,7 +65,7 @@
                                             
                                             </div>
                                         </td>
-                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= order.userId.name %></td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= order.userId ? order.userId.name : 'Unknown User' %></td>
                                         <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900"><%= item.returnReason || 'Not specified' %></td>
                                         <td class="px-6 py-4 whitespace-nowrap">
                                             <% if (item.returnRequest === 'Pending') { %>

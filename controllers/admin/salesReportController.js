@@ -35,99 +35,104 @@ const renderSalesReportPage = async(req,res)=>{
 }
 
 const fetchSalesReport = async(req,res)=>{
+  try {
+      const {type,startDate,endDate} = req.query;
 
-    try {
+      if (!type) {
+          return res.status(400).json({error: "Report type is required"});
+      }
 
-        const {type,startDate,endDate} = req.query
+      let matchCriteria = {orderStatus: 'Delivered'};
+      let start, end;
 
-       
+      switch(type) {
+          case 'daily':
+              start = new Date();
+              start.setHours(0,0,0,0);
+              end = new Date();
+              end.setHours(23,59,59,999);
+              break;
 
-            let matchCriteria = {orderStatus: 'Delivered'};
+          case 'weekly':
+              start = new Date();
+              start.setDate(start.getDate() -7);
+              end = new Date();
+              break;
 
-            let start, end;
+          case 'monthly':
+              start = new Date();
+              start.setDate(1);
+              end = new Date();
+              end.setMonth(end.getMonth() +1);
+              end.setDate(0);
+              break;
+              
+          case 'yearly':
+              start = new Date(new Date().getFullYear(),0,1);
+              end = new Date(new Date().getFullYear(),11,31);
+              break;
+          
+          case 'custom':
+              if (!startDate) {
+                  return res.status(400).json({error: "Start date is required for custom range"});
+              }
+              start = new Date(startDate);
+              end = endDate ? new Date(endDate) : new Date();
+              end.setHours(23,59,59,999);
+              break;
 
-            switch(type) {
-                case'daily':
+          default:
+              return res.status(400).json({error: "Invalid report type"});
+      }
 
-                  start = new Date();
-                  start.setHours(0,0,0,0);
-                  end = new Date();
-                  end.setHours(23,59,59,999)
-                  break;
+      matchCriteria.createdAt = {$gte: start, $lte: end};
 
-                case 'weekly':
-                    start = new Date();
-                    start.setDate(start.getDate() -7)
-                    end = new Date();
-                    break;
+      const report = await Order.aggregate([
+          {$match: matchCriteria},
+          {
+              $group:{
+                  _id:{$dateToString: { format: '%Y-%m-%d', date: '$createdAt'}},
+                  orderIds: { $push: '$_id' },
+                  totalOrders: {$sum: 1},
+                  totalDiscount: {$sum: {$ifNull: ['$totalDiscount', 0]}},
+                  totalCouponDiscount: {$sum: {$ifNull: ['$couponDiscount', 0]}},
+                  totalRevenue: {$sum: {$ifNull: ['$totalAmount', 0]}},
+              },
+          },
+          {$sort: {_id: -1}},
+      ]);
 
-                case 'monthly':
-                    start = new Date();
-                    start.setDate(1);
-                    end = new Date();
-                    end.setMonth(end.getMonth() +1);
-                    end.setDate(0);
-                    break;
-                    
-               case 'yearly':
-                start = new Date(new Date().getFullYear(),0,1)
-                end= new Date(new Date().getFullYear(),11,31)
-                break;
-                
-                case 'custom':
+      const summary = await Order.aggregate([
+          { $match: matchCriteria},
+          {
+              $group: {
+                  _id: null,
+                  salesCount: {$sum: 1},
+                  orderAmount: {$sum: {$ifNull: ['$totalAmount', 0]}},
+                  totalDiscount: {$sum: {
+                      $add: [
+                          {$ifNull: ['$totalDiscount', 0]},
+                          {$ifNull: ['$couponDiscount', 0]}
+                      ]
+                  }}
+              }
+          }
+      ]);
 
-                start = new Date(startDate);
-                end = new Date();
-                end.setHours(23,59,59,999)
-                break;
-                default:
-                    return res.status(400).json({error: "Invalid report type"});
-            }
-
-            matchCriteria.createdAt = {$gte: start, $lte: end};
-
-
-             const report = await Order.aggregate([
-            {$match: matchCriteria},
-            {
-                $group:{
-                    _id:{$dateToString: { format: '%Y-%m-%d', date: '$createdAt'}},
-                    orderIds: { $push: '$_id' },
-                    totalOrders: {$sum: 1},
-                    totalDiscount: {$sum: '$totalDiscount'},
-                    totalCouponDiscount: {$sum: '$couponDiscount'},
-                    totalRevanue: {$sum: '$totalAmount'},
-                },
-            },
-            {$sort: {_id: -1}}, // sort by date
-        ]);
-
-        
-        const summary = await Order.aggregate([
-            { $match: matchCriteria},
-            {
-
-                $group: {
-                    _id:null,
-                    salesCount: {$sum: 1},
-                    orderAmount: {$sum:{$ifNull:['$totalAmount',0]}},
-                    totalDiscount:{$sum: { $ifNull: ['$totalDiscount',0]}},
-                    totalCouponDiscount: {$sum: {$ifNull: ['$couponDiscount',0]}}
-
-                }
-            }
-        ]);
-
-        res.json({
-            report,
-            summary: summary[0] || {salesCount:0, orderAmount:0,totalDiscount:0,orderIds: []},
-        })
-        
-    } catch (error) {
-        console.error('An error occured while getting seles report!',error)
-
-    }
-}
+      return res.json({
+          report,
+          summary: summary[0] || {
+              salesCount: 0,
+              orderAmount: 0,
+              totalDiscount: 0
+          }
+      });
+      
+  } catch (error) {
+      console.error('An error occurred while getting sales report:', error);
+      return res.status(500).json({error: "Internal server error"});
+  }
+};
 
 
 const fetchSalesReportData = async (type, startDate,endDate)=>{
@@ -183,7 +188,7 @@ const fetchSalesReportData = async (type, startDate,endDate)=>{
                 totalOrders: {$sum: 1},
                 totalDiscount: {$sum: '$totalDiscount'},
                 totalCouponDiscount: {$sum: '$couponDiscount'},
-                totalRevenue: {$sum: '$totalAmount'}
+                totalRevenue: {$sum: {$ifNull: ['$totalAmount', 0]}}, // Fixed spelling and added null check
             },
         },
 
@@ -196,9 +201,14 @@ const fetchSalesReportData = async (type, startDate,endDate)=>{
         {
             $group: {
                 _id:null,
-                salesCount: {$sum: '$totalAmount'},
-                totalDiscount: {$sum: {$add: ['$totalDiscount', '$couponDiscount']}}
-            }
+                salesCount: {$sum: 1}, // Count of orders
+                orderAmount: {$sum: {$ifNull: ['$totalAmount', 0]}}, // Total order amount
+                totalDiscount: {$sum: {
+                  $add: [
+                      {$ifNull: ['$totalDiscount', 0]}, 
+                      {$ifNull: ['$couponDiscount', 0]}
+                  ]
+              }}            }
         }
       ]);
 
@@ -272,10 +282,11 @@ const downloadSalesReportPdf = async (req,res)=>{
                     item._id, 
                     item.orderIds.length > 0 ? item.orderIds.join(', ') : 'No Orders',
                     item.totalOrders, 
-                    `${item.totalDiscount}`, 
-                    `${item.totalCouponDiscount}`, 
-                    `${item.totalRevanue}`, 
-                  ]),
+                    `₹${(item.totalDiscount || 0).toFixed(2)}`, 
+                    `₹${(item.totalCouponDiscount || 0).toFixed(2)}`, 
+                    `₹${(item.totalRevenue || 0).toFixed(2)}`, // Fixed spelling and added null check
+                ]),
+
                 ],
               },
               layout: 'lightHorizontalLines',
@@ -390,28 +401,24 @@ const downloadSalesReportPdf = async (req,res)=>{
         worksheet.addRow(['Sales Report Data']).font = { bold: true, size: 12 };
         worksheet.addRow([]);
         worksheet.columns = [
-            { header: 'Date', key: '_id', width: 15 },
-            { header: 'Order IDs', key: 'orderIds', width: 30 },
-            { header: 'Total Orders', key: 'totalOrders', width: 15 },
-            { header: 'Total Discount', key: 'totalDiscount', width: 15 },
-            { header: 'Coupon Discount', key: 'totalCouponDiscount', width: 15 },
-            { header: 'Total Revenue', key: 'totalRevanue', width: 15 },
-        ];
+    { header: 'Date', key: '_id', width: 15 },
+    { header: 'Order IDs', key: 'orderIds', width: 30 },
+    { header: 'Total Orders', key: 'totalOrders', width: 15 },
+    { header: 'Total Discount', key: 'totalDiscount', width: 15 },
+    { header: 'Coupon Discount', key: 'totalCouponDiscount', width: 15 },
+    { header: 'Total Revenue', key: 'totalRevenue', width: 15 }, // Fixed spelling
+];
 
-
-        report.forEach(item => {
-            worksheet.addRow({
-                _id: item._id,
-                orderIds: item.orderIds.join('\n'),
-                totalOrders: item.totalOrders,
-                totalDiscount: `₹${item.totalDiscount || 0}`,
-                totalCouponDiscount: `₹${item.totalCouponDiscount || 0}`,
-                totalRevanue: `₹${item.totalRevanue  || 0}`,
-            });
-
-            
-        });
-
+report.forEach(item => {
+  worksheet.addRow({
+      _id: item._id,
+      orderIds: item.orderIds.join('\n'),
+      totalOrders: item.totalOrders,
+      totalDiscount: `₹${(item.totalDiscount || 0).toFixed(2)}`,
+      totalCouponDiscount: `₹${(item.totalCouponDiscount || 0).toFixed(2)}`,
+      totalRevenue: `₹${(item.totalRevenue || 0).toFixed(2)}`, // Fixed spelling and added null check
+  });
+});
         
         worksheet.getRow(8).font = { bold: true }; 
         worksheet.getRow(8).alignment = { horizontal: 'center' };

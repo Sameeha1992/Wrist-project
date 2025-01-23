@@ -7,7 +7,7 @@ const Order = require("../../models/orderSchema");
 const coupenApply = async(req,res)=>{
    
     const {couponCode,subTotal,userId} = req.body;
-    console.log(couponCode,subTotal,userId)
+    console.log(couponCode,subTotal,userId,"this is ")
 
   
 
@@ -37,12 +37,6 @@ const coupenApply = async(req,res)=>{
 
 
 
-        if(coupon.isApplied){
-
-            return res.status(400).json({message: "Coupon is already applied"})
-        }
-
-
         if(coupon.usedCount >= coupon.usageLimit){
             return res.status(400).json({message:"Coupon usage limit exceeded"})
         }
@@ -54,7 +48,10 @@ const coupenApply = async(req,res)=>{
         }
 
 
-    
+
+        req.session.couponData = { couponCode, discountAmount,subTotal}
+
+        console.log("this is the req.session of coupon",req.session.couponData)
         
     
         const userCouponUsage = await AppliedCoupen.findOne({

@@ -8,6 +8,7 @@ const Wallet = require("../../models/walletSchema")
 require("dotenv").config();
 const crypto = require("crypto");
 const ObjectId = mongoose.Types.ObjectId;
+const generateOrderId = require("../../utils/generateOrderId")
 
 const razorpay = new Razorpay({
     key_id:process.env.RAZORPAY_KEYID,
@@ -85,13 +86,15 @@ const viewOrderDetails = async (req,res)=>{
             price:item.price || item.productId.salePrice,
             quantity:item.quantity,
             totalPrice:item.totalPrice,
-            itemStatus:item.itemStatus
+            itemStatus:item.itemStatus,
+            paymentStatus: item.paymentStatus
         }))
 
         const orderData = {
             _id: order._id,
             createdAt: order.createdAt,
             orderStatus: order.orderStatus,
+            paymentStatus: order.paymentStatus,
             shippingAddress: order.shippingAddress,
             paymentMethod: order.paymentMethod,
             subtotal: items.reduce((acc, item) => acc + item.price * item.quantity, 0),
@@ -99,9 +102,19 @@ const viewOrderDetails = async (req,res)=>{
             items 
         };
 
-        console.log(orderData,"order data in the ordersss")
 
-        res.render("orderDetails", { order: orderData });
+        
+        const getPaymentStatusClass =(status) => {
+            const statusClasses = {
+                'Pending': 'badge bg-warning text-dark',
+                'Completed': 'badge bg-success',
+                'Partially_Completed': 'badge bg-info',
+                'Failed': 'badge bg-danger'
+            };
+            return statusClasses[status] || 'badge bg-secondary';
+        }
+
+        res.render("orderDetails", { order: orderData, getPaymentStatusClass });
 
     } catch (error) {
         console.error("Error is viewing order detail page",error);
