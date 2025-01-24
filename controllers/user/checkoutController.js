@@ -147,6 +147,10 @@ const placeOrder = async (req, res) => {
 
         userId = new mongoose.Types.ObjectId(userId);
 
+        const sessionCouponData =  req.session.couponData 
+
+        console.log("couponData in the placeOrder",sessionCouponData)
+
 
       
         const { orderItem,selectedAddress, paymentMethod,razorpay_order_id,razorpay_payment_id,razorpay_signature,couponInput,selectedCouponId,pendingOrderId,} = req.body;

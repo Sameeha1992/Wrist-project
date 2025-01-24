@@ -758,11 +758,7 @@
         <p class="total" id="total">Total Amount: ₹<%= totalAmount.toFixed(2) %></p>
         <p class="discount" id="discount">Discount: ₹<%= discountAmount.toFixed(2) %></p> 
         <p class="grand-total" id="grand-total">Grand Total: ₹<%= grandTotal.toFixed(2) %></p>  
-         <script>
-            let totalValue = '<%= totalAmount %>'
-          
-            
-         </script>
+        
 
         <% cart.forEach(function(item,index) { %>
             <input type="hidden" name="cartItems[<%= index %>][productId]" value="<%= item.productId.productName %>">
@@ -940,6 +936,8 @@
 
 <script>
 
+
+ let totalValue = '<%= totalAmount %>'
 
 
 
@@ -1213,7 +1211,6 @@ removeButton .addEventListener('click',async()=>{
 
 
 
-    console.log('totalAmount',totalValue);
     
 
         

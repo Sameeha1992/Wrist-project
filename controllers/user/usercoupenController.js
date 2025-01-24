@@ -7,7 +7,7 @@ const Order = require("../../models/orderSchema");
 const coupenApply = async(req,res)=>{
    
     const {couponCode,subTotal,userId} = req.body;
-    console.log(couponCode,subTotal,userId,"this is ")
+   
 
   
 
@@ -49,10 +49,12 @@ const coupenApply = async(req,res)=>{
 
 
 
-        req.session.couponData = { couponCode, discountAmount,subTotal}
+        req.session.couponData = { couponCode:coupon.code, discountAmount,couponId:coupon._id}
 
         console.log("this is the req.session of coupon",req.session.couponData)
         
+
+        await req.session.save();
     
         const userCouponUsage = await AppliedCoupen.findOne({
             userId: userId,
@@ -86,29 +88,9 @@ const coupenApply = async(req,res)=>{
            
             
 
-            if(coupon.discountType==='fixed'){
-
-                discountAmount= coupon.minDiscountValue;
-
-               
-               
-            }
+           
             discountAmount = Math.min(discountAmount,subTotal)
            
-
-            if(coupon.conditions ==='minimum_purchase' && subTotal < coupon.minPurchaseAmount) {
-                return res.status(400).json({
-                    message:`Minimum purchase amount of ₹ ${coupon.minPurchaseAmount} required`
-                })
-            } else if(coupon.conditions === 'first_purchase'){
-                const previousOrders = await Order.findOne({userId});
-
-                if(previousOrders) {
-                    return res.status(400).json({
-                        message: `This coupon is valid only for the first time purchase`
-                    })
-                }
-            }
 
             const grandTotal = subTotal - discountAmount;
            
@@ -145,7 +127,11 @@ const removeCoupon = async(req,res)=>{
     const {couponsCode} = req.body;
     console.log(req.body)
     try {
-    console.log("hellooo removing coupons")
+
+        req.session.couponData = null;
+    console.log("hellooo removing coupons");
+    
+    await req.session.save();
         
         res.status(200).json({message:"Coupon removed successfully"})
     } catch (error) {

@@ -31,12 +31,6 @@ const userOrders = async(req,res)=>{
      .limit(limit);
 
     
-    orders.forEach(order=>{
-      order.orderItem.forEach(item=>{
-      
-      })
-     })
-
 
 
      
@@ -235,6 +229,7 @@ const userOrders = async(req,res)=>{
       const orderData ={
         _id:order._id,
         orderId:generateOrderId(),
+        couponDiscount:order.couponDiscount,
         createdAt:order.createdAt,
         orderStatus:order.orderStatus,
         shippingAddress:order.shippingAddress,

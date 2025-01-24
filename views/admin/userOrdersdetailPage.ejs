@@ -150,9 +150,15 @@
                     <span>Subtotal:</span>
                     <span>₹<%= order.subtotal.toFixed(2) %></span>
                 </div>
+
+                <div class="detail-row">
+                    <span>Discount:</span>
+                    <span>₹<%= order.couponDiscount.toFixed(2)||0 %></span>
+                </div>
+
                 <div class="total-row">
                     <span>Total Price:</span>
-                    <span>₹<%= totalOrderPrice.toFixed(2) %></span> <!-- Display the total price -->
+                    <span>₹<%= (order.subtotal.toFixed(2))-order.couponDiscount.toFixed(2) %></span> 
                 </div>
             </div>
         </div>

@@ -166,7 +166,11 @@
                     <span>Subtotal:</span>
                     <span>₹<%= order.subtotal.toFixed(2) %></span>
                 </div>
-                
+
+                <div class="detail-row total-row">
+                    <span>Discount:</span>
+                    <span>₹<%= (order.subtotal - order.total).toFixed(2) || 0 %></span>
+                </div>
                
                 <div class="detail-row total-row">
                     <span>Total:</span>

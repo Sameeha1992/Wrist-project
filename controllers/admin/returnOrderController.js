@@ -2,6 +2,7 @@ const Order = require("../../models/orderSchema");
 const User = require("../../models/userSchema");
 const Product = require("../../models/productSchema");
 const Wallet = require("../../models/walletSchema");
+const generateOrderId = require("../../utils/generateOrderId");
 
 const updateReturnStatus = async (req, res) => {
     try {
@@ -193,6 +194,7 @@ const getReturnsPage = async (req, res) => {
     
             res.render("returnOrder", {
                 orders: filteredOrders,
+                orderId:generateOrderId(),
                 currentPage: page,
                 totalPages: Math.ceil(totalFilteredOrders / limit),
                 totalOrders: totalFilteredOrders
