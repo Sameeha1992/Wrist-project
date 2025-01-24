@@ -8,7 +8,7 @@ const updateReturnStatus = async (req, res) => {
     try {
         const { orderId, itemId, status,productId} = req.body;
 
-        console.log(req.body,"order returnssssss")
+        
 
         // Validate required fields
         if (!orderId || !itemId || !status) {

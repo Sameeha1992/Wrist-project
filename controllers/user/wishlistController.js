@@ -24,7 +24,6 @@ const wishListData = await Wishlist.findOne({ userId: userData._id })
         select: "productName productImage salePrice colorStock", 
     });
 
-console.log(wishListData, "wishlist dataaaaaaaa"); 
 
 
         if(!wishListData){
@@ -94,9 +93,7 @@ const removeFromWishlist = async(req,res)=>{
         const {productId} = req.body;
         const userId= req.session.user;
 
-        console.log("my products id",productId);
-        console.log(userId,"useriddd")
-        console.log(req.body,"REQ.body")
+     
 
         if(!productId || !mongoose.Types.ObjectId.isValid(productId)){
             return res.status(400).json({
@@ -116,8 +113,7 @@ const removeFromWishlist = async(req,res)=>{
         const userObjectId = new mongoose.Types.ObjectId(userId);
         const productObjectId = new mongoose.Types.ObjectId(productId);
 
-        console.log(userObjectId,"User object id");
-        console.log(productObjectId,"Product id of the object")
+      
 
         const result = await Wishlist.updateOne(
             {userId:userObjectId},
@@ -131,7 +127,7 @@ const removeFromWishlist = async(req,res)=>{
             }
         )
 
-        console.log(result,"Result")
+       
 
         if(result.modifiedCount ===0){
             return res.status(404).json({
@@ -144,10 +140,10 @@ const removeFromWishlist = async(req,res)=>{
         const updatedWishlist = await Wishlist.findOne({userId:userObjectId});
 
 
-        console.log(updatedWishlist,"updated wishlist")
+       
         const wishlistCount = updatedWishlist ? updatedWishlist.items.length :0;
 
-        console.log(wishlistCount,"My wishlist count")
+      
 
         return res.status(200).json({
             success:true,

@@ -65,7 +65,7 @@ const loadDashboard = async (req,res)=>{
 }
 
 const loadDashboardData = async (req, res, next) => {
-  console.log("hello dashboard")
+  
   try {
     const { filter } = req.query;
     const currentDate = new Date();
@@ -110,7 +110,7 @@ const loadDashboardData = async (req, res, next) => {
       { $sort: { _id: 1 } }
     ]);
 
-    console.log(chartData,"chardata in dashboard")
+    
 
     // Summary Data Aggregation
     const summary = await Order.aggregate([
@@ -148,7 +148,7 @@ const loadDashboardData = async (req, res, next) => {
       },
     ]);
 
-    console.log(summary,"summary")
+    
 
     // Top 10 Categories Aggregation
     const topCategories = await Order.aggregate([

@@ -25,12 +25,12 @@
                 <%if(data[i].isBlocked===false){%>
               
               
-                <!-- <button href="/admin/blockCustomer?id=<%-data[i]._id%>" class="action-button block">Block</a> -->
+               
                 
                   <button class="action-button block" onclick="userBlock('<%-data[i]._id%>')">Block</button>
                 <%}else{%>
                     
-                        <!-- <a href="/admin/unblockCustomer?id=<%-data[i]._id%>"class="action-button unblock">Unblock</a> -->
+                     
                          <button class="action-button unblock" onclick="userUnblock('<%-data[i]._id%>')">Unblock</button>
                         
                         <% } %>

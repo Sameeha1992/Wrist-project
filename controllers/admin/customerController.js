@@ -8,7 +8,7 @@ const customerInfo = async(req,res)=>{
         let search ="";
         if(req.query.search){
             search=req.query.search;
-            console.log("done")
+        
             
         }
         let page =1;

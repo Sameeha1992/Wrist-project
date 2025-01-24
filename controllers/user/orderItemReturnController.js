@@ -11,7 +11,6 @@ const  itemReturnRequest = async(req,res)=>{
     const { orderId,itemId,reason} = req.body;
     const userId = req.session.user
 
-    console.log(req.body);
 
 
     try {
@@ -32,7 +31,6 @@ const  itemReturnRequest = async(req,res)=>{
             { orderItem: { $elemMatch: { _id: itemId } } }
         ).populate("orderItem.productId");
 
-        console.log(order,"ordersss in the return request")
 
         if(!order){
             return res.status(404).json({success:false,message:"Order not found or unauthorised access"})

@@ -90,7 +90,7 @@ const forgotEmailValid = async (req, res) => {
           const currentTime = Date.now();
           if (req.session.userOtp && req.session.userOtp.expiresAt > currentTime) {
              
-              console.log("Using existing OTP:", req.session.userOtp.otp);
+            
               return res.render('forgetPass-Otp', {
                   email: req.session.email,
                   message: null,
@@ -150,7 +150,7 @@ const verifyForgotPassOtp= async(req,res)=>{
 
 
         if(enteredOtp ===otp){
-          console.log("OTP verified successfully."); 
+          
         
           res.json({success:true,redirectUrl:"/reset-password"});
         }else{
@@ -226,22 +226,18 @@ const getResetPassPage = async(req,res)=>{
 const postNewPassword = async (req, res) => {
   try {
       
-      console.log("Request body:", req.body); 
+   
 
      
       const { newPass1, newPass2 } = req.body;
 
      const email = req.session.email;
-
-      console.log("Email from session:", email); 
-
     
       if (newPass1 === newPass2) {
-          console.log("Passwords match. Proceeding to hash the password."); 
 
          
           const passwordHash = await securePassword(newPass1);
-          console.log("Hashed Password:", passwordHash); 
+          
 
          
           const result = await User.updateOne(
@@ -250,7 +246,7 @@ const postNewPassword = async (req, res) => {
           );
 
         
-          console.log("Update result:", result); 
+         
 
           
           if (result.matchedCount === 0) {
@@ -258,7 +254,7 @@ const postNewPassword = async (req, res) => {
               return res.json({success: false, message: 'User not found.'})
           }
 
-          console.log({ success: true, message: "Password updated successfully", redirectUrl: "/login" });
+         
          
           return res.json({success:true,message:"Password updated successfully",redirectUrl:"/login"})
                
@@ -330,10 +326,10 @@ const userProfile = async(req,res)=>{
     try {
 
       const userId = req.session.user;
-      console.log("User ID from session:",userId);
+     
         
       const user = await User.findById(userId); 
-      console.log("User found:", user);
+   
     
 
         if (!user) {
@@ -376,10 +372,6 @@ const loadAddressPage = async(req,res)=>{
   
     const addresses = userData ? userData.address :[];
 
-  
-   
-  
-    
 
     res.render("address",{addresses});
 
@@ -394,17 +386,17 @@ const loadAddressPage = async(req,res)=>{
 
 const addAddress = async (req, res) => {
   try {
-    console.log(req.body);
+  
 
     const userEmail = req.session.user;
-    console.log('useremail',userEmail);
+   
     
     if (!userEmail) {
       return res.status(400).json({ success: false, message: "Invalid session data" });
     }
 
     const user = await User.findOne({ _id: req.session.user });
-    console.log(user);
+  
     
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" });
@@ -433,11 +425,11 @@ const addAddress = async (req, res) => {
       alt_phone: req.body.altphone,
     };
 
-    console.log(newAddress,"NEWADDRESS")
+   
 
     user.address.push(newAddress);
     const userData = await user.save();
-    console.log(userData);
+   
 
     return res.status(200).json({
       success: true,
@@ -507,7 +499,7 @@ const updateAddress = async(req,res)=>{
 const deleteAddress = async(req,res)=>{
   try {
     const addressId = new ObjectId(req.body.elemId);
-    console.log(addressId)
+    
     const deleted = await User.findOneAndUpdate({_id:req.session.user},{$pull:{"address":{_id:addressId}}})
     if(deleted){
       res.status(200).json({success:true,message:"Address deleted successfully"});

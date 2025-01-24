@@ -219,18 +219,15 @@
 
     updateButtons.forEach(button => {
         button.addEventListener('click', async () => { // Attach event listener to each button
-            const row = button.closest('tr'); // Get the corresponding table row
-            const select = row.querySelector('.status-change'); // Get the select element inside the same row
+            const row = button.closest('tr'); 
+            const select = row.querySelector('.status-change'); 
             
-            const orderId = select.getAttribute('data-order-id'); // Retrieve order ID
-            const productId = select.getAttribute('data-product-id'); // Retrieve product ID
-            const color = select.getAttribute('data-color'); // Retrieve product color
-            const newStatus = select.value; // Get the selected value (new status)
+            const orderId = select.getAttribute('data-order-id'); 
+            const productId = select.getAttribute('data-product-id'); 
+            const color = select.getAttribute('data-color'); 
+            const newStatus = select.value; 
 
-            console.log('Order ID:', orderId);
-            console.log('Product ID:', productId);
-            console.log('Color:', color);
-            console.log('New Status:', newStatus);
+           
 
             try {
                 // Send the PATCH request

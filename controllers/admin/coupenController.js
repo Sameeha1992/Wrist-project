@@ -116,10 +116,10 @@ const getEditCoupon = async(req,res)=>{
 const updateCoupon = async(req,res)=>{
 
     const couponId = req.params.id;
-    console.log(couponId,"update couponId");
+    
 
     let {code,description,discountType,minDiscountValue,expiryDate,usageLimit,conditions,minimumPurchaseAmount} = req.body.formData;
-    console.log(req.body.formData,"update coupon req.body")
+    
     try {
 
         const existingCouponCode = await Coupen.findOne({code,_id:{ $ne: couponId}});

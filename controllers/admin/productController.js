@@ -183,7 +183,7 @@ const unblockProduct = async (req, res) => {
         res.redirect("/admin/product")
     } catch (error) {
        res.redirect("/pageerror");
-       console.log("error while blocking or unblocking")
+    
     }
 };
 
@@ -247,7 +247,7 @@ const editProduct = async (req, res) => {
             productOffer
         } = req.body;
 
-        console.log(req.body,"req.bodyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyyy")
+        
 
         
         const existingProduct = await Product.findOne({

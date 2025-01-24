@@ -243,7 +243,6 @@ const paymentOrder = async(req,res)=>{
     
 
         const {amount,currency = "INR",paymentMethod,shippingAddress,couponInput,discountAmount,grandTotal} = req.body;
-        // console.log(req.body,"razorpay req.body");
 
         if(!amount || !currency){
             return res.status(400).json({error: 'Invalid request. Amount and currency are required'})
@@ -267,7 +266,6 @@ const paymentOrder = async(req,res)=>{
                 amount:response.amount
 
             });
-            // console.log(response,"response of razorpay")
 
         } catch (error) {
         console.error('Error creating razorpay order:',error);
@@ -275,56 +273,6 @@ const paymentOrder = async(req,res)=>{
         
     }
 }
-
-
-// const retryPayment = async(req,res)=>{
-//     try {
-
-//         const { orderId,razorpay_order_id,razorpay_payment_id,razorpay_signature} = req.body;
-
-//         if(!orderId || !razorpay_order_id || razorpay_payment_id || razorpay_signature){
-//             return res.status(400).json({message:"Missing payment details"});
-
-//         }
-
-//         const order = await Order.findById(orderId);
-//         if(!order){
-//             return res.status(404).json({message:"Order not found or not eligible for retry"})
-//         }
-
-//         if(order.orderStatus!=='Pending_payment'){
-//             return res.status(400).json({success:false,message:"Order is not eligible for the retry payment"})
-//         }
-
-//         const secretKey = process.env.RAZORPAY_KEYSECRET;
-//         const generatedSignature = crypto
-//         .createHmac('sha256', secretKey)
-//         .update(`${razorpay_order_id}|${razorpay_payment_id}`)
-//         .digest('hex');
-
-//         if(generatedSignature!== razorpay_signature){
-//             return res.status(400).json({message: "Payment verification failed"})
-//         }
-
-//         order.orderStatus = "Processing";
-
-//         await order.save();
-
-//         return res.status(200).json({
-//             success: true,
-//             message:"Payment successful.Order status updated to processing"
-//         })
-        
-        
-//     } catch (error) {
-//         console.error("Error retrying payment",error);
-//         return res.status(400).json({
-//             success: false,
-//             message: error.message || 'Failed to retry payment'
-//         })
-//     }
-// }
-
 
 
 const formatOrderStatus = (status) => {
@@ -343,7 +291,5 @@ module.exports={
     viewOrderDetails,
     cancelOrder,
     paymentOrder,
-    // retryPayment,
-    // verifyPayment,
-    
+   
 }

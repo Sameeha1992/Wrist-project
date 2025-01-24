@@ -284,47 +284,12 @@ const verifyOtp = async (req, res) => {
     delete req.session.userOtp;
     delete req.session.userData;
 
-    console.log("User registered successfully:", req.session.user);
     res.json({ success: true, message: "Signup successful! You can now log in." });
   } catch (error) {
     console.error("Error verifying OTP:", error);
     res.status(500).json({ success: false, message: "An error occurred" });
   }
 };
-
-
-
-
-
-// const verifyOtp = async (req, res) => {
-//   try {
-//     const { otp } = req.body;
-//     if (otp === req.session.userOtp.otp) {
-//     console.log("userOtp otp", req.session.userOtp.otp);
-
-//       const user = req.session.userData;
-//       const passwordHash = await securePassword(user.password);
-//       const saveUserData = new User({
-//         name: user.name,
-//         email: user.email,
-//         phone: user.phone,
-//         password: passwordHash,
-//       });
-//       await saveUserData.save();
-//       req.session.user = saveUserData._id;
-//       console.log(req.session.user);
-
-//       res.json({ success: true });
-//     } else {
-//       res
-//         .status(400)
-//         .json({ success: false, message: "Invalid OTP,Please try again" });
-//     }
-//   } catch (error) {
-//     console.error("Error Verifying OTP", error);
-//     res.status(500).json({ success: false, message: "An error occured" });
-//   }
-// };
 
 
 
@@ -448,43 +413,6 @@ const logout = async (req, res) => {
 };
 
 
-// const loadShoppingPage = async (req, res) => {
-//   try {
-//       const userId = req.session.user;
-//       if (!userId) {
-//           return res.redirect("/login");
-//       }
-
-//       const itemsPerPage = 10;
-//       const currentPage = parseInt(req.query.page) || 1;
-//       const skip = (currentPage - 1) * itemsPerPage;
-
-//       const products = await Product.find({ isBlocked: false })
-//           .populate("category")
-//           .skip(skip)
-//           .limit(itemsPerPage);
-
-//       const totalProducts = await Product.countDocuments({ isBlocked: false });
-//       const totalPages = Math.ceil(totalProducts / itemsPerPage);
-
-//       const cart = await Cart.findOne({ userId: new ObjectId(userId) });
-//       const categories = await Category.find();
-//       const cartItemsCount = cart ? cart.items.length : 0;
-
-      
-//       res.render("shop", {
-//           products,
-//           cartitems: cartItemsCount,
-//           categories,
-//           currentPage, 
-//           totalPages   
-//       });
-//   } catch (error) {
-//       console.error("Error loading shopping page:", error.message);
-//       res.status(500).render("error", { message: "An error occurred while loading the shopping page." });
-//   }
-// };
-
 
 //Loading of shopping page
   const loadShoppingPage = async (req,res)=>{
@@ -545,7 +473,6 @@ const logout = async (req, res) => {
         .skip(skip)
         .limit(limit);
        
-       console.log('hoooooooooooo',productData,"product data")
         
         const categories = await Category.find({isListed:true});
         const totalPages = Math.ceil(totalProducts/limit);

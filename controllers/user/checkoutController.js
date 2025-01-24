@@ -101,7 +101,7 @@ const LoadCheckout = async(req,res)=>{
         })
 
 
-        console.log(availableCoupons,"this is the available coupons ")
+     
      
         if(blockedProducts.length > 0){
             return res.redirect("/cart")
@@ -139,7 +139,7 @@ const placeOrder = async (req, res) => {
         let userId = req.session.user; 
 
         if(!mongoose.Types.ObjectId.isValid(userId)){
-            console.log("Invalid user id format");
+           
             return res.status(400).json({message: "Invalid user id"})
             
             
@@ -149,7 +149,7 @@ const placeOrder = async (req, res) => {
 
         const sessionCouponData =  req.session.couponData 
 
-        console.log("couponData in the placeOrder",sessionCouponData)
+     
 
 
       
@@ -343,7 +343,7 @@ const placeOrder = async (req, res) => {
                 couponId: coupon._id
             });
 
-            console.log("existingCouponnnnnnnn",existingCoupon)
+            
 
             if (existingCoupon) {
                 return res.status(400).json({message: "This coupon has already been used"});
@@ -369,7 +369,7 @@ const placeOrder = async (req, res) => {
             .digest('hex');
 
             if(generate_signature !==razorpay_signature){
-                console.log('retru psymrnt funvtion ')
+                
                 return res.json({success:false,message: "Payment verification failed"})
             } 
 
@@ -431,12 +431,12 @@ const placeOrder = async (req, res) => {
             couponDiscount: discount
         });
 
-        console.log("this is the new order in the checkout controller",newOrder)
+      
        
         const savedOrder = await newOrder.save()
         
        
-        console.log(savedOrder,"saved order in the checkout controller");
+       
 
         
 
@@ -503,23 +503,23 @@ const placeOrder = async (req, res) => {
 const razorpayFailedPayment = async(req,res)=>{
     const {cartItems,selectedAddress,paymentMethod,amount,discountAmount,couponInput,grandTotal,razorpay_payment_id,razorpay_order_id} = req.body;
 
-    console.log(req.body,"this is the req.body of the failed ordersssss")
+  
    
    
     try {
 
         const userId = req.session.user
 
-        console.log(userId,"userId of the faied orderr")
+      
     
     
         const user = await User.findById(userId);
-        console.log(user,"this is the failed user")
+       
 
        const addressDetails = user.address.find(addre =>addre._id.toString()===selectedAddress);
-    //    console.log(addressDetails,'addressDetails')
+   
 
-    console.log(cartItems,"cartItemsss")
+   
 
        if(!addressDetails){
         return res.status(400).json({status: "error",message:"Invalid address provided..!"})
@@ -537,7 +537,7 @@ const razorpayFailedPayment = async(req,res)=>{
 
        }));
 
-       console.log(transformedOrderItems,'transformedOrderItems')
+      
 
        const failOrder = await Order.create({
         userId,

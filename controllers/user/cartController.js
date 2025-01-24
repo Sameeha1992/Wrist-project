@@ -29,31 +29,13 @@ const loadCart = async (req, res) => {
       });
 
 
-      
-      
-     
-
-    // const processedCartDetails = cartDetails.map((item) => {
-    //   const cartItem = item.toObject();
-
-    
-
-    //   if (!cartItem.productId || cartItem.productId.isBlocked) {
-    //     cartItem.error = "Product is unavailable";
-    //     return cartItem;
-    //   }
-
-    //   cartItem.quantity = Math.min(cartItem.quantity,5);
-
-    //   return cartItem;
-    // });
 
 
     const processedCartDetails = await Promise.all(
       cartDetails.map(async (item)=>{
         const cartItem = item.toObject();
 
-        // console.log(cartItem,"cartItem of the cart")
+        
       
       if(cartItem.productId ?.isBlocked){
         cartItem.error = "This product is unavailable";
@@ -67,8 +49,7 @@ const loadCart = async (req, res) => {
       })
     )
 
-
-    // console.log(processedCartDetails,"Processed cart details of the cart");
+   
 
     const filteredCartDetails = processedCartDetails.filter((item)=>!item.error)
 
@@ -82,11 +63,6 @@ const loadCart = async (req, res) => {
     const hasAvailableProducts = filteredCartDetails.some((item) => item.productId)
 
     
-    // const totalAmount = processedCartDetails.reduce((total, item) => {
-    //   return item.productId && !item.productId.isBlocked
-    //     ? total + item.productId.salePrice * item.quantity
-    //     : total;
-    // }, 0);
 
     res.render("cart", {
       cart: processedCartDetails,
@@ -108,7 +84,6 @@ const loadCart = async (req, res) => {
 const addToCart = async (req, res) => {
   try {
 
-    console.log('heloooo')
     if (!req.session.user) {
       return res.status(401).json({
         success: false,
@@ -313,9 +288,9 @@ const deleteCart = async (req, res) => {
 
     const userId = req.session.user;
 
-    console.log(userId,"USer id of the cart delete")
+
     const { cartItemId } = req.body;
-    console.log(req.body,"req.boy of the cart delete")
+    
 
     if (!cartItemId) {
       return res.status(400).json({
