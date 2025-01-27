@@ -119,6 +119,22 @@ const updateCoupon = async(req,res)=>{
     
 
     let {code,description,discountType,minDiscountValue,expiryDate,usageLimit,conditions,minimumPurchaseAmount} = req.body.formData;
+
+    minDiscountValue = Number(minDiscountValue);
+    usageLimit = Number(usageLimit);
+    minimumPurchaseAmount = minimumPurchaseAmount ? Number(minimumPurchaseAmount) : 0;
+
+    if (isNaN(minDiscountValue) || minDiscountValue < 0) {
+        return res.status(400).json({ message: 'Invalid discount value' });
+    }
+
+    if (isNaN(usageLimit) || usageLimit < 1) {
+        return res.status(400).json({ message: 'Invalid usage limit' });
+    }
+
+    if (isNaN(minimumPurchaseAmount) || minimumPurchaseAmount < 0) {
+        return res.status(400).json({ message: 'Invalid minimum purchase amount' });
+    }
     
     try {
 
@@ -140,20 +156,25 @@ const updateCoupon = async(req,res)=>{
             expiryDate,
             usageLimit,
             conditions,
-            minimumPurchaseAmount: Number(minimumPurchaseAmount)
-        },{new: true})
+            minPurchaseAmount:minimumPurchaseAmount
+        },{new: true, runValidators: true})
         
 
         if(!updateCoupon){
             return res.status(404).json({message:'Coupon not found...!'})
         }
 
+        console.log('Updated coupon:', updateCoupon);
+
+
         res.status(200).json({message:'Coupon updated Successfully...!'});
 
 
     } catch (error) {
-        console.error('An error occured while updating the coupon')
-        
+        res.status(500).json({ 
+            message: 'An error occurred while updating the coupon',
+            error: error.message 
+        });
     }
 }
 
