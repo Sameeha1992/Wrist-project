@@ -85,7 +85,7 @@
                                         <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
                                             <% if (item.returnRequest === 'Pending') { %>
                                                 <button 
-                                                    onclick="updateStatus(
+                                                    onclick="showConfirmation(
                                                         '<%= order._id %>', 
                                                         '<%= item._id %>', 
                                                         '<%= item.productId._id %>', 
@@ -96,7 +96,7 @@
                                                     Approve
                                                 </button>
                                                 <button 
-                                                    onclick="updateStatus(
+                                                    onclick="showConfirmation(
                                                         '<%= order._id %>', 
                                                         '<%= item._id %>', 
                                                         '<%= item.productId._id %>', 
@@ -141,40 +141,72 @@
         <% } %>
     </div>
 
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
     <script>
 
-       
+
+
         function applyFilter() {
             const status = document.getElementById('statusFilter').value;
             window.location.href = `/admin/returns?status=${status}`;
         }
-
-
         
-        async function updateStatus(orderId, itemId,productId, status) {
-
-            console.log("hellooooo");
+        async function showConfirmation(orderId, itemId, productId, status) {
+            const action = status === 'Approved' ? 'Approved' : 'Rejected';
+            const color = status === 'Approved' ? '#28a745' : '#dc3545';
+            
             try {
-                const response = await fetch('/admin/returnUpdateStatus', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({ orderId, itemId, status,productId })
+                const result = await Swal.fire({
+                    title: `Confirm ${action}?`,
+                    text: `Are you sure you want to ${action} this return request?`,
+                    icon: status === 'Approved' ? 'success' : 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: color,
+                    cancelButtonColor: '#6c757d',
+                    confirmButtonText: status === 'Approved' ? 'Yes, approve it!' : 'Yes, reject it!',
+                    cancelButtonText: 'Cancel'
                 });
-
-                const data = await response.json();
-                
-                if (data.success) {
-                    window.location.reload();
-                } else {
-                    alert(data.message || 'Failed to update status');
+        
+                if (result.isConfirmed) {
+                    const response = await fetch('/admin/returnUpdateStatus', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({ orderId, itemId, status, productId })
+                    });
+        
+                    const data = await response.json();
+                    
+                    if (data.success) {
+                        await Swal.fire({
+                            title: 'Success!',
+                            text: `Return request has been ${status.toLowerCase()} successfully.`,
+                            icon: 'success',
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+                        window.location.reload();
+                    } else {
+                        Swal.fire({
+                            title: 'Error!',
+                            text: data.message || 'Failed to update status',
+                            icon: 'error'
+                        });
+                    }
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('An error occurred while updating status');
+                Swal.fire({
+                    title: 'Error!',
+                    text: 'An error occurred while updating status',
+                    icon: 'error'
+                });
             }
         }
-    </script>
-</body>
-</html>
+        </script>
+
+  

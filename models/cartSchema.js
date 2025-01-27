@@ -18,11 +18,9 @@ const cartSchema = new mongoose.Schema(
       required: true,
       ref: "Category",
     },
+   
     colorStockId: {
       type: mongoose.Types.ObjectId,
-      
-      
-       
      
     },
     quantity: {

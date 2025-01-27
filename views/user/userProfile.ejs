@@ -216,8 +216,8 @@ function showToast(message, color) {
     const formData = new FormData(document.getElementById('editProfileForm'));
     const data = Object.fromEntries(formData.entries());
 
-    if(!data.name.trim()) {
-      showToast("Name cannot be empty. Please enter a valid name.", "red");
+    if(!data.name.trim() || !/^[a-zA-Z\s]+$/.test(data.name)) {
+      showToast("Invalid name. Please enter a valid name.", "red");
       return;
     }
 

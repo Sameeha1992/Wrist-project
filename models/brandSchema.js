@@ -14,7 +14,8 @@ const brandSchema = new Schema({
      },
      isBlocked:{
         type: Boolean,
-        default:false
+        default:false,
+        index: true,
      },
     
     

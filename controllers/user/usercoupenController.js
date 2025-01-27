@@ -7,7 +7,6 @@ const Order = require("../../models/orderSchema");
 const coupenApply = async(req,res)=>{
    
     const {couponCode,subTotal,userId} = req.body;
-    console.log(couponCode,subTotal,userId,"this is ")
 
   
 
@@ -41,50 +40,20 @@ const coupenApply = async(req,res)=>{
             return res.status(400).json({message:"Coupon usage limit exceeded"})
         }
 
-        let discountAmount = 0;
-        if(coupon.discountType==='fixed'){
-            discountAmount = coupon.minDiscountValue;
-            console.log(discountAmount,"discountAmounttt")
-        }
 
-
-
-        // req.session.couponData = { couponCode, discountAmount,subTotal}
-
-        // console.log("this is the req.session of coupon",req.session.couponData)
-        
     
         const userCouponUsage = await AppliedCoupen.findOne({
             userId: userId,
             couponId:coupon._id
         })
 
-        console.log(userCouponUsage,"used couponsss") 
         
 
         if(userCouponUsage){
             return res.status(400).json({message:"Coupen already used...!"})
-        }
-
-
-        if(coupon.conditions === 'minimum_purchase'){
-            if(subTotal < coupon.minPurchaseAmount){
-                return res.status(400).json({
-                    message:`Minimum purchase amount of ₹ ${coupon.minPurchaseAmount} required`
-                })
-            }
-        } else if(coupon.conditions === 'first_purchase') {
-            const previousOrders = await Order.findOne({userId})
-            if(previousOrders){
-                return res.status(400).json({
-                    message:'This coupon is only valid for first time purchases'
-                })
-            }
-        }
-    
-
-           
-            
+        }    
+        
+        let discountAmount =0;
 
             if(coupon.discountType==='fixed'){
 
@@ -111,17 +80,14 @@ const coupenApply = async(req,res)=>{
             }
 
             const grandTotal = subTotal - discountAmount;
-           
+         
 
-            await coupon.save();
-            re
+            req.session.couponData = { couponCode, discountAmount,subTotal}
            
 
             res.status(200).json({
                 success: true,
-                message:'Coupen applied successfully',
-                
-                
+                message:'Coupen applied successfully',  
                 discountAmount,
                 grandTotal,
                 couponId: coupon._id,
@@ -147,7 +113,7 @@ const removeCoupon = async(req,res)=>{
     const {couponsCode} = req.body;
     console.log(req.body)
     try {
-    console.log("hellooo removing coupons")
+    req.session.couponData = null;
         
         res.status(200).json({message:"Coupon removed successfully"})
     } catch (error) {

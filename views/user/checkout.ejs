@@ -755,10 +755,14 @@
             
             <% totalAmount += item.productId.salePrice * item.quantity %>
             <% }) %>
-        <p class="total" id="total">Total Amount: ₹<%= totalAmount.toFixed(2) %></p>
-        <p class="discount" id="discount">Discount: ₹<%= discountAmount.toFixed(2) %></p> 
-        <p class="grand-total" id="grand-total">Grand Total: ₹<%= grandTotal.toFixed(2) %></p>  
-        
+        <p class="total" id="total">Total Amount: ₹<%= subTotal|| totalAmount.toFixed(2) %></p>
+        <p class="discount" id="discount">Discount: ₹<%= couponDiscount ||discountAmount.toFixed(2) %></p> 
+        <p class="grand-total" id="grand-total">Grand Total: ₹<%= subTotal - couponDiscount %></p>  
+         <script>
+            let totalValue = '<%= totalAmount %>'
+          
+            
+         </script>
 
         <% cart.forEach(function(item,index) { %>
             <input type="hidden" name="cartItems[<%= index %>][productId]" value="<%= item.productId.productName %>">
@@ -774,12 +778,14 @@
                 <div class="cart-discount">
                     <form id="couponForm">
                         <div class="input-group">
+
                             <input
                                 type="text"
                                 id="coupon-code"
                                 class="form-control"
                                 required
                                 placeholder="Enter coupon code"
+                                value="<%= appliedCoupon %>"
                             />
 
                              <input 
@@ -936,8 +942,8 @@
 
 <script>
 
+    
 
- let totalValue = '<%= totalAmount %>'
 
 
 
@@ -1001,14 +1007,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (event.target.classList.contains('copy-btn')) {
             const couponCode = event.target.dataset.coupon;
             const couponId = event.target.getAttribute('data-id'); // Get coupon ID;
-            const selectedCouponId = couponId
+            
             couponInput.value = couponCode;
             modal.style.display = "none";
-            console.log( selectedCouponId ,"couponId in the checkout copy button")
 
 
-            sessionStorage.setItem('selectedCouponId', couponId);
-            console.log("Coupon ID stored in sessionStorage: ", sessionStorage.getItem('selectedCouponId'));
+           
 
             
             // Optional: Show a success message
@@ -1037,6 +1041,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const originalTotal = parseFloat(document.getElementById('original-total').value);
     const walletBalance = parseFloat(document.getElementById('wallet-balance').value);
     let appliedDiscount = 0;
+
+    const appliedcoupons = '<%= appliedCoupon%>'
+    const subtotalAmounts ='<%= subTotal %>'
+    const couponDiscounts ='<%= couponDiscount %>'
+    const grandTotals ='<%= subTotal -couponDiscount %>'
+
+    console.log(appliedcoupons,"appliedcoupon");
+    console.log(subtotalAmounts,"subtotalAmount");
+    console.log(couponDiscounts,"coupondiscount");
+    console.log(grandTotals,"grandtotal amount")
   
   
    
@@ -1100,14 +1114,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 document.getElementById('discount').innerText = `₹ -${discountAmount.toFixed(2)}`;
                 grandTotalElement.innerText = `₹ ${newGrandTotal.toFixed(2)}`;
 
-                // Store coupon details in session storage
-                sessionStorage.setItem('appliedCoupon', JSON.stringify({
-                    couponDiscountAmount: discountAmount,
-                    couponCode: result.couponsCode,
-                    couponId: result.couponId
-                }));
-
-                sessionStorage.setItem('appliedCouponCode', couponCode);
+                
 
                 Swal.fire({
                     icon: "success",
@@ -1211,6 +1218,9 @@ removeButton .addEventListener('click',async()=>{
 
 
 
+
+
+    console.log('totalAmount',totalValue);
     
 
         
@@ -1222,8 +1232,7 @@ removeButton .addEventListener('click',async()=>{
         const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
         const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked');
 
-        console.log("Selected Address:", selectedAddress ? selectedAddress.value : "None selected");
-        console.log("Selected Payment Method:", selectedPaymentMethod ? selectedPaymentMethod.value : "None selected");
+        
 
 
 
@@ -1231,14 +1240,12 @@ removeButton .addEventListener('click',async()=>{
         const userId = '<%= userId %>'; 
         alert(selectedPaymentMethod)
 
-        console.log("User ID:", userId);
-        console.log("Coupon Input:", couponInput);
 
         const grandTotal = document.getElementById('grand-total').innerText.replace('₹', '').trim();
        const discountAmount = document.getElementById('discount').innerText.replace('₹ -', '').trim() || 0;
 
-       console.log("Grand Total:", grandTotal);
-       console.log("Discount Amount:", discountAmount);
+
+       console.log(grandTotal,"grandtotal in the paymnet")
        const subTotal = grandTotal - discountAmount
 
 
@@ -1247,31 +1254,24 @@ removeButton .addEventListener('click',async()=>{
        const applyButton = document.getElementById('applyCoupon');
        const removeButton = document.getElementById('removeCoupon');
 
-       console.log("Apply Button Exists:", !!applyButton);
-       console.log("Remove Button Exists:", !!removeButton);
-
        const subtotalElement = document.getElementById('total');
        const grandTotalElement = document.getElementById('grand-total');
     
-       console.log("Subtotal Element Exists:", !!subtotalElement);
-       console.log("Grand Total Element Exists:", !!grandTotalElement);
 
    
     const originalTotal = parseFloat(document.getElementById('original-total').value);
     const walletBalance = parseFloat(document.getElementById('wallet-balance').value);
     let appliedDiscount = 0;
 
-    console.log("Original Total:", originalTotal);
-    console.log("Wallet Balance:", walletBalance);
+
+
+    
+    const appliedcoupons = '<%= appliedCoupon%>'
+    const subtotalAmounts ='<%= subTotal %>'
+    const couponDiscounts ='<%= couponDiscount %>'
+    const grandTotals ='<%= subTotal -couponDiscount %>'
+
   
-
-        const selectedCouponId = sessionStorage.getItem('selectedCouponId');
-        console.log("Coupon ID from sessionStorage in placeorder button press: ", selectedCouponId);
-
-
-
-        alert(selectedCouponId);
-
 
         
 
@@ -1299,10 +1299,11 @@ removeButton .addEventListener('click',async()=>{
 
         alert(`Selected Payment Method: ${selectedPaymentMethod.value}`);
 
-        alert(`Coupon ID: ${selectedCouponId}`);
+       
 
 
         const paymentMethod = selectedPaymentMethod.value;
+        
 
         const cartItems = [];
         '<% cart.forEach((item) => { %>'
@@ -1312,9 +1313,9 @@ removeButton .addEventListener('click',async()=>{
                 price: '<%= item.productId.salePrice %>',
                 color: "<%= item.productId.colorStock[0].color %>"
             });
-        <% }) %>
+        '<% }) %>';
 
-        console.log(cartItems,"this isthe cart items in the orderssssssss")
+        
 
         // Show confirmation dialog
         const result = await Swal.fire({
@@ -1332,10 +1333,11 @@ removeButton .addEventListener('click',async()=>{
             Swal.fire('Cancelled', 'Your order could not be placed');
             return
         }
-        if (paymentMethod === 'COD' && grandTotal > 1000) {
+        if (paymentMethod === 'COD' && grandTotals > 1000) {
    
    
-       
+             
+            
         Swal.fire({
             icon: 'error',
             title: 'COD Not Available',
@@ -1358,15 +1360,15 @@ removeButton .addEventListener('click',async()=>{
                 paymentMethod: paymentMethod,
                 couponInput: couponInput,
                 userId: userId,
-                grandTotal: grandTotal,
-                selectedCouponId: selectedCouponId,
-                discountAmount:parseFloat(discountAmount) || 0,
+                grandTotal: grandTotals-parseFloat(couponDiscounts),
+                 subTotal:subtotalAmounts,
+               discountAmount:parseFloat(discountAmount) || parseFloat(couponDiscounts)||0,
                 originalTotal:originalTotal,
                  walletBalance:walletBalance,
                  cartItems:cartItems,
                  subTotal:subTotal,
                  grandTotal: grandTotal - parseFloat(discountAmount),
-                 couponDetails: sessionStorage.getItem('appliedCoupon')
+                
             })
         });
 
@@ -1419,10 +1421,10 @@ removeButton .addEventListener('click',async()=>{
                      currency: 'INR',
                      selectedAddress: selectedAddress.value,
                      couponInput: couponInput,
-                     selectedCouponId: selectedCouponId,
-                     discountAmount: parseFloat(discountAmount),
-                     grandTotal: grandTotal - parseFloat(discountAmount),
-                     originalTotal: originalTotal,
+                   
+                     discountAmount: parseFloat(discountAmount) || parseFloat(couponDiscounts)||0,
+                     grandTotal: grandTotal - parseFloat(discountAmount) || parseInt(grandTotals - couponDiscounts),
+                     originalTotal: originalTotal || parseInt(grandTotals),
                      cartItems: cartItems,
 
 
@@ -1460,7 +1462,7 @@ removeButton .addEventListener('click',async()=>{
                                         paymentMethod:paymentMethod,
                                         amount: parseFloat(grandTotal),
                                         discountAmount:parseFloat(discountAmount),
-                                        selectedCouponId: selectedCouponId,
+                                       
                                         couponInput: couponInput,
                                          grandTotal: grandTotal - parseFloat(discountAmount),
                                         
@@ -1540,9 +1542,9 @@ removeButton .addEventListener('click',async()=>{
                                 paymentMethod:paymentMethod,
                                 amount:totalValue,
                                 cartItems:cartItems,
-                                discountAmount:parseFloat(discountAmount)||0,
+                                discountAmount:parseFloat(discountAmount) || parseFloat(couponDiscounts)||0,
                                 couponInput: couponInput,
-                                grandTotal:parseFloat(grandTotal)
+                                grandTotal: grandTotal - parseFloat(discountAmount) || parseInt(grandTotals - couponDiscounts)
 
 
 
@@ -1612,9 +1614,10 @@ removeButton .addEventListener('click',async()=>{
                         selectedAddress: selectedAddress.value,
                         paymentMethod: paymentMethod,
                         amount: totalValue,
-                        couponInput:couponInput,
-                        discountAmount:parseFloat(discountAmount)||0,
-                        grandTotal
+                        couponInput:couponInput,  
+                       discountAmount: parseFloat(discountAmount) || parseFloat(couponDiscounts)||0,
+                       grandTotal: grandTotal - parseFloat(discountAmount) || parseInt(grandTotals - couponDiscounts),
+                       originalTotal: originalTotal || parseInt(grandTotals),
                     })
                 });
                 const data = await response.json();
@@ -1654,165 +1657,7 @@ removeButton .addEventListener('click',async()=>{
 
 
 
-
-
-
-
-
     </script>
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <!-- <script>
-        
-document.addEventListener('DOMContentLoaded', () => {
-    const placeOrderBtn = document.getElementById('placeOrderBtn');
-
-    placeOrderBtn.addEventListener('click', async () => {
-        const selectedAddress = document.querySelector('input[name="selectedAddress"]:checked');
-
-        const selectedPaymentMethod = document.querySelector('input[name="paymentMethod"]:checked')
-       
-          
-        if (!selectedAddress) {
-            // SweetAlert for missing address selection
-            Swal.fire({
-                icon: 'warning',
-                title: 'Oops...',
-                text: 'Please select a shipping address',
-            });
-            return;
-        }
-
-         if (!selectedPaymentMethod) {
-                // SweetAlert for missing payment method selection
-                Swal.fire({
-                    icon: 'warning',
-                    title: 'Oops...',
-                    text: 'Please select a payment method',
-                });
-                return;
-            }
-           
-            const paymentMethod = selectedPaymentMethod.value;
-
-
-           
-           
-            Swal.fire({
-                 icon: 'warning',
-                 title: 'Confirm Order',
-                 text: 'Are you sure you want to confirm this order?',
-                 showCancelButton: true,
-                 confirmButtonText: 'Yes, Confirm',
-                 cancelButtonText: 'No, Cancel',
-                 confirmButtonColor: '#3085d6',
-                 cancelButtonColor: '#d33'
-               }).then(async(result) => {
-                    if (result.isConfirmed) {
-                       
-           if(paymentMethod==="COD"){
-               
-        try {
-            const response = await fetch("/place-order", {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    selectedAddress: selectedAddress.value,
-                    paymentMethod: selectedPaymentMethod.value  
-                })
-            });
-
-            const result = await response.json();
-            if (response.ok) {
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Order Placed Successfully!',
-                    text: 'Your order has been placed. Redirecting to order details...',
-                    timer: 3000, 
-                    showConfirmButton: false
-                }).then(() => {
-                    window.location.href = `/orderSuccess`; 
-                });
-            } else {
-                // SweetAlert for failure
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Order Placement Failed',
-                    text: result.message || 'Failed to place the order. Please try again.',
-                });
-            }
-        } catch (error) {
-            console.error('Order placement error:', error);
-            // SweetAlert for error handling
-            Swal.fire({
-                icon: 'error',
-                title: 'An error occurred',
-                text: 'Something went wrong while placing the order. Please try again.',
-              });
-               }
-                        } else if(paymentMethod==="razorpay"){
-                            
-
-                        }
-                        Swal.fire(
-                            'Confirmed!',
-                             'Your order has been confirmed.',
-                              'success'
-                  );
-                   } else {
-        // Handle cancellation logic here (optional)
-                     Swal.fire(
-            'Cancelled',
-            'Your order has not been confirmed.',
-            'info'
-        );
-    }
-});
-
-
-           
-
-
-
-    });
-});
-</script> -->
 <%include("../partials/mainfooter")%>

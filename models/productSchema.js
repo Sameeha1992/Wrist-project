@@ -15,9 +15,9 @@ const colorStockSchema = new mongoose.Schema({
     },
     status:{
         type:String,
-        enum:["Available","low_stock","Out_of_Stock"],
+        enum:["In_Stock","low_stock","Out_of_Stock","Available"],
         
-        default:"Available"
+        default:"In_Stock"
 
     }
 });

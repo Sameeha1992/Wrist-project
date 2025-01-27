@@ -15,12 +15,20 @@ const userAuth = async (req, res, next) => {
         return res.redirect("/login")
     }
     const user= await User.findById(req.session.user)
+
    
-    if(user && ! user.isBlocked){
-        return next()
-    } else{
-        return res.redirect("/login")
+   
+    if(!user) {
+        return res.redirect("/login");
     }
+
+    if(user.isBlocked){
+        // Clear session explicitly
+        req.session.destroy();
+        return res.redirect("/login");
+    }
+    return next();
+    
     
    } catch (error) {
     console.error('Error in userAuth middleware',error);

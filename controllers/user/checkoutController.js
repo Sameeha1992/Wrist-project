@@ -25,16 +25,7 @@ const LoadCheckout = async(req,res)=>{
         const user = await User.findOne({_id:userId});
 
   try{
-        // const cartDetails = await Cart.find({ userId: user._id })
-        // .populate({
-        //     path: 'productId',
-        //     populate: {
-        //         path: 'colorStock',
-        //         model: 'ColorStock' 
-        //     }
-        // })
-        // .populate('categoryId')
-        // .populate('colorStockId')
+        
 
 
         const [userData,cart,coupons,usedCoupons]= await Promise.all([
@@ -80,11 +71,17 @@ const LoadCheckout = async(req,res)=>{
 
                 totalAmount +=product.salePrice * item.quantity;
            
+
                 
             } 
            
         }
 
+
+
+
+
+        const couponData = req.session.couponData;
 
 
         const grandTotal = totalAmount - discountAmount;
@@ -120,19 +117,23 @@ const LoadCheckout = async(req,res)=>{
             totalSavings,
             coupons: availableCoupons,
             blockedProducts: blockedProducts || [],
-            coupons: coupons,
+            coupon: coupons,
             wallet,
-            walletAmount
+            walletAmount,
+            appliedCoupon: couponData ? couponData.couponCode: '',
+            couponDiscount: couponData ? couponData.discountAmount: 0,
+            subTotal: couponData ? couponData.subTotal: totalAmount
 
 
         })
+    
         
     } catch (error) {
         console.error(error.message);
         res.status(500).render(500)
         
     }
-}
+};
 
 const placeOrder = async (req, res) => {
     try {
@@ -147,7 +148,7 @@ const placeOrder = async (req, res) => {
 
         userId = new mongoose.Types.ObjectId(userId);
 
-        const sessionCouponData =  req.session.couponData 
+        const CouponData =  req.session.couponData ;
 
      
 
@@ -155,7 +156,6 @@ const placeOrder = async (req, res) => {
       
         const { orderItem,selectedAddress, paymentMethod,razorpay_order_id,razorpay_payment_id,razorpay_signature,couponInput,selectedCouponId,pendingOrderId,} = req.body;
 
-        console.log('checkingggggg',req.body,"this is the req.body in the place order functioanlity")
 
        
         if(pendingOrderId && paymentMethod==='Razorpay'){
@@ -282,7 +282,7 @@ const placeOrder = async (req, res) => {
 
             const remainingStock = colorStock.quantity - cartItem.quantity;
             const stockStatus = remainingStock === 0 ? 'Out_of_Stock' : 
-                              remainingStock < 5 ? 'low_stock' : 'Available';
+                              remainingStock < 5 ? 'low_stock' : 'In_Stock';
 
                  
                               
@@ -479,6 +479,8 @@ const placeOrder = async (req, res) => {
             
         }
 
+        req.session.couponData = null;
+
 
 
 
@@ -567,12 +569,12 @@ const razorpayFailedPayment = async(req,res)=>{
       await failOrder.save()
 
         // Log the failure for monitoring
-        console.log(`Payment failed for order ${failOrder}`, {
-            userId,
-            razorpay_order_id,
-            razorpay_payment_id,
-            amount
-        });
+        // console.log(`Payment failed for order ${failOrder}`, {
+        //     userId,
+        //     razorpay_order_id,
+        //     razorpay_payment_id,
+        //     amount
+        // });
 
 
       res.status(200).json({

@@ -17,7 +17,7 @@ const customerInfo = async(req,res)=>{
             
         }
 
-        const limit=3
+        const limit=10
         const userData = await User.find({
             isAdmin:false,
             $or:[

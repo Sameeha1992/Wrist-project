@@ -259,6 +259,9 @@
     let formOK = true;
     let AddressRegex = /^[0-9A-Za-z\s\.,#-]+$/;
     let numberRegex = /^\d+$/;
+    let numRegex =/^[1-9][0-9]{9}$/; 
+    const invalidZeroPattern = /0{6,}/;
+
 
     // Address Name Validation
     if (addressName.length < 3) {
@@ -321,7 +324,7 @@
     }
 
     // Phone Number Validation
-    if (phoneNumber.length !== 10 || !numberRegex.test(phoneNumber)) {
+    if (phoneNumber.length !== 10 || !numRegex.test(phoneNumber)) {
         $("#PN").text("Enter a valid 10-digit");
         formOK = false;
     } else {
@@ -330,7 +333,7 @@
 
     // Alt Phone Number Validation
     if (altPhoneNumber.length !== 0 && 
-        (altPhoneNumber.length !== 10 || !numberRegex.test(altPhoneNumber))) {
+        (altPhoneNumber.length !== 10 || !numRegex.test(altPhoneNumber))) {
         $("#APN").text("Enter a valid 10-digit");
         formOK = false;
     } else {

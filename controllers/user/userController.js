@@ -65,7 +65,7 @@ const loadLandingPage = async (req, res) => {
 
 
       const productswithColorStock = productData.map((product)=>{
-        const availableColors = product.colorStock.filter((color)=>color.status==="Available" && color.quantity > 0);
+        const availableColors = product.colorStock.filter((color)=>color.status==="In_Stock" && color.quantity > 0);
         
         return {
           ...product.toObject(),
@@ -376,7 +376,9 @@ const loadProductDetail = async (req, res) => {
     const cartCount = 0;
     const wishlistCount =0;
    
-    const product = await Product.findById({ _id: productId });
+    const product = await Product.findById({ _id: productId })
+    
+
    
 
     if (!product) {
@@ -436,7 +438,18 @@ const logout = async (req, res) => {
           const userData = await User.findOne({_id:userId});
           cartCount = await Cart.countDocuments({userId:userData._id})
         }
-       
+
+
+        const blockedCategories = await Category.find({isListed: false}).select('_id')
+        const blockedBrands = await Brand.find({isBlocked: true}).select('_id');
+        
+        
+        query.category = {
+          $nin: blockedCategories.map(cat =>cat._id)
+        }
+        query.brand = {
+          $nin: blockedBrands.map(brand => brand._id)
+        }
          
         if(category && category !== "All Categories") {
           query.category = category;
@@ -475,6 +488,7 @@ const logout = async (req, res) => {
        
         
         const categories = await Category.find({isListed:true});
+        const brand = await Brand.find({isBlocked:true})
         const totalPages = Math.ceil(totalProducts/limit);
         const currentPage = parseInt(page);
         

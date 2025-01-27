@@ -142,7 +142,7 @@ const userOrders = async(req,res)=>{
                   
                   
                   if (product.colorStock[colorStockIndex].quantity > 0) {
-                      product.colorStock[colorStockIndex].status = "Available";
+                      product.colorStock[colorStockIndex].status = "In_Stock";
                   }
                   
                   await product.save();

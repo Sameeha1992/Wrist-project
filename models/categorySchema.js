@@ -15,6 +15,7 @@ const categorySchema = new mongoose.Schema({
     isListed:{
         type:Boolean,
         default:true,
+        index: true,
     },
     categoryOffer:{
         type:Number,

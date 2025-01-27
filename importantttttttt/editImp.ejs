@@ -117,7 +117,7 @@
                         <label for="status-<%= index %>" class="form-label">Status*</label>
                         <select id="status-<%= index %>" name="colorStock[<%= index %>][status]" class="form-select" required>
                             <option value="In stock" <%= stock.status === 'In stock' ? 'selected' : '' %>>In stock</option>
-                        <option value="Available" <%= stock.status === 'Available' ? 'selected' : '' %>>Available</option>
+                       
                         <option value="Out of stock" <%= stock.status === 'Out of stock' ? 'selected' : '' %>>Out of stock</option>
                         <option value="Discontinued" <%= stock.status === 'Discontinued' ? 'selected' : '' %>>Discontinued</option>
                         </select>
@@ -217,7 +217,7 @@ document.getElementById('addColorStock').addEventListener('click', function () {
                     <label for="status-${index}" class="form-label">Status*</label>
                     <select id="status-${index}" name="colorStock[${index}][status]" class="form-select" required>
                         <option value="In stock">In stock</option>
-                        <option value="Available">Available</option>
+                        <option value="In_Stock">In_Stock</option>
                         <option value="Out of stock">Out of stock</option>
                         <option value="Discontinued">Discontinued</option>
                     </select>

@@ -22,11 +22,17 @@ const loadCart = async (req, res) => {
       .populate({
         path: "productId",
         select: "productName regularPrice salePrice productImage colorStock isBlocked",
+        populate:{
+          path: 'category',
+          match: { isListed: true } // Check category listing
+        }
       })
       .populate({
         path: "categoryId",
         select: "name",
-      });
+      })
+      
+
 
 
 
@@ -36,9 +42,32 @@ const loadCart = async (req, res) => {
         const cartItem = item.toObject();
 
         
+        const colorStock = cartItem.productId.colorStock.find(
+          stock => stock._id.toString() === cartItem.colorStockId.toString()
+        );
+
+        if (colorStock) {
+          // cartItem.stockStatus = colorStock.status;
+          // cartItem.availableStock = colorStock.quantity;
+
+          if(colorStock.quantity ===0) {
+            cartItem.stockStatus = "Out of Stock";
+            cartItem.statusColor = "text-danger";
+
+          } else if(colorStock.quantity < 5) {
+            cartItem.stockStatus = `${colorStock.quantity} left`
+            cartItem.statusColor = "text-success";
+
+          } else {
+            cartItem.stockStatus = 'Available'
+            cartItem.statusColor = "text-warning";
+
+          }
+        }
       
-      if(cartItem.productId ?.isBlocked){
+      if(cartItem.productId ?.isBlocked || !cartItem.productId?.category){
         cartItem.error = "This product is unavailable";
+
 
         await Cart.findByIdAndDelete(cartItem._id);
         return cartItem
@@ -48,6 +77,7 @@ const loadCart = async (req, res) => {
       
       })
     )
+
 
    
 
@@ -96,13 +126,32 @@ const addToCart = async (req, res) => {
     
     const maxLimit = 5;
 
-    const product = await Product.findById(productId);
-    if (!product || product.isBlocked) {
+    const product = await Product.findById(productId)
+    .populate({
+      path:'category',
+      match: {isListed:true}
+    })
+    .populate({
+      path: 'brand',
+      match: {isBlocked: false}
+    });
+
+
+    const isProductAvailable = product && product.category && product.brand && !product.isBlocked;
+
+
+    if(!isProductAvailable) {
       return res.status(404).json({
         success: false,
-        message: "Product is unavailable",
-      });
+        message: "Product is blocked by admin or unavailable "
+      })
     }
+    // if (!product || product.isBlocked) {
+    //   return res.status(404).json({
+    //     success: false,
+    //     message: "Product is unavailable",
+    //   });
+    // }
 
    
     const colorStock = product.colorStock.id(colorStockId);
@@ -111,6 +160,20 @@ const addToCart = async (req, res) => {
         success: false,
         message: "Color variant not found",
       });
+    }
+
+
+
+    if(colorStock.quantity <=0) {
+      colorStock.status = "Out_of_Stock";
+      await product.save();
+      return res.status(400).json({success: false, message:"Product is out of stock"})
+
+    } else if(colorStock.quantity <=5) {
+
+      colorStock.status = "low_stock"
+    } else {
+      colorStock.status = "In_Stock"
     }
 
     if (quantity > colorStock.quantity) {
@@ -161,7 +224,10 @@ const addToCart = async (req, res) => {
         message: "Cart updated successfully!",
         cartItemCount,
         remainingStock: colorStock.quantity - newQuantity,
+        stockStatus: colorStock.status
       });
+
+
     } else {
       if (quantity > maxLimit) {
         return res.status(400).json({
@@ -188,6 +254,7 @@ const addToCart = async (req, res) => {
         success: true,
         message: "Product added to cart successfully!",
         cartItemCount,
+        stockStatus: colorStock.status
         
       });
     }
@@ -241,6 +308,22 @@ const updateCartQuantity = async(req,res)=>{
   if(!colorStock){
     return res.status(400).json({success:false,message:"Selected color is not available"})
   }
+
+
+  if (colorStock.quantity <= 0) {
+    colorStock.status = "Out_of_Stock";
+    await product.save();
+    return res.status(400).json({
+        success: false,
+        message: "Product is out of stock",
+        stockStatus: "Out_of_Stock"
+    });
+} else if (colorStock.quantity <= 5) {
+    colorStock.status = "low_stock";
+} else {
+    colorStock.status = "In_Stock";
+}
+
 
 
     
