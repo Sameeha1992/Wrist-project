@@ -81,6 +81,10 @@ app.use("/",userRouter);
 app.use("/admin",adminRouter);
 
 
+app.use((req,res,next)=>{
+  res.status(400).render('404');
+})
+
 
 app.use((err, req, res, next) => {
   console.error("Error occurred:", err.stack);
